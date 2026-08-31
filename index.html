@@ -23,7 +23,6 @@
       gap: 20px;
     }
 
-    /* 탭 메뉴 및 백업 바 */
     .top-header {
       display: flex;
       justify-content: space-between;
@@ -88,7 +87,6 @@
       display: flex;
     }
 
-    /* 카드 스타일 */
     .card {
       background-color: #1e293b;
       border: 1px solid #334155;
@@ -106,7 +104,15 @@
       justify-content: space-between;
     }
 
-    /* 폼 스타일 */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ef4444;
+      margin: 16px 0 10px 0;
+      padding-top: 12px;
+      border-top: 1px dashed #334155;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -123,6 +129,21 @@
     .form-group label {
       font-size: 0.85rem;
       color: #94a3b8;
+    }
+
+    .item-cost-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .item-cost-row input[type="number"] {
+      width: 100%;
+    }
+
+    .qty-input {
+      max-width: 70px !important;
+      text-align: center;
     }
 
     input[type="text"], input[type="number"], select {
@@ -177,7 +198,6 @@
       border-radius: 4px;
     }
 
-    /* 통계 영역 */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -204,7 +224,6 @@
       color: #ffffff;
     }
 
-    /* 보스 전용 레이아웃 */
     .info-bar {
       background-color: #0f172a;
       border-radius: 8px;
@@ -292,7 +311,6 @@
       font-size: 0.8rem;
     }
 
-    /* 테이블 */
     .table-container {
       overflow-x: auto;
     }
@@ -332,6 +350,11 @@
       font-size: 0.85rem;
     }
 
+    .cost-text {
+      color: #ef4444;
+      font-size: 0.85rem;
+    }
+
     @media (max-width: 768px) {
       .top-header {
         flex-direction: column;
@@ -352,14 +375,12 @@
 </head>
 <body>
 
-  <!-- 상단 헤더: 탭 & 백업 기능 -->
   <div class="top-header">
     <div class="tab-container">
       <button class="tab-btn active" onclick="switchTab('hunt')">⚔️ 사냥 수익 기록</button>
       <button class="tab-btn" onclick="switchTab('boss')">👑 보스 수익 기록</button>
     </div>
 
-    <!-- 데이터 백업/복구 버튼 -->
     <div class="backup-container">
       <button class="btn-backup" onclick="exportData()">💾 데이터 내보내기 (백업)</button>
       <button class="btn-backup" onclick="document.getElementById('importFile').click()">📂 데이터 불러오기 (복구)</button>
@@ -408,13 +429,53 @@
         </div>
       </div>
 
+      <!-- 사냥 차감 요소 -->
+      <div class="section-title">📉 사냥 차감 요소 (개수 및 단가 입력)</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>소형 재물 획득의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtySmallWealth" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costSmallWealth" value="0" placeholder="개당 메소">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>소형 경험치 획득의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtySmallExp" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costSmallExp" value="0" placeholder="개당 메소">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>소형 고농축 경험치 획득의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtySmallHighExp" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costSmallHighExp" value="0" placeholder="개당 메소">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>추가 경험치 50% 쿠폰</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyExp50" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costExp50" value="0" placeholder="개당 메소">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>추가 경험치 70% 쿠폰</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyExp70" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costExp70" value="0" placeholder="개당 메소">
+          </div>
+        </div>
+      </div>
+
       <div class="btn-group">
         <button class="btn-primary" onclick="addHuntRecord()">기록 추가</button>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">📊 사냥 수익 통계</div>
+      <div class="card-title">📊 사냥 순수익 통계</div>
 
       <div class="stats-grid">
         <div class="stat-card">
@@ -439,15 +500,14 @@
               <th>캐릭터</th>
               <th>사냥터</th>
               <th>시간</th>
-              <th>메소</th>
               <th>조각</th>
-              <th>총수익</th>
-              <th>시간당</th>
+              <th>차감 비용</th>
+              <th>순수익</th>
+              <th>시간당 순수익</th>
               <th>관리</th>
             </tr>
           </thead>
           <tbody id="huntTableBody">
-            <!-- 사냥 기록 -->
           </tbody>
         </table>
       </div>
@@ -462,7 +522,6 @@
         <span class="total-summary" id="currentBossTotal">0 메소</span>
       </div>
 
-      <!-- 프리셋 바 -->
       <div class="preset-bar">
         <span style="font-weight: 600; font-size: 0.9rem;">💾 캐릭터 프리셋:</span>
         <select id="presetSelect" style="flex: 1;" onchange="loadPreset()">
@@ -472,7 +531,7 @@
         <button style="background-color: #64748b; color: white;" onclick="deletePreset()">프리셋 삭제</button>
       </div>
 
-      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 12px;">
         <div class="form-group">
           <label>캐릭터명</label>
           <input type="text" id="bossCharName" placeholder="캐릭터명 입력">
@@ -480,6 +539,54 @@
         <div class="form-group" style="grid-column: span 2;">
           <label>득템 / 메모 (비싼 아이템 등)</label>
           <input type="text" id="bossMemo" placeholder="예: 마법의 제어구, 완제 장비, 옻칠한 장비 등">
+        </div>
+      </div>
+
+      <!-- 보스 차감 요소 -->
+      <div class="section-title">📉 보스 차감 요소 (개수 선택 및 차감)</div>
+      
+      <!-- 영약 (고정 단가 x 개수) -->
+      <div class="form-grid" style="margin-bottom: 12px;">
+        <div class="form-group">
+          <label>세이람의 영약 (200만/개)</label>
+          <input type="number" id="qtyElixir1" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+        <div class="form-group">
+          <label>알레리아의 영약 (200만/개)</label>
+          <input type="number" id="qtyElixir2" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+        <div class="form-group">
+          <label>명예의 영약 (500만/개)</label>
+          <input type="number" id="qtyElixir3" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+        <div class="form-group">
+          <label>콜렉터의 영약 (2000만/개)</label>
+          <input type="number" id="qtyElixir4" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+      </div>
+
+      <!-- 기입형 소비 아이템 (개수 x 개당 단가) -->
+      <div class="form-grid" style="margin-bottom: 20px;">
+        <div class="form-group">
+          <label>숫돌 (개수 / 개당 메소)</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyWhetstone" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
+            <input type="number" id="costWhetstone" value="0" placeholder="개당 메소" oninput="calculateBossTotal()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>반짝이는 빨간 별 물약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyRedStar" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
+            <input type="number" id="costRedStar" value="0" placeholder="개당 메소" oninput="calculateBossTotal()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>전설 대영웅의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyHeroPotion" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
+            <input type="number" id="costHeroPotion" value="0" placeholder="개당 메소" oninput="calculateBossTotal()">
+          </div>
         </div>
       </div>
 
@@ -493,13 +600,12 @@
       </div>
 
       <div class="boss-grid" id="bossListContainer">
-        <!-- 보스 데이터 동적 생성 -->
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <span>📜 보스 수익 기록 목록</span>
+        <span>📜 보스 순수익 기록 목록</span>
         <span style="font-size: 1.1rem; color: #38bdf8;" id="thisWeekBossTotal">이번 주 (목요일 이후): 0 메소</span>
       </div>
 
@@ -509,14 +615,15 @@
             <tr>
               <th>날짜</th>
               <th>캐릭터명</th>
-              <th>선택 보스 수</th>
-              <th>주간 결정석 수익</th>
+              <th>보스 수</th>
+              <th>결정석 수익</th>
+              <th>차감 비용</th>
+              <th>최종 순수익</th>
               <th>득템 / 메모</th>
               <th>관리</th>
             </tr>
           </thead>
           <tbody id="bossTableBody">
-            <!-- 보스 기록 -->
           </tbody>
         </table>
       </div>
@@ -524,7 +631,6 @@
   </div>
 
   <script>
-    // 보스 데이터 정의
     const bossData = [
       { name: "파풀라투스", diffs: { "카오스": 13100000 } },
       { name: "스우", diffs: { "익스트림": 574000000, "하드": 51500000, "노말": 16700000 } },
@@ -546,12 +652,10 @@
       { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } }
     ];
 
-    // 저장소 데이터
     let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
     let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
     let bossPresets = JSON.parse(localStorage.getItem('mapleBossPresets')) || {};
 
-    // 탭 전환
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -565,23 +669,26 @@
       }
     }
 
-    // 숫자 포맷팅
     function formatNumber(num) {
       return Math.round(num).toLocaleString('ko-KR');
     }
 
     function formatMeso(amount) {
       if (amount === 0) return "0 메소";
+      const isNegative = amount < 0;
+      let absAmount = Math.abs(amount);
       let result = "";
-      const eok = Math.floor(amount / 100000000);
-      const man = Math.floor((amount % 100000000) / 10000);
+      const eok = Math.floor(absAmount / 100000000);
+      const man = Math.floor((absAmount % 100000000) / 10000);
       
       if (eok > 0) result += `${eok}억 `;
       if (man > 0) result += `${man}만 `;
-      return result.trim() + " 메소";
+      if (result === "") result = `${absAmount} `;
+      
+      return (isNegative ? "-" : "") + result.trim() + " 메소";
     }
 
-    /* --- [데이터 백업 & 복구 기능] --- */
+    /* 백업 & 복구 */
     function exportData() {
       const backupData = {
         mapleHuntRecords: huntRecords,
@@ -646,10 +753,19 @@
       const erdaCount = parseFloat(document.getElementById('erdaCount').value) || 0;
       const erdaPrice = parseFloat(document.getElementById('erdaPrice').value) || 0;
 
+      // 차감 비용 계산 (개수 x 개당 단가)
+      const c1 = (parseFloat(document.getElementById('qtySmallWealth').value) || 0) * (parseFloat(document.getElementById('costSmallWealth').value) || 0);
+      const c2 = (parseFloat(document.getElementById('qtySmallExp').value) || 0) * (parseFloat(document.getElementById('costSmallExp').value) || 0);
+      const c3 = (parseFloat(document.getElementById('qtySmallHighExp').value) || 0) * (parseFloat(document.getElementById('costSmallHighExp').value) || 0);
+      const c4 = (parseFloat(document.getElementById('qtyExp50').value) || 0) * (parseFloat(document.getElementById('costExp50').value) || 0);
+      const c5 = (parseFloat(document.getElementById('qtyExp70').value) || 0) * (parseFloat(document.getElementById('costExp70').value) || 0);
+      const totalCost = c1 + c2 + c3 + c4 + c5;
+
       const mesoEarned = afterMeso - beforeMeso;
       const erdaEarned = erdaCount * erdaPrice;
-      const totalEarned = mesoEarned + erdaEarned;
-      const hourlyEarned = time > 0 ? (totalEarned / (time / 60)) : 0;
+      const grossEarned = mesoEarned + erdaEarned;
+      const netEarned = grossEarned - totalCost; // 순수익
+      const hourlyEarned = time > 0 ? (netEarned / (time / 60)) : 0;
 
       const newRecord = {
         id: Date.now(),
@@ -657,9 +773,9 @@
         character,
         huntingGround,
         time,
-        mesoEarned,
+        totalCost,
+        netEarned,
         erdaCount,
-        totalEarned,
         hourlyEarned
       };
 
@@ -688,9 +804,9 @@
         const recordDate = new Date(r.date);
         const recordDateStr = r.date.split('T')[0];
 
-        if (recordDateStr === todayStr) todayTotal += r.totalEarned;
-        if (recordDate >= oneWeekAgo) weekTotal += r.totalEarned;
-        if (recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear()) monthTotal += r.totalEarned;
+        if (recordDateStr === todayStr) todayTotal += r.netEarned;
+        if (recordDate >= oneWeekAgo) weekTotal += r.netEarned;
+        if (recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear()) monthTotal += r.netEarned;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -698,9 +814,9 @@
           <td>${r.character}</td>
           <td>${r.huntingGround}</td>
           <td>${r.time}분</td>
-          <td>${formatNumber(r.mesoEarned)}</td>
           <td>${r.erdaCount}개</td>
-          <td>${formatNumber(r.totalEarned)}</td>
+          <td class="cost-text">-${formatNumber(r.totalCost || 0)}</td>
+          <td style="font-weight: bold; color: ${r.netEarned >= 0 ? '#38bdf8' : '#ef4444'};">${formatNumber(r.netEarned)}</td>
           <td>${formatNumber(r.hourlyEarned)}</td>
           <td><button class="btn-delete" onclick="deleteHuntRecord(${r.id})">삭제</button></td>
         `;
@@ -771,10 +887,20 @@
 
     function resetAllBossSelection() {
       bossData.forEach((_, index) => clearBossSelection(index));
+      document.getElementById('qtyElixir1').value = 0;
+      document.getElementById('qtyElixir2').value = 0;
+      document.getElementById('qtyElixir3').value = 0;
+      document.getElementById('qtyElixir4').value = 0;
+      document.getElementById('qtyWhetstone').value = 0;
+      document.getElementById('costWhetstone').value = 0;
+      document.getElementById('qtyRedStar').value = 0;
+      document.getElementById('costRedStar').value = 0;
+      document.getElementById('qtyHeroPotion').value = 0;
+      document.getElementById('costHeroPotion').value = 0;
     }
 
     function calculateBossTotal() {
-      let total = 0;
+      let grossTotal = 0;
       let count = 0;
 
       bossData.forEach((boss, index) => {
@@ -783,20 +909,34 @@
           count++;
           const price = parseFloat(selectedRadio.value);
           const partySize = parseInt(document.getElementById(`party_${index}`).value);
-          total += price / partySize;
+          grossTotal += price / partySize;
         }
       });
+
+      // 영약 차감 계산 (개수 x 고정가)
+      let costTotal = 0;
+      costTotal += (parseFloat(document.getElementById('qtyElixir1').value) || 0) * 2000000;
+      costTotal += (parseFloat(document.getElementById('qtyElixir2').value) || 0) * 2000000;
+      costTotal += (parseFloat(document.getElementById('qtyElixir3').value) || 0) * 5000000;
+      costTotal += (parseFloat(document.getElementById('qtyElixir4').value) || 0) * 20000000;
+
+      // 소비 아이템 차감 계산 (개수 x 입력 단가)
+      costTotal += (parseFloat(document.getElementById('qtyWhetstone').value) || 0) * (parseFloat(document.getElementById('costWhetstone').value) || 0);
+      costTotal += (parseFloat(document.getElementById('qtyRedStar').value) || 0) * (parseFloat(document.getElementById('costRedStar').value) || 0);
+      costTotal += (parseFloat(document.getElementById('qtyHeroPotion').value) || 0) * (parseFloat(document.getElementById('costHeroPotion').value) || 0);
+
+      const netTotal = grossTotal - costTotal;
 
       const countBadge = document.getElementById('bossCount');
       countBadge.textContent = count;
       if (count >= 12) countBadge.classList.add('limit');
       else countBadge.classList.remove('limit');
 
-      document.getElementById('currentBossTotal').textContent = formatMeso(total);
-      return { total, count };
+      document.getElementById('currentBossTotal').textContent = formatMeso(netTotal);
+      return { grossTotal, costTotal, netTotal, count };
     }
 
-    /* --- [3] 보스 프리셋 기능 --- */
+    /* 프리셋 */
     function savePreset() {
       const charName = document.getElementById('bossCharName').value.trim();
       if (!charName) {
@@ -877,7 +1017,7 @@
       }
     }
 
-    /* --- [4] 목요일 기준 날짜 계산 및 보스 기록 관리 --- */
+    /* 날짜 계산 및 보스 기록 관리 */
     function getRecentThursday() {
       const now = new Date();
       const day = now.getDay();
@@ -897,7 +1037,7 @@
         return;
       }
 
-      const { total, count } = calculateBossTotal();
+      const { grossTotal, costTotal, netTotal, count } = calculateBossTotal();
       if (count === 0) {
         alert("최소 하나의 보스를 선택해주세요!");
         return;
@@ -908,7 +1048,9 @@
         date: new Date().toISOString(),
         name: charName,
         count: count,
-        total: total,
+        grossTotal: grossTotal,
+        costTotal: costTotal,
+        netTotal: netTotal,
         memo: memo
       };
 
@@ -935,8 +1077,10 @@
 
       bossRecords.forEach(r => {
         const recordDate = new Date(r.date);
+        const netValue = r.netTotal !== undefined ? r.netTotal : r.total;
+
         if (recordDate >= recentThursday) {
-          thisWeekTotal += r.total;
+          thisWeekTotal += netValue;
         }
 
         const dateStr = r.date ? r.date.split('T')[0] : '기록 없음';
@@ -945,14 +1089,16 @@
           <td>${dateStr}</td>
           <td>${r.name}</td>
           <td>${r.count} / 12</td>
-          <td>${formatMeso(r.total)}</td>
+          <td>${formatMeso(r.grossTotal || r.total || 0)}</td>
+          <td class="cost-text">-${formatMeso(r.costTotal || 0)}</td>
+          <td style="font-weight: bold; color: ${netValue >= 0 ? '#38bdf8' : '#ef4444'};">${formatMeso(netValue)}</td>
           <td class="item-memo">${r.memo ? '🎁 ' + r.memo : '-'}</td>
           <td><button class="btn-delete" onclick="deleteBossRecord(${r.id})">삭제</button></td>
         `;
         tbody.appendChild(tr);
       });
 
-      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
+      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후 순수익): ${formatMeso(thisWeekTotal)}`;
     }
 
     // 초기 실행
