@@ -36,6 +36,7 @@
     .tab-container {
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .backup-container {
@@ -48,8 +49,8 @@
       color: #94a3b8;
       border: 1px solid #334155;
       border-radius: 8px;
-      padding: 12px 24px;
-      font-size: 1rem;
+      padding: 12px 20px;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
@@ -75,6 +76,65 @@
 
     .btn-backup:hover {
       background-color: #475569;
+    }
+
+    /* 목표 달성 대시보드 */
+    .goal-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .goal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .goal-input-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-outer {
+      width: 100%;
+      background-color: #0f172a;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      position: relative;
+    }
+
+    .progress-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #38bdf8);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 0 4px rgba(0,0,0,0.8);
     }
 
     .tab-content {
@@ -370,6 +430,47 @@
       font-size: 0.85rem;
     }
 
+    /* 분배금 계산기 전용 스타일 */
+    .calc-result-box {
+      background-color: #0f172a;
+      border: 1px solid #38bdf8;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed #334155;
+      padding-bottom: 8px;
+    }
+
+    .calc-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .calc-row .title {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .calc-row .value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #38bdf8;
+    }
+
+    .calc-row .highlight {
+      color: #10b981;
+      font-size: 1.25rem;
+    }
+
     @media (max-width: 768px) {
       .top-header {
         flex-direction: column;
@@ -394,12 +495,29 @@
     <div class="tab-container">
       <button class="tab-btn active" onclick="switchTab('hunt')">⚔️ 사냥 수익 기록</button>
       <button class="tab-btn" onclick="switchTab('boss')">👑 보스 수익 기록</button>
+      <button class="tab-btn" onclick="switchTab('calc')">🧮 경매장/분배금 계산기</button>
     </div>
 
     <div class="backup-container">
-      <button class="btn-backup" onclick="exportData()">💾 데이터 내보내기 (백업)</button>
-      <button class="btn-backup" onclick="document.getElementById('importFile').click()">📂 데이터 불러오기 (복구)</button>
+      <button class="btn-backup" onclick="exportData()">💾 데이터 백업</button>
+      <button class="btn-backup" onclick="document.getElementById('importFile').click()">📂 데이터 복구</button>
       <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+    </div>
+  </div>
+
+  <!-- 주간 목표 대시보드 -->
+  <div class="goal-card">
+    <div class="goal-header">
+      <div class="goal-title">🎯 이번 주 목표 순수익 달성률</div>
+      <div class="goal-input-container">
+        <label style="font-size: 0.85rem; color: #94a3b8;">주간 목표 메소:</label>
+        <input type="number" id="weeklyGoalInput" value="1000000000" style="width: 140px; padding: 6px 10px;" oninput="updateGoalProgress()">
+        <span id="weeklyGoalHint" class="unit-hint" style="font-size:0.85rem;">10억 메소</span>
+      </div>
+    </div>
+    <div class="progress-outer">
+      <div class="progress-inner" id="goalProgressBar"></div>
+      <div class="progress-text" id="goalProgressText">0 / 0 메소 (0%)</div>
     </div>
   </div>
 
@@ -537,7 +655,7 @@
   <div id="tab-boss" class="tab-content">
     <div class="card">
       <div class="card-title">
-        <span>👑 주간 보스 선택</span>
+        <span>👑 주간/월간 보스 선택</span>
         <span class="total-summary" id="currentBossTotal">0 메소</span>
       </div>
 
@@ -564,7 +682,6 @@
       <!-- 보스 차감 요소 -->
       <div class="section-title">📉 보스 차감 요소 (개수 선택 및 차감)</div>
       
-      <!-- 영약 (고정 단가 x 개수) -->
       <div class="form-grid" style="margin-bottom: 12px;">
         <div class="form-group">
           <label>세이람의 영약 (200만/개)</label>
@@ -584,7 +701,6 @@
         </div>
       </div>
 
-      <!-- 기입형 소비 아이템 (개수 x 개당 단가) -->
       <div class="form-grid" style="margin-bottom: 20px;">
         <div class="form-group">
           <label>숫돌 (개수 / 개당 메소)</label>
@@ -650,6 +766,55 @@
     </div>
   </div>
 
+  <!-- 3. 경매장 & 분배금 계산기 탭 -->
+  <div id="tab-calc" class="tab-content">
+    <div class="card">
+      <div class="card-title">🧮 경매장 수수료 & 파티원 분배금 정산기</div>
+      
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="form-group">
+          <label>경매장 판매 금액 (메소)</label>
+          <input type="number" id="calcPrice" value="1000000000" oninput="calculateSplit(); updateMesoUnit('calcPrice', 'calcPriceHint');">
+          <span class="unit-hint" id="calcPriceHint">10억 메소</span>
+        </div>
+        <div class="form-group">
+          <label>경매장 수수료율</label>
+          <select id="calcFeeRate" onchange="calculateSplit()">
+            <option value="0.05">일반 수수료 (5%)</option>
+            <option value="0.03">MVP / PC방 수수료 (3%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>파티원 수 (본인 포함)</label>
+          <input type="number" id="calcPartyCount" value="6" min="1" max="6" oninput="calculateSplit()">
+        </div>
+      </div>
+
+      <div class="calc-result-box">
+        <div class="calc-row">
+          <span class="title">경매장 수수료 차감 후 총 수령액:</span>
+          <span class="value" id="resTotalNet">0 메소</span>
+        </div>
+        <div class="calc-row">
+          <span class="title">1인당 목표 실수령액 (N등분):</span>
+          <span class="value" id="resTargetPerPerson">0 메소</span>
+        </div>
+        <div class="calc-row" style="background-color: rgba(16, 185, 129, 0.1); padding: 12px; border-radius: 6px;">
+          <span class="title" style="color: #10b981; font-weight: 700;">👉 파티원 1인당 송금할 금액 (파티원 3% 수수료 감안):</span>
+          <span class="value highlight" id="resSendAmount">0 메소</span>
+        </div>
+        <div class="calc-row">
+          <span class="title">판매자 본인에게 남는 금액 (최종 검증):</span>
+          <span class="value" id="resSellerRemain" style="color: #38bdf8;">0 메소</span>
+        </div>
+      </div>
+      
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 12px;">
+        * 파티원이 받은 메소에서 거래/무역 3% 수수료를 차감받더라도 **모든 파티원의 최종 실수령액이 동일**하도록 보정하여 산출된 송금액입니다.
+      </p>
+    </div>
+  </div>
+
   <script>
     const bossData = [
       { name: "파풀라투스", diffs: { "카오스": 13100000 } },
@@ -669,12 +834,14 @@
       { name: "림보", diffs: { "하드": 2385000000, "노말": 1026000000 } },
       { name: "벨로나", diffs: { "하드": 2950000000, "노말": 850000000, "이지": 440000000 } },
       { name: "발드릭스", diffs: { "하드": 3078000000, "노말": 1368000000 } },
-      { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } }
+      { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } },
+      { name: "검은 마법사 (월간)", diffs: { "익스트림": 8740000000, "하드": 665000000 } }
     ];
 
     let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
     let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
     let bossPresets = JSON.parse(localStorage.getItem('mapleBossPresets')) || {};
+    let weeklyGoal = parseFloat(localStorage.getItem('mapleWeeklyGoal')) || 1000000000;
 
     let editingHuntId = null;
     let editingBossId = null;
@@ -686,9 +853,13 @@
       if (tabName === 'hunt') {
         document.querySelectorAll('.tab-btn')[0].classList.add('active');
         document.getElementById('tab-hunt').classList.add('active');
-      } else {
+      } else if (tabName === 'boss') {
         document.querySelectorAll('.tab-btn')[1].classList.add('active');
         document.getElementById('tab-boss').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        document.getElementById('tab-calc').classList.add('active');
+        calculateSplit();
       }
     }
 
@@ -711,7 +882,6 @@
       return (isNegative ? "-" : "") + result.trim() + " 메소";
     }
 
-    /* 실시간 메소 단위 힌트 업데이트 */
     function updateMesoUnit(inputId, hintId) {
       const val = parseFloat(document.getElementById(inputId).value) || 0;
       document.getElementById(hintId).textContent = formatMeso(val);
@@ -723,6 +893,7 @@
         mapleHuntRecords: huntRecords,
         mapleBossRecords: bossRecords,
         mapleBossPresets: bossPresets,
+        mapleWeeklyGoal: weeklyGoal,
         exportDate: new Date().toISOString()
       };
 
@@ -759,10 +930,16 @@
               bossPresets = imported.mapleBossPresets;
               localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
             }
+            if (imported.mapleWeeklyGoal) {
+              weeklyGoal = imported.mapleWeeklyGoal;
+              localStorage.setItem('mapleWeeklyGoal', weeklyGoal);
+              document.getElementById('weeklyGoalInput').value = weeklyGoal;
+            }
 
             renderHunt();
             renderBossRecords();
             renderPresetSelect();
+            updateGoalProgress();
             alert("데이터가 성공적으로 복구되었습니다!");
           }
         } catch (err) {
@@ -770,6 +947,46 @@
         }
       };
       reader.readAsText(file);
+    }
+
+    /* 목표 달성률 계산 */
+    function getRecentThursday() {
+      const now = new Date();
+      const day = now.getDay();
+      const diff = (day >= 4) ? (day - 4) : (day + 3);
+      const recentThursday = new Date(now);
+      recentThursday.setDate(now.getDate() - diff);
+      recentThursday.setHours(0, 0, 0, 0);
+      return recentThursday;
+    }
+
+    function updateGoalProgress() {
+      weeklyGoal = parseFloat(document.getElementById('weeklyGoalInput').value) || 0;
+      localStorage.setItem('mapleWeeklyGoal', weeklyGoal);
+      updateMesoUnit('weeklyGoalInput', 'weeklyGoalHint');
+
+      const recentThursday = getRecentThursday();
+      
+      // 이번 주 사냥 순수익
+      let thisWeekHunt = 0;
+      huntRecords.forEach(r => {
+        if (new Date(r.date) >= recentThursday) thisWeekHunt += r.netEarned;
+      });
+
+      // 이번 주 보스 순수익
+      let thisWeekBoss = 0;
+      bossRecords.forEach(r => {
+        if (new Date(r.date) >= recentThursday) thisWeekBoss += (r.netTotal !== undefined ? r.netTotal : r.total);
+      });
+
+      const currentTotal = thisWeekHunt + thisWeekBoss;
+      const percentage = weeklyGoal > 0 ? Math.min(100, Math.max(0, (currentTotal / weeklyGoal) * 100)) : 0;
+
+      const progressBar = document.getElementById('goalProgressBar');
+      const progressText = document.getElementById('goalProgressText');
+
+      progressBar.style.width = `${percentage.toFixed(1)}%`;
+      progressText.textContent = `${formatMeso(currentTotal)} / ${formatMeso(weeklyGoal)} (${percentage.toFixed(1)}%)`;
     }
 
     /* --- [1] 사냥 로직 --- */
@@ -819,14 +1036,12 @@
       };
 
       if (editingHuntId) {
-        // 수정
         const index = huntRecords.findIndex(r => r.id === editingHuntId);
         if (index !== -1) {
           huntRecords[index] = { ...huntRecords[index], ...recordData };
         }
         editingHuntId = null;
       } else {
-        // 신규 추가
         huntRecords.unshift({
           id: Date.now(),
           date: new Date().toISOString(),
@@ -837,6 +1052,7 @@
       localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
       clearHuntForm();
       renderHunt();
+      updateGoalProgress();
     }
 
     function editHuntRecord(id) {
@@ -913,6 +1129,7 @@
         huntRecords = huntRecords.filter(r => r.id !== id);
         localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
         renderHunt();
+        updateGoalProgress();
       }
     }
 
@@ -1144,17 +1361,6 @@
       }
     }
 
-    /* 날짜 계산 및 보스 기록 관리 */
-    function getRecentThursday() {
-      const now = new Date();
-      const day = now.getDay();
-      const diff = (day >= 4) ? (day - 4) : (day + 3);
-      const recentThursday = new Date(now);
-      recentThursday.setDate(now.getDate() - diff);
-      recentThursday.setHours(0, 0, 0, 0);
-      return recentThursday;
-    }
-
     function addOrUpdateBossRecord() {
       const charName = document.getElementById('bossCharName').value.trim();
       const memo = document.getElementById('bossMemo').value.trim();
@@ -1170,7 +1376,6 @@
         return;
       }
 
-      // 현재 선택된 보스 세부 데이터 저장
       const selections = [];
       bossData.forEach((boss, index) => {
         const selectedRadio = document.querySelector(`input[name="boss_${index}"]:checked`);
@@ -1225,6 +1430,7 @@
 
       clearBossForm();
       renderBossRecords();
+      updateGoalProgress();
     }
 
     function editBossRecord(id) {
@@ -1287,6 +1493,7 @@
         bossRecords = bossRecords.filter(r => r.id !== id);
         localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
         renderBossRecords();
+        updateGoalProgress();
       }
     }
 
@@ -1326,11 +1533,39 @@
       document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후 순수익): ${formatMeso(thisWeekTotal)}`;
     }
 
+    /* --- [3] 경매장/분배금 계산기 로직 --- */
+    function calculateSplit() {
+      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.05;
+      const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
+
+      // 1. 판매 후 총 정산액 (경매장 수수료 차감 후)
+      const totalNet = price * (1 - feeRate);
+
+      // 2. 1인당 목표 실수령액 (N등분)
+      const targetPerPerson = totalNet / partyCount;
+
+      // 3. 파티원 1인당 송금할 금액 (파티원이 3% 수수료를 차감받고 받을 금액)
+      // 송금액 * (1 - 0.03) = targetPerPerson  => 송금액 = targetPerPerson / 0.97
+      const sendAmount = partyCount > 1 ? (targetPerPerson / 0.97) : 0;
+
+      // 4. 판매자 본인에게 남는 금액 (검증)
+      // 총 수령액 - (송금액 * (파티원 수 - 1))
+      const sellerRemain = totalNet - (sendAmount * (partyCount - 1));
+
+      document.getElementById('resTotalNet').textContent = formatMeso(totalNet);
+      document.getElementById('resTargetPerPerson').textContent = formatMeso(targetPerPerson);
+      document.getElementById('resSendAmount').textContent = formatMeso(sendAmount);
+      document.getElementById('resSellerRemain').textContent = formatMeso(sellerRemain);
+    }
+
     // 초기 실행
+    document.getElementById('weeklyGoalInput').value = weeklyGoal;
     renderHunt();
     renderBossList();
     renderPresetSelect();
     renderBossRecords();
+    updateGoalProgress();
   </script>
 </body>
 </html>
