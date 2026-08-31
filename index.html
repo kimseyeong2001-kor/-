@@ -175,7 +175,7 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
       margin-bottom: 16px;
     }
@@ -326,60 +326,86 @@
       color: #6366f1;
     }
 
+    /* 보스 카드 레이아웃 스타일 */
     .boss-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
       margin-bottom: 20px;
     }
 
     .boss-item {
       background-color: #0f172a;
       border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .boss-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: 600;
+      font-weight: 700;
+      color: #f1f5f9;
+      font-size: 1rem;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 6px;
     }
 
     .boss-options {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 8px;
+    }
+
+    .diff-row {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
+      background-color: #1e293b;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      transition: border-color 0.2s;
+    }
+
+    .diff-row:hover {
+      border-color: #6366f1;
     }
 
     .diff-label {
-      font-size: 0.8rem;
-      background-color: #1e293b;
-      padding: 4px 8px;
-      border-radius: 4px;
+      font-size: 0.85rem;
       cursor: pointer;
-      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .diff-price-tag {
+      font-size: 0.75rem;
+      color: #38bdf8;
+      font-weight: normal;
+    }
+
+    .party-select-wrapper {
       display: flex;
       align-items: center;
       gap: 4px;
     }
 
-    .diff-label:hover {
-      border-color: #6366f1;
-    }
-
     .party-select {
-      background-color: #1e293b;
-      border: 1px solid #334155;
-      color: white;
+      background-color: #0f172a;
+      border: 1px solid #475569;
+      color: #f8fafc;
       border-radius: 4px;
-      padding: 2px 4px;
+      padding: 3px 6px;
       font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
     }
 
     .table-container {
@@ -549,12 +575,8 @@
           <input type="text" id="huntChar" placeholder="캐릭터명">
         </div>
         <div class="form-group">
-          <label>사냥터</label>
-          <input type="text" id="huntGround" placeholder="사냥터">
-        </div>
-        <div class="form-group">
           <label>메모</label>
-          <input type="text" id="huntMemo" placeholder="메모">
+          <input type="text" id="huntMemo" placeholder="메모 입력">
         </div>
         <div class="form-group">
           <label>사냥 시간(분)</label>
@@ -584,7 +606,7 @@
 
       <!-- 사냥 차감 요소 -->
       <div class="section-title">📉 사냥 차감 요소 (개수 및 단가 입력)</div>
-      <div class="form-grid">
+      <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
         <div class="form-group">
           <label>소형 재물 획득의 비약</label>
           <div class="item-cost-row">
@@ -696,8 +718,8 @@
           <input type="text" id="bossCharName" placeholder="캐릭터명 입력">
         </div>
         <div class="form-group" style="grid-column: span 2;">
-          <label>득템 / 메모 (비싼 아이템 등)</label>
-          <input type="text" id="bossMemo" placeholder="예: 마법의 제어구, 완제 장비, 옻칠한 장비 등">
+          <label>득템 / 메모</label>
+          <input type="text" id="bossMemo" placeholder="메모 입력">
         </div>
       </div>
 
@@ -1057,7 +1079,6 @@
     /* --- [1] 사냥 로직 --- */
     function addOrUpdateHuntRecord() {
       const character = document.getElementById('huntChar').value || '미지정';
-      const huntingGround = document.getElementById('huntGround').value || '미지정';
       const memo = document.getElementById('huntMemo').value || '';
       const time = parseFloat(document.getElementById('huntTime').value) || 0;
       const beforeMeso = parseFloat(document.getElementById('beforeMeso').value) || 0;
@@ -1093,7 +1114,7 @@
         if (index !== -1) {
           huntRecords[index] = {
             ...huntRecords[index],
-            character, huntingGround, memo, time, beforeMeso, afterMeso,
+            character, memo, time, beforeMeso, afterMeso,
             erdaCount, erdaPrice, totalCost, netEarned, hourlyNet,
             costs: { qtySmallWealth, costSmallWealth, qtySmallExp, costSmallExp, qtySmallHighExp, costSmallHighExp, qtyExp50, costExp50, qtyExp70, costExp70 }
           };
@@ -1105,7 +1126,7 @@
         const newRecord = {
           id: Date.now(),
           date: new Date().toISOString(),
-          character, huntingGround, memo, time, beforeMeso, afterMeso,
+          character, memo, time, beforeMeso, afterMeso,
           erdaCount, erdaPrice, totalCost, netEarned, hourlyNet,
           costs: { qtySmallWealth, costSmallWealth, qtySmallExp, costSmallExp, qtySmallHighExp, costSmallHighExp, qtyExp50, costExp50, qtyExp70, costExp70 }
         };
@@ -1120,7 +1141,6 @@
 
     function resetHuntForm() {
       document.getElementById('huntChar').value = '';
-      document.getElementById('huntGround').value = '';
       document.getElementById('huntMemo').value = '';
       document.getElementById('huntTime').value = '60';
       document.getElementById('beforeMeso').value = '0';
@@ -1146,7 +1166,6 @@
 
       editingHuntId = id;
       document.getElementById('huntChar').value = record.character;
-      document.getElementById('huntGround').value = record.huntingGround;
       document.getElementById('huntMemo').value = record.memo || '';
       document.getElementById('huntTime').value = record.time;
       document.getElementById('beforeMeso').value = record.beforeMeso;
@@ -1230,7 +1249,7 @@
       document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
     }
 
-    /* --- [2] 보스 로직 --- */
+    /* --- [2] 보스 로직 (UI 개선 적용) --- */
     function renderBossList() {
       const container = document.getElementById('bossListContainer');
       container.innerHTML = '';
@@ -1246,24 +1265,29 @@
           const selectId = `party_${bIndex}_${diff}`;
 
           diffsHTML += `
-            <label class="diff-label">
-              <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" onchange="calculateBossTotal()">
-              ${diff} (${formatMeso(price)})
-            </label>
-            <select class="party-select" id="${selectId}" onchange="calculateBossTotal()">
-              <option value="1">솔플</option>
-              <option value="2">2인</option>
-              <option value="3">3인</option>
-              <option value="4">4인</option>
-              <option value="5">5인</option>
-              <option value="6">6인</option>
-            </select>
+            <div class="diff-row">
+              <label class="diff-label" for="${inputId}">
+                <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" onchange="calculateBossTotal()">
+                <span>${diff}</span>
+                <span class="diff-price-tag">(${formatMeso(price)})</span>
+              </label>
+              <div class="party-select-wrapper">
+                <select class="party-select" id="${selectId}" onchange="calculateBossTotal()">
+                  <option value="1">👤 솔플</option>
+                  <option value="2">👥 2인</option>
+                  <option value="3">👥 3인</option>
+                  <option value="4">👥 4인</option>
+                  <option value="5">👥 5인</option>
+                  <option value="6">👥 6인</option>
+                </select>
+              </div>
+            </div>
           `;
         });
 
         bossDiv.innerHTML = `
           <div class="boss-header">
-            <span>${boss.name}</span>
+            <span>😈 ${boss.name}</span>
           </div>
           <div class="boss-options">
             ${diffsHTML}
@@ -1596,7 +1620,7 @@
       document.getElementById('resDiff').textContent = `${formatMeso(diff)} (${diffPercent.toFixed(6)}%)`;
     }
 
-    /* 분배 항목 기록 기능 추가 */
+    /* 분배 항목 기록 기능 */
     function addSplitRecord() {
       const price = parseFloat(document.getElementById('calcPrice').value) || 0;
       const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
