@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>메이플스토리 통합 수익 기록기</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 탭 메뉴 */
+    .tab-container {
+      display: flex;
+      gap: 12px;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      background-color: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: #6366f1;
+      color: #ffffff;
+      border-color: #6366f1;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* 카드 스타일 */
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 폼 스타일 */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    input[type="text"], input[type="number"], select {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: #6366f1;
+    }
+
+    .sub-text {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      background-color: #6366f1;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background-color: #10b981;
+      color: #ffffff;
+    }
+
+    .btn-add-item {
+      background-color: #4f46e5;
+      color: #ffffff;
+    }
+
+    .btn-delete {
+      background-color: #ef4444;
+      color: white;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+    }
+
+    /* 통계 영역 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    /* 보스 전용 레이아웃 */
+    .info-bar {
+      background-color: #0f172a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
+    }
+
+    .preset-bar {
+      background-color: #1a2234;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      border: 1px dashed #475569;
+    }
+
+    .count-badge {
+      font-weight: bold;
+      color: #6366f1;
+    }
+
+    .count-badge.limit {
+      color: #ef4444;
+    }
+
+    .boss-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .boss-item {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .boss-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .boss-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .diff-label {
+      font-size: 0.8rem;
+      background-color: #1e293b;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .diff-label:hover {
+      border-color: #6366f1;
+    }
+
+    .party-select {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: white;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-size: 0.8rem;
+    }
+
+    /* 테이블 */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 12px;
+      border-bottom: 1px solid #334155;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.9rem;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(15, 23, 42, 0.4);
+    }
+
+    .total-summary {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .item-memo {
+      color: #f59e0b;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .preset-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 탭 메뉴 -->
+  <div class="tab-container">
+    <button class="tab-btn active" onclick="switchTab('hunt')">⚔️ 사냥 수익 기록</button>
+    <button class="tab-btn" onclick="switchTab('boss')">👑 보스 수익 기록</button>
+  </div>
+
+  <!-- 1. 사냥 수익 기록 탭 -->
+  <div id="tab-hunt" class="tab-content active">
+    <div class="card">
+      <div class="card-title">⚔️ 사냥 수익 기록</div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>캐릭터</label>
+          <input type="text" id="huntChar" placeholder="캐릭터명">
+        </div>
+        <div class="form-group">
+          <label>사냥터</label>
+          <input type="text" id="huntGround" placeholder="사냥터">
+        </div>
+        <div class="form-group">
+          <label>메모</label>
+          <input type="text" id="huntMemo" placeholder="메모">
+        </div>
+        <div class="form-group">
+          <label>사냥 시간(분)</label>
+          <input type="number" id="huntTime" value="60">
+        </div>
+
+        <div class="form-group">
+          <label>사냥 전 메소</label>
+          <input type="number" id="beforeMeso" value="0">
+        </div>
+        <div class="form-group">
+          <label>사냥 후 메소</label>
+          <input type="number" id="afterMeso" value="0">
+        </div>
+        <div class="form-group">
+          <label>획득 솔 에르다 조각</label>
+          <input type="number" id="erdaCount" value="0">
+        </div>
+        <div class="form-group">
+          <label>조각 1개 가격</label>
+          <input type="number" id="erdaPrice" value="7000000">
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-primary" onclick="addHuntRecord()">기록 추가</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 사냥 수익 통계</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">오늘</div>
+          <div class="value" id="huntTodayMeso">0 메소</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">이번 주</div>
+          <div class="value" id="huntWeekMeso">0 메소</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">이번 달</div>
+          <div class="value" id="huntMonthMeso">0 메소</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>캐릭터</th>
+              <th>사냥터</th>
+              <th>시간</th>
+              <th>메소</th>
+              <th>조각</th>
+              <th>총수익</th>
+              <th>시간당</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="huntTableBody">
+            <!-- 사냥 기록 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 보스 수익 기록 탭 -->
+  <div id="tab-boss" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>👑 주간 보스 선택</span>
+        <span class="total-summary" id="currentBossTotal">0 메소</span>
+      </div>
+
+      <!-- 프리셋 바 -->
+      <div class="preset-bar">
+        <span style="font-weight: 600; font-size: 0.9rem;">💾 캐릭터 프리셋:</span>
+        <select id="presetSelect" style="flex: 1;" onchange="loadPreset()">
+          <option value="">-- 프리셋 선택 --</option>
+        </select>
+        <button class="btn-secondary" onclick="savePreset()">현재 설정 프리셋으로 저장</button>
+        <button style="background-color: #64748b; color: white;" onclick="deletePreset()">프리셋 삭제</button>
+      </div>
+
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+        <div class="form-group">
+          <label>캐릭터명</label>
+          <input type="text" id="bossCharName" placeholder="캐릭터명 입력">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>득템 / 메모 (비싼 아이템 등)</label>
+          <input type="text" id="bossMemo" placeholder="예: 마법의 제어구, 완제 장비, 옻칠한 장비 등">
+        </div>
+      </div>
+
+      <div class="btn-group" style="margin-bottom: 20px;">
+        <button class="btn-primary" onclick="addBossRecord()">보스 기록 저장</button>
+      </div>
+
+      <div class="info-bar">
+        <span>선택된 보스 개수: <span id="bossCount" class="count-badge">0</span> / 12</span>
+        <span style="font-size: 0.85rem; color: #94a3b8;">* 캐릭터당 최대 12개 선택 가능 (난이도 1개 선택 가능)</span>
+      </div>
+
+      <div class="boss-grid" id="bossListContainer">
+        <!-- 보스 데이터 동적 생성 -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>📜 보스 수익 기록 목록</span>
+        <span style="font-size: 1.1rem; color: #38bdf8;" id="thisWeekBossTotal">이번 주 (목요일 이후): 0 메소</span>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>캐릭터명</th>
+              <th>선택 보스 수</th>
+              <th>주간 결정석 수익</th>
+              <th>득템 / 메모</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="bossTableBody">
+            <!-- 보스 기록 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 보스 데이터 정의
+    const bossData = [
+      { name: "파풀라투스", diffs: { "카오스": 13100000 } },
+      { name: "스우", diffs: { "익스트림": 574000000, "하드": 51500000, "노말": 16700000 } },
+      { name: "데미안", diffs: { "하드": 48900000, "노말": 17500000 } },
+      { name: "루시드", diffs: { "하드": 62900000, "노말": 35600000, "이지": 29800000 } },
+      { name: "윌", diffs: { "하드": 77100000, "노말": 41100000, "이지": 32300000 } },
+      { name: "가엔슬", diffs: { "카오스": 75100000, "노말": 25500000 } },
+      { name: "더스크", diffs: { "카오스": 69800000, "노말": 44000000 } },
+      { name: "듄켈", diffs: { "하드": 94400000, "노말": 47500000 } },
+      { name: "진 힐라", diffs: { "하드": 106000000, "노말": 71200000 } },
+      { name: "세렌", diffs: { "익스트림": 2835000000, "하드": 356000000, "노말": 239000000 } },
+      { name: "칼로스", diffs: { "익스트림": 4104000000, "카오스": 1273000000, "노말": 505000000, "이지": 280000000 } },
+      { name: "대적자", diffs: { "익스트림": 4712000000, "하드": 1435000000, "노말": 560000000, "이지": 308000000 } },
+      { name: "카링", diffs: { "익스트림": 5387000000, "하드": 1739000000, "노말": 678000000, "이지": 377000000 } },
+      { name: "흉성", diffs: { "하드": 2678000000, "노말": 625000000 } },
+      { name: "림보", diffs: { "하드": 2385000000, "노말": 1026000000 } },
+      { name: "벨로나", diffs: { "하드": 2950000000, "노말": 850000000, "이지": 440000000 } },
+      { name: "발드릭스", diffs: { "하드": 3078000000, "노말": 1368000000 } },
+      { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } }
+    ];
+
+    // 저장소 데이터
+    let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
+    let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
+    let bossPresets = JSON.parse(localStorage.getItem('mapleBossPresets')) || {};
+
+    // 탭 전환
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'hunt') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tab-hunt').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tab-boss').classList.add('active');
+      }
+    }
+
+    // 숫자 포맷팅
+    function formatNumber(num) {
+      return Math.round(num).toLocaleString('ko-KR');
+    }
+
+    function formatMeso(amount) {
+      if (amount === 0) return "0 메소";
+      let result = "";
+      const eok = Math.floor(amount / 100000000);
+      const man = Math.floor((amount % 100000000) / 10000);
+      
+      if (eok > 0) result += `${eok}억 `;
+      if (man > 0) result += `${man}만 `;
+      return result.trim() + " 메소";
+    }
+
+    /* --- [1] 사냥 로직 --- */
+    function addHuntRecord() {
+      const character = document.getElementById('huntChar').value || '미지정';
+      const huntingGround = document.getElementById('huntGround').value || '미지정';
+      const time = parseFloat(document.getElementById('huntTime').value) || 0;
+      const beforeMeso = parseFloat(document.getElementById('beforeMeso').value) || 0;
+      const afterMeso = parseFloat(document.getElementById('afterMeso').value) || 0;
+      const erdaCount = parseFloat(document.getElementById('erdaCount').value) || 0;
+      const erdaPrice = parseFloat(document.getElementById('erdaPrice').value) || 0;
+
+      const mesoEarned = afterMeso - beforeMeso;
+      const erdaEarned = erdaCount * erdaPrice;
+      const totalEarned = mesoEarned + erdaEarned;
+      const hourlyEarned = time > 0 ? (totalEarned / (time / 60)) : 0;
+
+      const newRecord = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        character,
+        huntingGround,
+        time,
+        mesoEarned,
+        erdaCount,
+        totalEarned,
+        hourlyEarned
+      };
+
+      huntRecords.unshift(newRecord);
+      localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
+      renderHunt();
+    }
+
+    function deleteHuntRecord(id) {
+      huntRecords = huntRecords.filter(r => r.id !== id);
+      localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
+      renderHunt();
+    }
+
+    function renderHunt() {
+      const tbody = document.getElementById('huntTableBody');
+      tbody.innerHTML = '';
+
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      let todayTotal = 0, weekTotal = 0, monthTotal = 0;
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(now.getDate() - 7);
+
+      huntRecords.forEach(r => {
+        const recordDate = new Date(r.date);
+        const recordDateStr = r.date.split('T')[0];
+
+        if (recordDateStr === todayStr) todayTotal += r.totalEarned;
+        if (recordDate >= oneWeekAgo) weekTotal += r.totalEarned;
+        if (recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear()) monthTotal += r.totalEarned;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${recordDateStr}</td>
+          <td>${r.character}</td>
+          <td>${r.huntingGround}</td>
+          <td>${r.time}분</td>
+          <td>${formatNumber(r.mesoEarned)}</td>
+          <td>${r.erdaCount}개</td>
+          <td>${formatNumber(r.totalEarned)}</td>
+          <td>${formatNumber(r.hourlyEarned)}</td>
+          <td><button class="btn-delete" onclick="deleteHuntRecord(${r.id})">삭제</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('huntTodayMeso').textContent = `${formatNumber(todayTotal)} 메소`;
+      document.getElementById('huntWeekMeso').textContent = `${formatNumber(weekTotal)} 메소`;
+      document.getElementById('huntMonthMeso').textContent = `${formatNumber(monthTotal)} 메소`;
+    }
+
+    /* --- [2] 보스 로직 --- */
+    function renderBossList() {
+      const container = document.getElementById('bossListContainer');
+      container.innerHTML = '';
+
+      bossData.forEach((boss, index) => {
+        const item = document.createElement('div');
+        item.className = 'boss-item';
+
+        let diffsHtml = '';
+        for (const [diff, price] of Object.entries(boss.diffs)) {
+          diffsHtml += `
+            <label class="diff-label">
+              <input type="radio" name="boss_${index}" value="${price}" data-diff="${diff}" onchange="handleBossSelection(this)">
+              ${diff}
+            </label>
+          `;
+        }
+
+        item.innerHTML = `
+          <div class="boss-header">
+            <span>${boss.name}</span>
+            <div>
+              <select class="party-select" id="party_${index}" onchange="calculateBossTotal()">
+                <option value="1">1인</option>
+                <option value="2">2인</option>
+                <option value="3">3인</option>
+                <option value="4">4인</option>
+                <option value="5">5인</option>
+                <option value="6">6인</option>
+              </select>
+              <button style="padding: 2px 6px; font-size:0.75rem; background-color:#475569; border:none; color:white; border-radius:4px; cursor:pointer;" onclick="clearBossSelection(${index})">취소</button>
+            </div>
+          </div>
+          <div class="boss-options">
+            ${diffsHtml}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function handleBossSelection(radio) {
+      const selectedRadios = document.querySelectorAll('#bossListContainer input[type="radio"]:checked');
+      if (selectedRadios.length > 12) {
+        alert("캐릭터당 보스는 최대 12개까지 선택 가능합니다.");
+        radio.checked = false;
+      }
+      calculateBossTotal();
+    }
+
+    function clearBossSelection(bossIndex) {
+      const radios = document.getElementsByName(`boss_${bossIndex}`);
+      radios.forEach(r => r.checked = false);
+      calculateBossTotal();
+    }
+
+    function resetAllBossSelection() {
+      bossData.forEach((_, index) => clearBossSelection(index));
+    }
+
+    function calculateBossTotal() {
+      let total = 0;
+      let count = 0;
+
+      bossData.forEach((boss, index) => {
+        const selectedRadio = document.querySelector(`input[name="boss_${index}"]:checked`);
+        if (selectedRadio) {
+          count++;
+          const price = parseFloat(selectedRadio.value);
+          const partySize = parseInt(document.getElementById(`party_${index}`).value);
+          total += price / partySize;
+        }
+      });
+
+      const countBadge = document.getElementById('bossCount');
+      countBadge.textContent = count;
+      if (count >= 12) countBadge.classList.add('limit');
+      else countBadge.classList.remove('limit');
+
+      document.getElementById('currentBossTotal').textContent = formatMeso(total);
+      return { total, count };
+    }
+
+    /* --- [3] 보스 프리셋 기능 --- */
+    function savePreset() {
+      const charName = document.getElementById('bossCharName').value.trim();
+      if (!charName) {
+        alert("프리셋으로 저장할 캐릭터명을 입력해주세요!");
+        return;
+      }
+
+      const selections = [];
+      bossData.forEach((boss, index) => {
+        const selectedRadio = document.querySelector(`input[name="boss_${index}"]:checked`);
+        if (selectedRadio) {
+          const partySize = document.getElementById(`party_${index}`).value;
+          selections.push({
+            bossIndex: index,
+            diff: selectedRadio.dataset.diff,
+            partySize: partySize
+          });
+        }
+      });
+
+      if (selections.length === 0) {
+        alert("최소 하나의 보스를 선택해주세요!");
+        return;
+      }
+
+      bossPresets[charName] = selections;
+      localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+      alert(`[${charName}] 프리셋이 저장되었습니다.`);
+      renderPresetSelect();
+    }
+
+    function loadPreset() {
+      const select = document.getElementById('presetSelect');
+      const charName = select.value;
+      if (!charName) return;
+
+      resetAllBossSelection();
+      document.getElementById('bossCharName').value = charName;
+
+      const selections = bossPresets[charName] || [];
+      selections.forEach(item => {
+        const radios = document.getElementsByName(`boss_${item.bossIndex}`);
+        radios.forEach(r => {
+          if (r.dataset.diff === item.diff) {
+            r.checked = true;
+          }
+        });
+        document.getElementById(`party_${item.bossIndex}`).value = item.partySize;
+      });
+
+      calculateBossTotal();
+    }
+
+    function deletePreset() {
+      const select = document.getElementById('presetSelect');
+      const charName = select.value;
+      if (!charName) {
+        alert("삭제할 프리셋을 선택해주세요!");
+        return;
+      }
+
+      delete bossPresets[charName];
+      localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+      alert(`[${charName}] 프리셋이 삭제되었습니다.`);
+      renderPresetSelect();
+      resetAllBossSelection();
+    }
+
+    function renderPresetSelect() {
+      const select = document.getElementById('presetSelect');
+      select.innerHTML = '<option value="">-- 프리셋 선택 --</option>';
+
+      for (const charName of Object.keys(bossPresets)) {
+        const option = document.createElement('option');
+        option.value = charName;
+        option.textContent = charName;
+        select.appendChild(option);
+      }
+    }
+
+    /* --- [4] 목요일 기준 날짜 계산 및 보스 기록 관리 --- */
+    function getRecentThursday() {
+      const now = new Date();
+      const day = now.getDay(); // 0(일) ~ 6(토)
+      const diff = (day >= 4) ? (day - 4) : (day + 3); // 목요일(4)로부터 몇 일 지났는지
+      const recentThursday = new Date(now);
+      recentThursday.setDate(now.getDate() - diff);
+      recentThursday.setHours(0, 0, 0, 0);
+      return recentThursday;
+    }
+
+    function addBossRecord() {
+      const charName = document.getElementById('bossCharName').value.trim();
+      const memo = document.getElementById('bossMemo').value.trim();
+
+      if (!charName) {
+        alert("캐릭터명을 입력해주세요!");
+        return;
+      }
+
+      const { total, count } = calculateBossTotal();
+      if (count === 0) {
+        alert("최소 하나의 보스를 선택해주세요!");
+        return;
+      }
+
+      const record = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        name: charName,
+        count: count,
+        total: total,
+        memo: memo
+      };
+
+      bossRecords.unshift(record);
+      localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
+
+      document.getElementById('bossMemo').value = '';
+      resetAllBossSelection();
+      renderBossRecords();
+    }
+
+    function deleteBossRecord(id) {
+      bossRecords = bossRecords.filter(r => r.id !== id);
+      localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
+      renderBossRecords();
+    }
+
+    function renderBossRecords() {
+      const tbody = document.getElementById('bossTableBody');
+      tbody.innerHTML = '';
+
+      const recentThursday = getRecentThursday();
+      let thisWeekTotal = 0;
+
+      bossRecords.forEach(r => {
+        const recordDate = new Date(r.date);
+        if (recordDate >= recentThursday) {
+          thisWeekTotal += r.total;
+        }
+
+        const dateStr = r.date ? r.date.split('T')[0] : '기록 없음';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${r.name}</td>
+          <td>${r.count} / 12</td>
+          <td>${formatMeso(r.total)}</td>
+          <td class="item-memo">${r.memo ? '🎁 ' + r.memo : '-'}</td>
+          <td><button class="btn-delete" onclick="deleteBossRecord(${r.id})">삭제</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
+    }
+
+    // 초기 실행
+    renderHunt();
+    renderBossList();
+    renderPresetSelect();
+    renderBossRecords();
+  </script>
+</body>
+</html>
