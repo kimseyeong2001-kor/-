@@ -326,10 +326,6 @@
       color: #6366f1;
     }
 
-    .count-badge.limit {
-      color: #ef4444;
-    }
-
     .boss-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -593,36 +589,41 @@
           <label>소형 재물 획득의 비약</label>
           <div class="item-cost-row">
             <input type="number" id="qtySmallWealth" class="qty-input" value="0" placeholder="개수">
-            <input type="number" id="costSmallWealth" value="0" placeholder="개당 메소">
+            <input type="number" id="costSmallWealth" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costSmallWealth', 'costSmallWealthHint')">
           </div>
+          <span class="unit-hint" id="costSmallWealthHint">0 메소</span>
         </div>
         <div class="form-group">
           <label>소형 경험치 획득의 비약</label>
           <div class="item-cost-row">
             <input type="number" id="qtySmallExp" class="qty-input" value="0" placeholder="개수">
-            <input type="number" id="costSmallExp" value="0" placeholder="개당 메소">
+            <input type="number" id="costSmallExp" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costSmallExp', 'costSmallExpHint')">
           </div>
+          <span class="unit-hint" id="costSmallExpHint">0 메소</span>
         </div>
         <div class="form-group">
           <label>소형 고농축 경험치 획득의 비약</label>
           <div class="item-cost-row">
             <input type="number" id="qtySmallHighExp" class="qty-input" value="0" placeholder="개수">
-            <input type="number" id="costSmallHighExp" value="0" placeholder="개당 메소">
+            <input type="number" id="costSmallHighExp" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costSmallHighExp', 'costSmallHighExpHint')">
           </div>
+          <span class="unit-hint" id="costSmallHighExpHint">0 메소</span>
         </div>
         <div class="form-group">
           <label>추가 경험치 50% 쿠폰</label>
           <div class="item-cost-row">
             <input type="number" id="qtyExp50" class="qty-input" value="0" placeholder="개수">
-            <input type="number" id="costExp50" value="0" placeholder="개당 메소">
+            <input type="number" id="costExp50" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costExp50', 'costExp50Hint')">
           </div>
+          <span class="unit-hint" id="costExp50Hint">0 메소</span>
         </div>
         <div class="form-group">
           <label>추가 경험치 70% 쿠폰</label>
           <div class="item-cost-row">
             <input type="number" id="qtyExp70" class="qty-input" value="0" placeholder="개수">
-            <input type="number" id="costExp70" value="0" placeholder="개당 메소">
+            <input type="number" id="costExp70" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costExp70', 'costExp70Hint')">
           </div>
+          <span class="unit-hint" id="costExp70Hint">0 메소</span>
         </div>
       </div>
 
@@ -656,7 +657,7 @@
             <tr>
               <th>날짜</th>
               <th>캐릭터</th>
-              <th>사냥터</th>
+              <th>메모</th>
               <th>시간</th>
               <th>조각</th>
               <th>차감 비용</th>
@@ -727,22 +728,25 @@
           <label>숫돌 (개수 / 개당 메소)</label>
           <div class="item-cost-row">
             <input type="number" id="qtyWhetstone" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
-            <input type="number" id="costWhetstone" value="0" placeholder="개당 메소" oninput="calculateBossTotal()">
+            <input type="number" id="costWhetstone" value="0" placeholder="개당 메소" oninput="calculateBossTotal(); updateMesoUnit('costWhetstone', 'costWhetstoneHint')">
           </div>
+          <span class="unit-hint" id="costWhetstoneHint">0 메소</span>
         </div>
         <div class="form-group">
           <label>반짝이는 빨간 별 물약</label>
           <div class="item-cost-row">
             <input type="number" id="qtyRedStar" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
-            <input type="number" id="costRedStar" value="0" placeholder="개당 메소" oninput="calculateBossTotal()">
+            <input type="number" id="costRedStar" value="0" placeholder="개당 메소" oninput="calculateBossTotal(); updateMesoUnit('costRedStar', 'costRedStarHint')">
           </div>
+          <span class="unit-hint" id="costRedStarHint">0 메소</span>
         </div>
         <div class="form-group">
           <label>전설 대영웅의 비약</label>
           <div class="item-cost-row">
             <input type="number" id="qtyHeroPotion" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
-            <input type="number" id="costHeroPotion" value="0" placeholder="개당 메소" oninput="calculateBossTotal()">
+            <input type="number" id="costHeroPotion" value="0" placeholder="개당 메소" oninput="calculateBossTotal(); updateMesoUnit('costHeroPotion', 'costHeroPotionHint')">
           </div>
+          <span class="unit-hint" id="costHeroPotionHint">0 메소</span>
         </div>
       </div>
 
@@ -832,6 +836,43 @@
         </div>
       </div>
     </div>
+
+    <!-- 분배금 항목 기록 기능 -->
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-title">📝 분배 항목 기록 (무엇을 분배했는지)</div>
+      
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 12px;">
+        <div class="form-group">
+          <label>분배 항목 명칭</label>
+          <input type="text" id="splitItemName" placeholder="예: 칠흑의 보장, 거한마, 마법의 제어구 등">
+        </div>
+        <div class="form-group">
+          <label>메모</label>
+          <input type="text" id="splitItemMemo" placeholder="파티원 이름 또는 추가 사항 입력">
+        </div>
+        <div class="form-group" style="display: flex; align-items: flex-end;">
+          <button class="btn-primary" style="width: 100%;" onclick="addSplitRecord()">현재 계산 결과로 기록 저장</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>분배 항목</th>
+              <th>판매 금액</th>
+              <th>파티원 수</th>
+              <th>1인당 전달 금액</th>
+              <th>메모</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="splitTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -860,6 +901,7 @@
     let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
     let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
     let bossPresets = JSON.parse(localStorage.getItem('mapleBossPresets')) || {};
+    let splitRecords = JSON.parse(localStorage.getItem('mapleSplitRecords')) || [];
     let weeklyGoal = parseFloat(localStorage.getItem('mapleWeeklyGoal')) || 1000000000;
 
     let editingHuntId = null;
@@ -912,6 +954,7 @@
         mapleHuntRecords: huntRecords,
         mapleBossRecords: bossRecords,
         mapleBossPresets: bossPresets,
+        mapleSplitRecords: splitRecords,
         mapleWeeklyGoal: weeklyGoal,
         exportDate: new Date().toISOString()
       };
@@ -949,6 +992,10 @@
               bossPresets = imported.mapleBossPresets;
               localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
             }
+            if (imported.mapleSplitRecords) {
+              splitRecords = imported.mapleSplitRecords;
+              localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+            }
             if (imported.mapleWeeklyGoal) {
               weeklyGoal = imported.mapleWeeklyGoal;
               localStorage.setItem('mapleWeeklyGoal', weeklyGoal);
@@ -958,6 +1005,7 @@
             renderHunt();
             renderBossRecords();
             renderPresetSelect();
+            renderSplitRecords();
             updateGoalProgress();
             alert("데이터가 성공적으로 복구되었습니다!");
           }
@@ -1038,38 +1086,58 @@
       const erdaEarned = erdaCount * erdaPrice;
       const grossEarned = mesoEarned + erdaEarned;
       const netEarned = grossEarned - totalCost;
-      const hourlyEarned = time > 0 ? (netEarned / (time / 60)) : 0;
+      const hourlyNet = time > 0 ? (netEarned / time) * 60 : 0;
 
-      const recordData = {
-        character, huntingGround, memo, time, beforeMeso, afterMeso,
-        erdaCount, erdaPrice, totalCost, netEarned, hourlyEarned,
-        costs: {
-          qtySmallWealth, costSmallWealth,
-          qtySmallExp, costSmallExp,
-          qtySmallHighExp, costSmallHighExp,
-          qtyExp50, costExp50,
-          qtyExp70, costExp70
-        }
-      };
-
-      if (editingHuntId) {
+      if (editingHuntId !== null) {
         const index = huntRecords.findIndex(r => r.id === editingHuntId);
         if (index !== -1) {
-          huntRecords[index] = { ...huntRecords[index], ...recordData };
+          huntRecords[index] = {
+            ...huntRecords[index],
+            character, huntingGround, memo, time, beforeMeso, afterMeso,
+            erdaCount, erdaPrice, totalCost, netEarned, hourlyNet,
+            costs: { qtySmallWealth, costSmallWealth, qtySmallExp, costSmallExp, qtySmallHighExp, costSmallHighExp, qtyExp50, costExp50, qtyExp70, costExp70 }
+          };
         }
         editingHuntId = null;
+        document.getElementById('btnSaveHunt').textContent = '기록 추가';
+        document.getElementById('btnCancelHuntEdit').style.display = 'none';
       } else {
-        huntRecords.unshift({
+        const newRecord = {
           id: Date.now(),
           date: new Date().toISOString(),
-          ...recordData
-        });
+          character, huntingGround, memo, time, beforeMeso, afterMeso,
+          erdaCount, erdaPrice, totalCost, netEarned, hourlyNet,
+          costs: { qtySmallWealth, costSmallWealth, qtySmallExp, costSmallExp, qtySmallHighExp, costSmallHighExp, qtyExp50, costExp50, qtyExp70, costExp70 }
+        };
+        huntRecords.unshift(newRecord);
       }
 
       localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
-      clearHuntForm();
+      resetHuntForm();
       renderHunt();
       updateGoalProgress();
+    }
+
+    function resetHuntForm() {
+      document.getElementById('huntChar').value = '';
+      document.getElementById('huntGround').value = '';
+      document.getElementById('huntMemo').value = '';
+      document.getElementById('huntTime').value = '60';
+      document.getElementById('beforeMeso').value = '0';
+      document.getElementById('afterMeso').value = '0';
+      document.getElementById('erdaCount').value = '0';
+      document.getElementById('erdaPrice').value = '7000000';
+
+      ['SmallWealth', 'SmallExp', 'SmallHighExp', 'Exp50', 'Exp70'].forEach(item => {
+        document.getElementById(`qty${item}`).value = '0';
+        document.getElementById(`cost${item}`).value = '0';
+      });
+
+      ['beforeMesoHint', 'afterMesoHint'].forEach(id => document.getElementById(id).textContent = '0 메소');
+      document.getElementById('erdaPriceHint').textContent = '700만 메소';
+      ['costSmallWealthHint', 'costSmallExpHint', 'costSmallHighExpHint', 'costExp50Hint', 'costExp70Hint'].forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).textContent = '0 메소';
+      });
     }
 
     function editHuntRecord(id) {
@@ -1077,72 +1145,40 @@
       if (!record) return;
 
       editingHuntId = id;
-      document.getElementById('huntChar').value = record.character || '';
-      document.getElementById('huntGround').value = record.huntingGround || '';
+      document.getElementById('huntChar').value = record.character;
+      document.getElementById('huntGround').value = record.huntingGround;
       document.getElementById('huntMemo').value = record.memo || '';
-      document.getElementById('huntTime').value = record.time || 60;
-      document.getElementById('beforeMeso').value = record.beforeMeso || 0;
-      document.getElementById('afterMeso').value = record.afterMeso || 0;
-      document.getElementById('erdaCount').value = record.erdaCount || 0;
-      document.getElementById('erdaPrice').value = record.erdaPrice || 7000000;
+      document.getElementById('huntTime').value = record.time;
+      document.getElementById('beforeMeso').value = record.beforeMeso;
+      document.getElementById('afterMeso').value = record.afterMeso;
+      document.getElementById('erdaCount').value = record.erdaCount;
+      document.getElementById('erdaPrice').value = record.erdaPrice;
 
-      const c = record.costs || {};
-      document.getElementById('qtySmallWealth').value = c.qtySmallWealth || 0;
-      document.getElementById('costSmallWealth').value = c.costSmallWealth || 0;
-      document.getElementById('qtySmallExp').value = c.qtySmallExp || 0;
-      document.getElementById('costSmallExp').value = c.costSmallExp || 0;
-      document.getElementById('qtySmallHighExp').value = c.qtySmallHighExp || 0;
-      document.getElementById('costSmallHighExp').value = c.costSmallHighExp || 0;
-      document.getElementById('qtyExp50').value = c.qtyExp50 || 0;
-      document.getElementById('costExp50').value = c.costExp50 || 0;
-      document.getElementById('qtyExp70').value = c.qtyExp70 || 0;
-      document.getElementById('costExp70').value = c.costExp70 || 0;
+      if (record.costs) {
+        ['SmallWealth', 'SmallExp', 'SmallHighExp', 'Exp50', 'Exp70'].forEach(item => {
+          document.getElementById(`qty${item}`).value = record.costs[`qty${item}`] || 0;
+          document.getElementById(`cost${item}`).value = record.costs[`cost${item}`] || 0;
+        });
+      }
 
       updateMesoUnit('beforeMeso', 'beforeMesoHint');
       updateMesoUnit('afterMeso', 'afterMesoHint');
       updateMesoUnit('erdaPrice', 'erdaPriceHint');
 
-      document.getElementById('btnSaveHunt').textContent = '기록 수정 완료';
+      document.getElementById('btnSaveHunt').textContent = '수정 완료';
       document.getElementById('btnCancelHuntEdit').style.display = 'inline-block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelHuntEdit() {
       editingHuntId = null;
-      clearHuntForm();
-    }
-
-    function clearHuntForm() {
-      document.getElementById('huntChar').value = '';
-      document.getElementById('huntGround').value = '';
-      document.getElementById('huntMemo').value = '';
-      document.getElementById('huntTime').value = 60;
-      document.getElementById('beforeMeso').value = 0;
-      document.getElementById('afterMeso').value = 0;
-      document.getElementById('erdaCount').value = 0;
-      document.getElementById('erdaPrice').value = 7000000;
-
-      document.getElementById('qtySmallWealth').value = 0;
-      document.getElementById('costSmallWealth').value = 0;
-      document.getElementById('qtySmallExp').value = 0;
-      document.getElementById('costSmallExp').value = 0;
-      document.getElementById('qtySmallHighExp').value = 0;
-      document.getElementById('costSmallHighExp').value = 0;
-      document.getElementById('qtyExp50').value = 0;
-      document.getElementById('costExp50').value = 0;
-      document.getElementById('qtyExp70').value = 0;
-      document.getElementById('costExp70').value = 0;
-
-      updateMesoUnit('beforeMeso', 'beforeMesoHint');
-      updateMesoUnit('afterMeso', 'afterMesoHint');
-      updateMesoUnit('erdaPrice', 'erdaPriceHint');
-
+      resetHuntForm();
       document.getElementById('btnSaveHunt').textContent = '기록 추가';
       document.getElementById('btnCancelHuntEdit').style.display = 'none';
     }
 
     function deleteHuntRecord(id) {
-      if (confirm('이 기록을 삭제하시겠습니까?')) {
+      if (confirm("이 사냥 기록을 삭제하시겠습니까?")) {
         huntRecords = huntRecords.filter(r => r.id !== id);
         localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
         renderHunt();
@@ -1156,28 +1192,31 @@
 
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
-      let todayTotal = 0, weekTotal = 0, monthTotal = 0;
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(now.getDate() - 7);
+      const recentThursday = getRecentThursday();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      let todayTotal = 0;
+      let weekTotal = 0;
+      let monthTotal = 0;
 
       huntRecords.forEach(r => {
-        const recordDate = new Date(r.date);
-        const recordDateStr = r.date.split('T')[0];
+        const rDate = new Date(r.date);
+        const rDateStr = r.date.split('T')[0];
 
-        if (recordDateStr === todayStr) todayTotal += r.netEarned;
-        if (recordDate >= oneWeekAgo) weekTotal += r.netEarned;
-        if (recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear()) monthTotal += r.netEarned;
+        if (rDateStr === todayStr) todayTotal += r.netEarned;
+        if (rDate >= recentThursday) weekTotal += r.netEarned;
+        if (rDate >= firstDayOfMonth) monthTotal += r.netEarned;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${recordDateStr}</td>
+          <td>${rDateStr}</td>
           <td>${r.character}</td>
-          <td>${r.huntingGround}</td>
+          <td><span class="item-memo">${r.memo || '-'}</span></td>
           <td>${r.time}분</td>
           <td>${r.erdaCount}개</td>
-          <td class="cost-text">-${formatNumber(r.totalCost || 0)}</td>
-          <td style="font-weight: bold; color: ${r.netEarned >= 0 ? '#38bdf8' : '#ef4444'};">${formatNumber(r.netEarned)}</td>
-          <td>${formatNumber(r.hourlyEarned)}</td>
+          <td class="cost-text">-${formatMeso(r.totalCost)}</td>
+          <td style="font-weight: bold; color: ${r.netEarned >= 0 ? '#38bdf8' : '#ef4444'};">${formatMeso(r.netEarned)}</td>
+          <td>${formatMeso(r.hourlyNet)}/h</td>
           <td>
             <button class="btn-edit" onclick="editHuntRecord(${r.id})">수정</button>
             <button class="btn-delete" onclick="deleteHuntRecord(${r.id})">삭제</button>
@@ -1186,9 +1225,9 @@
         tbody.appendChild(tr);
       });
 
-      document.getElementById('huntTodayMeso').textContent = `${formatNumber(todayTotal)} 메소`;
-      document.getElementById('huntWeekMeso').textContent = `${formatNumber(weekTotal)} 메소`;
-      document.getElementById('huntMonthMeso').textContent = `${formatNumber(monthTotal)} 메소`;
+      document.getElementById('huntTodayMeso').textContent = formatMeso(todayTotal);
+      document.getElementById('huntWeekMeso').textContent = formatMeso(weekTotal);
+      document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
     }
 
     /* --- [2] 보스 로직 --- */
@@ -1196,317 +1235,223 @@
       const container = document.getElementById('bossListContainer');
       container.innerHTML = '';
 
-      bossData.forEach((boss, index) => {
-        const item = document.createElement('div');
-        item.className = 'boss-item';
+      bossData.forEach((boss, bIndex) => {
+        const bossDiv = document.createElement('div');
+        bossDiv.className = 'boss-item';
 
-        let diffsHtml = '';
-        for (const [diff, price] of Object.entries(boss.diffs)) {
-          diffsHtml += `
+        let diffsHTML = '';
+        Object.keys(boss.diffs).forEach(diff => {
+          const price = boss.diffs[diff];
+          const inputId = `boss_${bIndex}_${diff}`;
+          const selectId = `party_${bIndex}_${diff}`;
+
+          diffsHTML += `
             <label class="diff-label">
-              <input type="radio" name="boss_${index}" value="${price}" data-diff="${diff}" onchange="handleBossSelection(this)">
-              ${diff}
+              <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" onchange="calculateBossTotal()">
+              ${diff} (${formatMeso(price)})
             </label>
+            <select class="party-select" id="${selectId}" onchange="calculateBossTotal()">
+              <option value="1">솔플</option>
+              <option value="2">2인</option>
+              <option value="3">3인</option>
+              <option value="4">4인</option>
+              <option value="5">5인</option>
+              <option value="6">6인</option>
+            </select>
           `;
-        }
+        });
 
-        item.innerHTML = `
+        bossDiv.innerHTML = `
           <div class="boss-header">
             <span>${boss.name}</span>
-            <div>
-              <select class="party-select" id="party_${index}" onchange="calculateBossTotal()">
-                <option value="1">1인</option>
-                <option value="2">2인</option>
-                <option value="3">3인</option>
-                <option value="4">4인</option>
-                <option value="5">5인</option>
-                <option value="6">6인</option>
-              </select>
-              <button style="padding: 2px 6px; font-size:0.75rem; background-color:#475569; border:none; color:white; border-radius:4px; cursor:pointer;" onclick="clearBossSelection(${index})">취소</button>
-            </div>
           </div>
           <div class="boss-options">
-            ${diffsHtml}
+            ${diffsHTML}
           </div>
         `;
-        container.appendChild(item);
+        container.appendChild(bossDiv);
       });
-    }
-
-    function handleBossSelection(radio) {
-      const selectedRadios = document.querySelectorAll('#bossListContainer input[type="radio"]:checked');
-      if (selectedRadios.length > 12) {
-        alert("캐릭터당 보스는 최대 12개까지 선택 가능합니다.");
-        radio.checked = false;
-      }
-      calculateBossTotal();
-    }
-
-    function clearBossSelection(bossIndex) {
-      const radios = document.getElementsByName(`boss_${bossIndex}`);
-      radios.forEach(r => r.checked = false);
-      calculateBossTotal();
-    }
-
-    function resetAllBossSelection() {
-      bossData.forEach((_, index) => clearBossSelection(index));
-      document.getElementById('qtyElixir1').value = 0;
-      document.getElementById('qtyElixir2').value = 0;
-      document.getElementById('qtyElixir3').value = 0;
-      document.getElementById('qtyElixir4').value = 0;
-      document.getElementById('qtyWhetstone').value = 0;
-      document.getElementById('costWhetstone').value = 0;
-      document.getElementById('qtyRedStar').value = 0;
-      document.getElementById('costRedStar').value = 0;
-      document.getElementById('qtyHeroPotion').value = 0;
-      document.getElementById('costHeroPotion').value = 0;
     }
 
     function calculateBossTotal() {
-      let grossTotal = 0;
+      let totalMeso = 0;
       let count = 0;
 
-      bossData.forEach((boss, index) => {
-        const selectedRadio = document.querySelector(`input[name="boss_${index}"]:checked`);
-        if (selectedRadio) {
-          count++;
-          const price = parseFloat(selectedRadio.value);
-          const partySize = parseInt(document.getElementById(`party_${index}`).value);
-          grossTotal += price / partySize;
-        }
+      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
+      checkboxes.forEach(cb => {
+        count++;
+        const price = parseFloat(cb.dataset.price);
+        const diff = cb.dataset.diff;
+        const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_${bIndex}_${diff}`).value) || 1;
+        
+        totalMeso += Math.floor(price / partyCount);
       });
 
-      let costTotal = 0;
-      costTotal += (parseFloat(document.getElementById('qtyElixir1').value) || 0) * 2000000;
-      costTotal += (parseFloat(document.getElementById('qtyElixir2').value) || 0) * 2000000;
-      costTotal += (parseFloat(document.getElementById('qtyElixir3').value) || 0) * 5000000;
-      costTotal += (parseFloat(document.getElementById('qtyElixir4').value) || 0) * 20000000;
+      // 영약 및 도핑 차감액 계산
+      const qtyE1 = parseFloat(document.getElementById('qtyElixir1').value) || 0;
+      const qtyE2 = parseFloat(document.getElementById('qtyElixir2').value) || 0;
+      const qtyE3 = parseFloat(document.getElementById('qtyElixir3').value) || 0;
+      const qtyE4 = parseFloat(document.getElementById('qtyElixir4').value) || 0;
 
-      costTotal += (parseFloat(document.getElementById('qtyWhetstone').value) || 0) * (parseFloat(document.getElementById('costWhetstone').value) || 0);
-      costTotal += (parseFloat(document.getElementById('qtyRedStar').value) || 0) * (parseFloat(document.getElementById('costRedStar').value) || 0);
-      costTotal += (parseFloat(document.getElementById('qtyHeroPotion').value) || 0) * (parseFloat(document.getElementById('costHeroPotion').value) || 0);
+      const qtyWhet = parseFloat(document.getElementById('qtyWhetstone').value) || 0;
+      const costWhet = parseFloat(document.getElementById('costWhetstone').value) || 0;
+      const qtyRed = parseFloat(document.getElementById('qtyRedStar').value) || 0;
+      const costRed = parseFloat(document.getElementById('costRedStar').value) || 0;
+      const qtyHero = parseFloat(document.getElementById('qtyHeroPotion').value) || 0;
+      const costHero = parseFloat(document.getElementById('costHeroPotion').value) || 0;
 
-      const netTotal = grossTotal - costTotal;
+      const totalCost = (qtyE1 * 2000000) + (qtyE2 * 2000000) + (qtyE3 * 5000000) + (qtyE4 * 20000000) +
+                        (qtyWhet * costWhet) + (qtyRed * costRed) + (qtyHero * costHero);
 
-      const countBadge = document.getElementById('bossCount');
-      countBadge.textContent = count;
-      if (count >= 12) countBadge.classList.add('limit');
-      else countBadge.classList.remove('limit');
+      const netTotal = totalMeso - totalCost;
 
-      document.getElementById('currentBossTotal').textContent = formatMeso(netTotal);
-      return { grossTotal, costTotal, netTotal, count };
-    }
-
-    /* 프리셋 */
-    function savePreset() {
-      const charName = document.getElementById('bossCharName').value.trim();
-      if (!charName) {
-        alert("프리셋으로 저장할 캐릭터명을 입력해주세요!");
-        return;
+      const bossCountSpan = document.getElementById('bossCount');
+      bossCountSpan.textContent = count;
+      if (count > 12) {
+        bossCountSpan.classList.add('limit');
+      } else {
+        bossCountSpan.classList.remove('limit');
       }
 
-      const selections = [];
-      bossData.forEach((boss, index) => {
-        const selectedRadio = document.querySelector(`input[name="boss_${index}"]:checked`);
-        if (selectedRadio) {
-          const partySize = document.getElementById(`party_${index}`).value;
-          selections.push({
-            bossIndex: index,
-            diff: selectedRadio.dataset.diff,
-            partySize: partySize
-          });
-        }
-      });
-
-      if (selections.length === 0) {
-        alert("최소 하나의 보스를 선택해주세요!");
-        return;
-      }
-
-      bossPresets[charName] = selections;
-      localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
-      alert(`[${charName}] 프리셋이 저장되었습니다.`);
-      renderPresetSelect();
-    }
-
-    function loadPreset() {
-      const select = document.getElementById('presetSelect');
-      const charName = select.value;
-      if (!charName) return;
-
-      resetAllBossSelection();
-      document.getElementById('bossCharName').value = charName;
-
-      const selections = bossPresets[charName] || [];
-      selections.forEach(item => {
-        const radios = document.getElementsByName(`boss_${item.bossIndex}`);
-        radios.forEach(r => {
-          if (r.dataset.diff === item.diff) {
-            r.checked = true;
-          }
-        });
-        document.getElementById(`party_${item.bossIndex}`).value = item.partySize;
-      });
-
-      calculateBossTotal();
-    }
-
-    function deletePreset() {
-      const select = document.getElementById('presetSelect');
-      const charName = select.value;
-      if (!charName) {
-        alert("삭제할 프리셋을 선택해주세요!");
-        return;
-      }
-
-      delete bossPresets[charName];
-      localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
-      alert(`[${charName}] 프리셋이 삭제되었습니다.`);
-      renderPresetSelect();
-      resetAllBossSelection();
-    }
-
-    function renderPresetSelect() {
-      const select = document.getElementById('presetSelect');
-      select.innerHTML = '<option value="">-- 프리셋 선택 --</option>';
-
-      for (const charName of Object.keys(bossPresets)) {
-        const option = document.createElement('option');
-        option.value = charName;
-        option.textContent = charName;
-        select.appendChild(option);
-      }
+      document.getElementById('currentBossTotal').textContent = `순수익: ${formatMeso(netTotal)} (차감: -${formatMeso(totalCost)})`;
+      return { totalMeso, totalCost, netTotal, count };
     }
 
     function addOrUpdateBossRecord() {
-      const charName = document.getElementById('bossCharName').value.trim();
-      const memo = document.getElementById('bossMemo').value.trim();
-
-      if (!charName) {
-        alert("캐릭터명을 입력해주세요!");
-        return;
-      }
-
-      const { grossTotal, costTotal, netTotal, count } = calculateBossTotal();
+      const { totalMeso, totalCost, netTotal, count } = calculateBossTotal();
       if (count === 0) {
-        alert("최소 하나의 보스를 선택해주세요!");
+        alert("최소 1개 이상의 보스를 선택해주세요.");
+        return;
+      }
+      if (count > 12) {
+        alert("보스는 캐릭터당 최대 12개까지 선택 가능합니다.");
         return;
       }
 
-      const selections = [];
-      bossData.forEach((boss, index) => {
-        const selectedRadio = document.querySelector(`input[name="boss_${index}"]:checked`);
-        if (selectedRadio) {
-          selections.push({
-            bossIndex: index,
-            diff: selectedRadio.dataset.diff,
-            partySize: document.getElementById(`party_${index}`).value
-          });
-        }
+      const character = document.getElementById('bossCharName').value || '미지정';
+      const memo = document.getElementById('bossMemo').value || '';
+
+      const selectedBosses = [];
+      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
+      checkboxes.forEach(cb => {
+        const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        selectedBosses.push({
+          boss: cb.dataset.boss,
+          diff: cb.dataset.diff,
+          price: parseFloat(cb.dataset.price),
+          partyCount
+        });
       });
 
       const costs = {
-        qtyElixir1: parseFloat(document.getElementById('qtyElixir1').value) || 0,
-        qtyElixir2: parseFloat(document.getElementById('qtyElixir2').value) || 0,
-        qtyElixir3: parseFloat(document.getElementById('qtyElixir3').value) || 0,
-        qtyElixir4: parseFloat(document.getElementById('qtyElixir4').value) || 0,
-        qtyWhetstone: parseFloat(document.getElementById('qtyWhetstone').value) || 0,
-        costWhetstone: parseFloat(document.getElementById('costWhetstone').value) || 0,
-        qtyRedStar: parseFloat(document.getElementById('qtyRedStar').value) || 0,
-        costRedStar: parseFloat(document.getElementById('costRedStar').value) || 0,
-        qtyHeroPotion: parseFloat(document.getElementById('qtyHeroPotion').value) || 0,
-        costHeroPotion: parseFloat(document.getElementById('costHeroPotion').value) || 0
+        qtyE1: parseFloat(document.getElementById('qtyElixir1').value) || 0,
+        qtyE2: parseFloat(document.getElementById('qtyElixir2').value) || 0,
+        qtyE3: parseFloat(document.getElementById('qtyElixir3').value) || 0,
+        qtyE4: parseFloat(document.getElementById('qtyElixir4').value) || 0,
+        qtyWhet: parseFloat(document.getElementById('qtyWhetstone').value) || 0,
+        costWhet: parseFloat(document.getElementById('costWhetstone').value) || 0,
+        qtyRed: parseFloat(document.getElementById('qtyRedStar').value) || 0,
+        costRed: parseFloat(document.getElementById('costRedStar').value) || 0,
+        qtyHero: parseFloat(document.getElementById('qtyHeroPotion').value) || 0,
+        costHero: parseFloat(document.getElementById('costHeroPotion').value) || 0,
       };
 
-      const recordData = {
-        name: charName,
-        count: count,
-        grossTotal: grossTotal,
-        costTotal: costTotal,
-        netTotal: netTotal,
-        memo: memo,
-        selections: selections,
-        costs: costs
-      };
-
-      if (editingBossId) {
+      if (editingBossId !== null) {
         const index = bossRecords.findIndex(r => r.id === editingBossId);
         if (index !== -1) {
-          bossRecords[index] = { ...bossRecords[index], ...recordData };
+          bossRecords[index] = {
+            ...bossRecords[index],
+            character, memo, count, total: totalMeso, totalCost, netTotal, selectedBosses, costs
+          };
         }
         editingBossId = null;
+        document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
+        document.getElementById('btnCancelBossEdit').style.display = 'none';
       } else {
-        bossRecords.unshift({
+        const newRecord = {
           id: Date.now(),
           date: new Date().toISOString(),
-          ...recordData
-        });
+          character, memo, count, total: totalMeso, totalCost, netTotal, selectedBosses, costs
+        };
+        bossRecords.unshift(newRecord);
       }
 
       localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
-
-      clearBossForm();
+      resetBossForm();
       renderBossRecords();
       updateGoalProgress();
+    }
+
+    function resetBossForm() {
+      document.getElementById('bossCharName').value = '';
+      document.getElementById('bossMemo').value = '';
+      
+      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = false);
+
+      ['qtyElixir1', 'qtyElixir2', 'qtyElixir3', 'qtyElixir4', 'qtyWhetstone', 'costWhetstone', 'qtyRedStar', 'costRedStar', 'qtyHeroPotion', 'costHeroPotion'].forEach(id => {
+        document.getElementById(id).value = '0';
+      });
+
+      ['costWhetstoneHint', 'costRedStarHint', 'costHeroPotionHint'].forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).textContent = '0 메소';
+      });
+
+      calculateBossTotal();
     }
 
     function editBossRecord(id) {
       const record = bossRecords.find(r => r.id === id);
       if (!record) return;
 
+      resetBossForm();
       editingBossId = id;
-      resetAllBossSelection();
 
-      document.getElementById('bossCharName').value = record.name || '';
+      document.getElementById('bossCharName').value = record.character;
       document.getElementById('bossMemo').value = record.memo || '';
 
-      if (record.selections) {
-        record.selections.forEach(item => {
-          const radios = document.getElementsByName(`boss_${item.bossIndex}`);
-          radios.forEach(r => {
-            if (r.dataset.diff === item.diff) r.checked = true;
-          });
-          document.getElementById(`party_${item.bossIndex}`).value = item.partySize;
+      if (record.selectedBosses) {
+        record.selectedBosses.forEach(sb => {
+          const bIndex = bossData.findIndex(b => b.name === sb.boss);
+          if (bIndex !== -1) {
+            const cb = document.getElementById(`boss_${bIndex}_${sb.diff}`);
+            const select = document.getElementById(`party_${bIndex}_${sb.diff}`);
+            if (cb) cb.checked = true;
+            if (select) select.value = sb.partyCount || 1;
+          }
         });
       }
 
       if (record.costs) {
-        const c = record.costs;
-        document.getElementById('qtyElixir1').value = c.qtyElixir1 || 0;
-        document.getElementById('qtyElixir2').value = c.qtyElixir2 || 0;
-        document.getElementById('qtyElixir3').value = c.qtyElixir3 || 0;
-        document.getElementById('qtyElixir4').value = c.qtyElixir4 || 0;
-
-        document.getElementById('qtyWhetstone').value = c.qtyWhetstone || 0;
-        document.getElementById('costWhetstone').value = c.costWhetstone || 0;
-        document.getElementById('qtyRedStar').value = c.qtyRedStar || 0;
-        document.getElementById('costRedStar').value = c.costRedStar || 0;
-        document.getElementById('qtyHeroPotion').value = c.qtyHeroPotion || 0;
-        document.getElementById('costHeroPotion').value = c.costHeroPotion || 0;
+        document.getElementById('qtyElixir1').value = record.costs.qtyE1 || 0;
+        document.getElementById('qtyElixir2').value = record.costs.qtyE2 || 0;
+        document.getElementById('qtyElixir3').value = record.costs.qtyE3 || 0;
+        document.getElementById('qtyElixir4').value = record.costs.qtyE4 || 0;
+        document.getElementById('qtyWhetstone').value = record.costs.qtyWhet || 0;
+        document.getElementById('costWhetstone').value = record.costs.costWhet || 0;
+        document.getElementById('qtyRedStar').value = record.costs.qtyRed || 0;
+        document.getElementById('costRedStar').value = record.costs.costRed || 0;
+        document.getElementById('qtyHeroPotion').value = record.costs.qtyHero || 0;
+        document.getElementById('costHeroPotion').value = record.costs.costHero || 0;
       }
 
       calculateBossTotal();
-      document.getElementById('btnSaveBoss').textContent = '보스 기록 수정 완료';
+      document.getElementById('btnSaveBoss').textContent = '수정 완료';
       document.getElementById('btnCancelBossEdit').style.display = 'inline-block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelBossEdit() {
       editingBossId = null;
-      clearBossForm();
-    }
-
-    function clearBossForm() {
-      document.getElementById('bossCharName').value = '';
-      document.getElementById('bossMemo').value = '';
-      resetAllBossSelection();
-
+      resetBossForm();
       document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
       document.getElementById('btnCancelBossEdit').style.display = 'none';
     }
 
     function deleteBossRecord(id) {
-      if (confirm('이 기록을 삭제하시겠습니까?')) {
+      if (confirm("이 보스 기록을 삭제하시겠습니까?")) {
         bossRecords = bossRecords.filter(r => r.id !== id);
         localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
         renderBossRecords();
@@ -1522,23 +1467,24 @@
       let thisWeekTotal = 0;
 
       bossRecords.forEach(r => {
-        const recordDate = new Date(r.date);
-        const netValue = r.netTotal !== undefined ? r.netTotal : r.total;
+        const rDate = new Date(r.date);
+        const rDateStr = r.date.split('T')[0];
+        const netVal = r.netTotal !== undefined ? r.netTotal : r.total;
+        const costVal = r.totalCost || 0;
 
-        if (recordDate >= recentThursday) {
-          thisWeekTotal += netValue;
+        if (rDate >= recentThursday) {
+          thisWeekTotal += netVal;
         }
 
-        const dateStr = r.date ? r.date.split('T')[0] : '기록 없음';
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${dateStr}</td>
-          <td>${r.name}</td>
-          <td>${r.count} / 12</td>
-          <td>${formatMeso(r.grossTotal || r.total || 0)}</td>
-          <td class="cost-text">-${formatMeso(r.costTotal || 0)}</td>
-          <td style="font-weight: bold; color: ${netValue >= 0 ? '#38bdf8' : '#ef4444'};">${formatMeso(netValue)}</td>
-          <td class="item-memo">${r.memo ? '🎁 ' + r.memo : '-'}</td>
+          <td>${rDateStr}</td>
+          <td>${r.character}</td>
+          <td>${r.count}개</td>
+          <td>${formatMeso(r.total)}</td>
+          <td class="cost-text">-${formatMeso(costVal)}</td>
+          <td style="font-weight: bold; color: #38bdf8;">${formatMeso(netVal)}</td>
+          <td><span class="item-memo">${r.memo || '-'}</span></td>
           <td>
             <button class="btn-edit" onclick="editBossRecord(${r.id})">수정</button>
             <button class="btn-delete" onclick="deleteBossRecord(${r.id})">삭제</button>
@@ -1547,73 +1493,182 @@
         tbody.appendChild(tr);
       });
 
-      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후 순수익): ${formatMeso(thisWeekTotal)}`;
+      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
     }
 
-    /* --- [3] 경매장/분배금 계산기 정밀 로직 --- */
+    /* 프리셋 관리 */
+    function savePreset() {
+      const charName = document.getElementById('bossCharName').value.trim();
+      if (!charName) {
+        alert("프리셋으로 저장할 캐릭터명을 입력해주세요.");
+        return;
+      }
+
+      const selectedBosses = [];
+      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
+      checkboxes.forEach(cb => {
+        const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        selectedBosses.push({ boss: cb.dataset.boss, diff: cb.dataset.diff, partyCount });
+      });
+
+      if (selectedBosses.length === 0) {
+        alert("선택된 보스가 없습니다.");
+        return;
+      }
+
+      bossPresets[charName] = selectedBosses;
+      localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+      renderPresetSelect();
+      document.getElementById('presetSelect').value = charName;
+      alert(`'${charName}' 프리셋이 저장되었습니다.`);
+    }
+
+    function loadPreset() {
+      const charName = document.getElementById('presetSelect').value;
+      if (!charName || !bossPresets[charName]) return;
+
+      resetBossForm();
+      document.getElementById('bossCharName').value = charName;
+
+      const presetData = bossPresets[charName];
+      presetData.forEach(p => {
+        const bIndex = bossData.findIndex(b => b.name === p.boss);
+        if (bIndex !== -1) {
+          const cb = document.getElementById(`boss_${bIndex}_${p.diff}`);
+          const select = document.getElementById(`party_${bIndex}_${p.diff}`);
+          if (cb) cb.checked = true;
+          if (select) select.value = p.partyCount || 1;
+        }
+      });
+
+      calculateBossTotal();
+    }
+
+    function deletePreset() {
+      const charName = document.getElementById('presetSelect').value;
+      if (!charName) {
+        alert("삭제할 프리셋을 선택해주세요.");
+        return;
+      }
+
+      if (confirm(`'${charName}' 프리셋을 삭제하시겠습니까?`)) {
+        delete bossPresets[charName];
+        localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+        renderPresetSelect();
+        resetBossForm();
+      }
+    }
+
+    function renderPresetSelect() {
+      const select = document.getElementById('presetSelect');
+      select.innerHTML = '<option value="">-- 프리셋 선택 --</option>';
+      Object.keys(bossPresets).forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+    }
+
+    /* --- [3] 경매장/분배금 계산기 로직 --- */
     function calculateSplit() {
       const price = parseFloat(document.getElementById('calcPrice').value) || 0;
       const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
       const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
 
-      if (price <= 0 || partyCount < 1) {
-        document.getElementById('resPartyLeader').textContent = "0";
-        document.getElementById('resPartyMember').textContent = "0";
-        return;
-      }
+      const netAmount = price * (1 - feeRate);
+      const memberNet = Math.floor(netAmount / partyCount);
+      const memberPay = Math.ceil(memberNet / (1 - feeRate));
+      const leaderNet = netAmount - (memberNet * (partyCount - 1));
 
-      // 1. 경매장 수수료 차감 후 총 정산금
-      const netSales = price * (1 - feeRate);
+      const totalCalculated = leaderNet + (memberNet * (partyCount - 1));
+      const diff = totalCalculated - netAmount;
+      const diffPercent = netAmount > 0 ? (diff / netAmount) * 100 : 0;
 
-      if (partyCount === 1) {
-        document.getElementById('resPartyLeader').textContent = formatNumber(netSales);
-        document.getElementById('resPartyLeaderText').textContent = formatMeso(netSales);
-        document.getElementById('resPartyMember').textContent = "0";
-        document.getElementById('resPartyMemberText').textContent = "0 메소";
-        document.getElementById('resDiff').textContent = "0 메소 (0.000000%)";
-        document.getElementById('resMemberNet').textContent = "0";
-        return;
-      }
-
-      // 2. 파티장 잔여금 = 파티원 실수령액이 일치하는 계산식
-      // netSales = LeaderNet + (partyCount - 1) * MemberTransfer
-      // MemberNet = MemberTransfer * 0.97
-      // LeaderNet = MemberNet 조건 적용
-      // MemberTransfer = netSales / (partyCount - 0.03)
-
-      const transferExact = netSales / (partyCount - 0.03);
-      
-      // 100메소 단위 반올림 처리
-      const memberTransfer = Math.round(transferExact / 100) * 100;
-
-      // 파티장 잔여금
-      const leaderNet = netSales - (memberTransfer * (partyCount - 1));
-
-      // 파티원 실수령액 (3% 차감)
-      const memberNet = memberTransfer * 0.97;
-
-      // 오차액 및 오차율
-      const diff = Math.abs(leaderNet - memberNet);
-      const diffPercent = (diff / leaderNet) * 100;
-
-      // 화면 출력
       document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
       document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
 
-      document.getElementById('resPartyMember').textContent = formatNumber(memberTransfer);
-      document.getElementById('resPartyMemberText').textContent = formatMeso(memberTransfer);
+      document.getElementById('resPartyMember').textContent = formatNumber(memberPay);
+      document.getElementById('resPartyMemberText').textContent = formatMeso(memberPay);
 
-      document.getElementById('resDiff').textContent = `${formatNumber(diff)} 메소 (${diffPercent.toFixed(6)}%)`;
       document.getElementById('resMemberNet').textContent = formatNumber(memberNet);
+      document.getElementById('resDiff').textContent = `${formatMeso(diff)} (${diffPercent.toFixed(6)}%)`;
     }
 
-    // 초기 실행
-    document.getElementById('weeklyGoalInput').value = weeklyGoal;
-    renderHunt();
-    renderBossList();
-    renderPresetSelect();
-    renderBossRecords();
-    updateGoalProgress();
+    /* 분배 항목 기록 기능 추가 */
+    function addSplitRecord() {
+      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+      const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
+      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
+
+      const netAmount = price * (1 - feeRate);
+      const memberNet = Math.floor(netAmount / partyCount);
+      const memberPay = Math.ceil(memberNet / (1 - feeRate));
+
+      const itemName = document.getElementById('splitItemName').value.trim() || '미지정 아이템';
+      const memo = document.getElementById('splitItemMemo').value.trim() || '';
+
+      const newRecord = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        itemName,
+        price,
+        partyCount,
+        memberPay,
+        memo
+      };
+
+      splitRecords.unshift(newRecord);
+      localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+
+      document.getElementById('splitItemName').value = '';
+      document.getElementById('splitItemMemo').value = '';
+      renderSplitRecords();
+    }
+
+    function deleteSplitRecord(id) {
+      if (confirm("이 분배 기록을 삭제하시겠습니까?")) {
+        splitRecords = splitRecords.filter(r => r.id !== id);
+        localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+        renderSplitRecords();
+      }
+    }
+
+    function renderSplitRecords() {
+      const tbody = document.getElementById('splitTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      splitRecords.forEach(r => {
+        const rDateStr = r.date.split('T')[0];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${rDateStr}</td>
+          <td style="font-weight: bold; color: #f8fafc;">${r.itemName}</td>
+          <td>${formatMeso(r.price)}</td>
+          <td>${r.partyCount}명</td>
+          <td style="font-weight: bold; color: #f472b6;">${formatMeso(r.memberPay)}</td>
+          <td><span class="item-memo">${r.memo || '-'}</span></td>
+          <td>
+            <button class="btn-delete" onclick="deleteSplitRecord(${r.id})">삭제</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* 초기화 실행 */
+    window.onload = function() {
+      document.getElementById('weeklyGoalInput').value = weeklyGoal;
+      renderBossList();
+      renderHunt();
+      renderBossRecords();
+      renderPresetSelect();
+      renderSplitRecords();
+      updateGoalProgress();
+      calculateSplit();
+    };
   </script>
 </body>
 </html>
