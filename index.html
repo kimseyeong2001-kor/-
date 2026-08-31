@@ -23,12 +23,25 @@
       gap: 20px;
     }
 
-    /* 탭 메뉴 */
+    /* 탭 메뉴 및 백업 바 */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
     .tab-container {
       display: flex;
       gap: 12px;
-      border-bottom: 2px solid #334155;
-      padding-bottom: 12px;
+    }
+
+    .backup-container {
+      display: flex;
+      gap: 8px;
     }
 
     .tab-btn {
@@ -48,6 +61,21 @@
       color: #ffffff;
       border-color: #6366f1;
       box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-backup {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      font-size: 0.85rem;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-backup:hover {
+      background-color: #475569;
     }
 
     .tab-content {
@@ -112,12 +140,6 @@
       border-color: #6366f1;
     }
 
-    .sub-text {
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-bottom: 16px;
-    }
-
     .btn-group {
       display: flex;
       gap: 12px;
@@ -144,11 +166,6 @@
 
     .btn-secondary {
       background-color: #10b981;
-      color: #ffffff;
-    }
-
-    .btn-add-item {
-      background-color: #4f46e5;
       color: #ffffff;
     }
 
@@ -316,6 +333,10 @@
     }
 
     @media (max-width: 768px) {
+      .top-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
       .form-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -331,10 +352,19 @@
 </head>
 <body>
 
-  <!-- 상단 탭 메뉴 -->
-  <div class="tab-container">
-    <button class="tab-btn active" onclick="switchTab('hunt')">⚔️ 사냥 수익 기록</button>
-    <button class="tab-btn" onclick="switchTab('boss')">👑 보스 수익 기록</button>
+  <!-- 상단 헤더: 탭 & 백업 기능 -->
+  <div class="top-header">
+    <div class="tab-container">
+      <button class="tab-btn active" onclick="switchTab('hunt')">⚔️ 사냥 수익 기록</button>
+      <button class="tab-btn" onclick="switchTab('boss')">👑 보스 수익 기록</button>
+    </div>
+
+    <!-- 데이터 백업/복구 버튼 -->
+    <div class="backup-container">
+      <button class="btn-backup" onclick="exportData()">💾 데이터 내보내기 (백업)</button>
+      <button class="btn-backup" onclick="document.getElementById('importFile').click()">📂 데이터 불러오기 (복구)</button>
+      <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+    </div>
   </div>
 
   <!-- 1. 사냥 수익 기록 탭 -->
@@ -549,6 +579,61 @@
       if (eok > 0) result += `${eok}억 `;
       if (man > 0) result += `${man}만 `;
       return result.trim() + " 메소";
+    }
+
+    /* --- [데이터 백업 & 복구 기능] --- */
+    function exportData() {
+      const backupData = {
+        mapleHuntRecords: huntRecords,
+        mapleBossRecords: bossRecords,
+        mapleBossPresets: bossPresets,
+        exportDate: new Date().toISOString()
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const fileName = `maple_revenue_backup_${new Date().toISOString().split('T')[0]}.json`;
+
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+
+          if (confirm("기존 기록에 불러온 데이터를 덮어씌우시겠습니까?")) {
+            if (imported.mapleHuntRecords) {
+              huntRecords = imported.mapleHuntRecords;
+              localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
+            }
+            if (imported.mapleBossRecords) {
+              bossRecords = imported.mapleBossRecords;
+              localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
+            }
+            if (imported.mapleBossPresets) {
+              bossPresets = imported.mapleBossPresets;
+              localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+            }
+
+            renderHunt();
+            renderBossRecords();
+            renderPresetSelect();
+            alert("데이터가 성공적으로 복구되었습니다!");
+          }
+        } catch (err) {
+          alert("유효하지 않은 백업 파일입니다.");
+        }
+      };
+      reader.readAsText(file);
     }
 
     /* --- [1] 사냥 로직 --- */
@@ -795,8 +880,8 @@
     /* --- [4] 목요일 기준 날짜 계산 및 보스 기록 관리 --- */
     function getRecentThursday() {
       const now = new Date();
-      const day = now.getDay(); // 0(일) ~ 6(토)
-      const diff = (day >= 4) ? (day - 4) : (day + 3); // 목요일(4)로부터 몇 일 지났는지
+      const day = now.getDay();
+      const diff = (day >= 4) ? (day - 4) : (day + 3);
       const recentThursday = new Date(now);
       recentThursday.setDate(now.getDate() - diff);
       recentThursday.setHours(0, 0, 0, 0);
