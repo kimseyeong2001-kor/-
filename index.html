@@ -344,6 +344,11 @@
       gap: 10px;
     }
 
+    .boss-item.monthly-boss {
+      border: 1px solid #818cf8;
+      background-color: #131b2e;
+    }
+
     .boss-header {
       display: flex;
       justify-content: space-between;
@@ -369,7 +374,7 @@
       padding: 6px 10px;
       border-radius: 6px;
       border: 1px solid #334155;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
 
     .diff-row:hover {
@@ -385,9 +390,24 @@
       font-weight: 600;
     }
 
+    /* 난이도 이모지 배지 스타일 */
+    .diff-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .diff-badge.이지 { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    .diff-badge.노말 { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .diff-badge.하드 { background-color: rgba(168, 85, 247, 0.15); color: #c084fc; }
+    .diff-badge.카오스 { background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .diff-badge.익스트림 { background-color: rgba(236, 72, 153, 0.15); color: #f472b6; }
+
     .diff-price-tag {
       font-size: 0.75rem;
-      color: #38bdf8;
+      color: #94a3b8;
       font-weight: normal;
     }
 
@@ -699,7 +719,7 @@
   <div id="tab-boss" class="tab-content">
     <div class="card">
       <div class="card-title">
-        <span>👑 주간/월간 보스 선택</span>
+        <span>👑 보스 선택 및 기록</span>
         <span class="total-summary" id="currentBossTotal">0 메소</span>
       </div>
 
@@ -778,12 +798,17 @@
       </div>
 
       <div class="info-bar">
-        <span>선택된 보스 개수: <span id="bossCount" class="count-badge">0</span> / 12</span>
-        <span style="font-size: 0.85rem; color: #94a3b8;">* 캐릭터당 최대 12개 선택 가능 (난이도 1개 선택 가능)</span>
+        <span>선택된 주간 보스 개수: <span id="bossCount" class="count-badge">0</span> / 12</span>
+        <span style="font-size: 0.85rem; color: #94a3b8;">* 주간 보스 캐릭터당 최대 12개 선택 가능</span>
       </div>
 
-      <div class="boss-grid" id="bossListContainer">
-      </div>
+      <!-- 주간 보스 목록 -->
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px;">🗓️ 주간 보스 목록</h3>
+      <div class="boss-grid" id="bossListContainer"></div>
+
+      <!-- 월간 보스 목록 섹션 분리 -->
+      <h3 style="font-size: 1.05rem; font-weight: 700; color: #a855f7; margin: 24px 0 12px 0; border-top: 1px dashed #334155; padding-top: 16px;">🔴 월간 보스</h3>
+      <div class="boss-grid" id="monthlyBossListContainer"></div>
     </div>
 
     <div class="card">
@@ -898,6 +923,7 @@
   </div>
 
   <script>
+    // 주간 보스 목록
     const bossData = [
       { name: "파풀라투스", diffs: { "카오스": 13100000 } },
       { name: "스우", diffs: { "익스트림": 574000000, "하드": 51500000, "노말": 16700000 } },
@@ -916,9 +942,22 @@
       { name: "림보", diffs: { "하드": 2385000000, "노말": 1026000000 } },
       { name: "벨로나", diffs: { "하드": 2950000000, "노말": 850000000, "이지": 440000000 } },
       { name: "발드릭스", diffs: { "하드": 3078000000, "노말": 1368000000 } },
-      { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } },
-      { name: "검은 마법사 (월간)", diffs: { "익스트림": 8740000000, "하드": 665000000 } }
+      { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } }
     ];
+
+    // 월간 보스 목록 따로 분리
+    const monthlyBossData = [
+      { name: "검은 마법사", diffs: { "익스트림": 8740000000, "하드": 665000000 } }
+    ];
+
+    // 난이도별 이모지 지정
+    const diffIcons = {
+      "이지": "🟢",
+      "노말": "🔵",
+      "하드": "🟣",
+      "카오스": "🔴",
+      "익스트림": "💥"
+    };
 
     let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
     let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
@@ -1249,66 +1288,88 @@
       document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
     }
 
-    /* --- [2] 보스 로직 (UI 개선 적용) --- */
+    /* --- [2] 보스 로직 (난이도 UI 개선 & 월간 보스 분리) --- */
+    function renderBossCard(boss, bIndex, isMonthly = false) {
+      const bossDiv = document.createElement('div');
+      bossDiv.className = `boss-item ${isMonthly ? 'monthly-boss' : ''}`;
+
+      let diffsHTML = '';
+      Object.keys(boss.diffs).forEach(diff => {
+        const price = boss.diffs[diff];
+        const prefix = isMonthly ? 'mboss' : 'boss';
+        const inputId = `${prefix}_${bIndex}_${diff}`;
+        const selectId = `party_${prefix}_${bIndex}_${diff}`;
+        const icon = diffIcons[diff] || '✨';
+
+        diffsHTML += `
+          <div class="diff-row">
+            <label class="diff-label" for="${inputId}">
+              <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" data-monthly="${isMonthly}" onchange="calculateBossTotal()">
+              <span class="diff-badge ${diff}">${icon} ${diff}</span>
+              <span class="diff-price-tag">(${formatMeso(price)})</span>
+            </label>
+            <div class="party-select-wrapper">
+              <select class="party-select" id="${selectId}" onchange="calculateBossTotal()">
+                <option value="1">👤 솔플</option>
+                <option value="2">👥 2인</option>
+                <option value="3">👥 3인</option>
+                <option value="4">👥 4인</option>
+                <option value="5">👥 5인</option>
+                <option value="6">👥 6인</option>
+              </select>
+            </div>
+          </div>
+        `;
+      });
+
+      const bossIcon = isMonthly ? '🔴' : '😈';
+      bossDiv.innerHTML = `
+        <div class="boss-header">
+          <span>${bossIcon} ${boss.name}</span>
+        </div>
+        <div class="boss-options">
+          ${diffsHTML}
+        </div>
+      `;
+      return bossDiv;
+    }
+
     function renderBossList() {
       const container = document.getElementById('bossListContainer');
       container.innerHTML = '';
-
       bossData.forEach((boss, bIndex) => {
-        const bossDiv = document.createElement('div');
-        bossDiv.className = 'boss-item';
+        container.appendChild(renderBossCard(boss, bIndex, false));
+      });
 
-        let diffsHTML = '';
-        Object.keys(boss.diffs).forEach(diff => {
-          const price = boss.diffs[diff];
-          const inputId = `boss_${bIndex}_${diff}`;
-          const selectId = `party_${bIndex}_${diff}`;
-
-          diffsHTML += `
-            <div class="diff-row">
-              <label class="diff-label" for="${inputId}">
-                <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" onchange="calculateBossTotal()">
-                <span>${diff}</span>
-                <span class="diff-price-tag">(${formatMeso(price)})</span>
-              </label>
-              <div class="party-select-wrapper">
-                <select class="party-select" id="${selectId}" onchange="calculateBossTotal()">
-                  <option value="1">👤 솔플</option>
-                  <option value="2">👥 2인</option>
-                  <option value="3">👥 3인</option>
-                  <option value="4">👥 4인</option>
-                  <option value="5">👥 5인</option>
-                  <option value="6">👥 6인</option>
-                </select>
-              </div>
-            </div>
-          `;
-        });
-
-        bossDiv.innerHTML = `
-          <div class="boss-header">
-            <span>😈 ${boss.name}</span>
-          </div>
-          <div class="boss-options">
-            ${diffsHTML}
-          </div>
-        `;
-        container.appendChild(bossDiv);
+      const monthlyContainer = document.getElementById('monthlyBossListContainer');
+      monthlyContainer.innerHTML = '';
+      monthlyBossData.forEach((boss, bIndex) => {
+        monthlyContainer.appendChild(renderBossCard(boss, bIndex, true));
       });
     }
 
     function calculateBossTotal() {
       let totalMeso = 0;
-      let count = 0;
+      let weeklyCount = 0;
 
-      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
-      checkboxes.forEach(cb => {
-        count++;
+      // 주간 보스 계산
+      const weeklyCheckboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
+      weeklyCheckboxes.forEach(cb => {
+        weeklyCount++;
         const price = parseFloat(cb.dataset.price);
         const diff = cb.dataset.diff;
         const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
-        const partyCount = parseInt(document.getElementById(`party_${bIndex}_${diff}`).value) || 1;
-        
+        const partyCount = parseInt(document.getElementById(`party_boss_${bIndex}_${diff}`).value) || 1;
+        totalMeso += Math.floor(price / partyCount);
+      });
+
+      // 월간 보스 계산 (주간 12개 제한 수량 카운트에는 포함 안 함)
+      const monthlyCheckboxes = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked');
+      monthlyCheckboxes.forEach(cb => {
+        const price = parseFloat(cb.dataset.price);
+        const diff = cb.dataset.diff;
+        const bIndex = monthlyBossData.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_mboss_${bIndex}_${diff}`).value) || 1;
         totalMeso += Math.floor(price / partyCount);
       });
 
@@ -1331,25 +1392,27 @@
       const netTotal = totalMeso - totalCost;
 
       const bossCountSpan = document.getElementById('bossCount');
-      bossCountSpan.textContent = count;
-      if (count > 12) {
-        bossCountSpan.classList.add('limit');
+      bossCountSpan.textContent = weeklyCount;
+      if (weeklyCount > 12) {
+        bossCountSpan.style.color = '#ef4444';
       } else {
-        bossCountSpan.classList.remove('limit');
+        bossCountSpan.style.color = '#6366f1';
       }
 
       document.getElementById('currentBossTotal').textContent = `순수익: ${formatMeso(netTotal)} (차감: -${formatMeso(totalCost)})`;
-      return { totalMeso, totalCost, netTotal, count };
+      return { totalMeso, totalCost, netTotal, count: weeklyCount };
     }
 
     function addOrUpdateBossRecord() {
       const { totalMeso, totalCost, netTotal, count } = calculateBossTotal();
-      if (count === 0) {
+      const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
+
+      if (count === 0 && monthlyCount === 0) {
         alert("최소 1개 이상의 보스를 선택해주세요.");
         return;
       }
       if (count > 12) {
-        alert("보스는 캐릭터당 최대 12개까지 선택 가능합니다.");
+        alert("주간 보스는 캐릭터당 최대 12개까지 선택 가능합니다.");
         return;
       }
 
@@ -1357,15 +1420,20 @@
       const memo = document.getElementById('bossMemo').value || '';
 
       const selectedBosses = [];
-      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
+      const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]:checked');
       checkboxes.forEach(cb => {
-        const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
-        const partyCount = parseInt(document.getElementById(`party_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        const isMonthly = cb.dataset.monthly === 'true';
+        const prefix = isMonthly ? 'mboss' : 'boss';
+        const bList = isMonthly ? monthlyBossData : bossData;
+        const bIndex = bList.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        
         selectedBosses.push({
           boss: cb.dataset.boss,
           diff: cb.dataset.diff,
           price: parseFloat(cb.dataset.price),
-          partyCount
+          partyCount,
+          isMonthly
         });
       });
 
@@ -1382,12 +1450,14 @@
         costHero: parseFloat(document.getElementById('costHeroPotion').value) || 0,
       };
 
+      const totalBossCount = count + monthlyCount;
+
       if (editingBossId !== null) {
         const index = bossRecords.findIndex(r => r.id === editingBossId);
         if (index !== -1) {
           bossRecords[index] = {
             ...bossRecords[index],
-            character, memo, count, total: totalMeso, totalCost, netTotal, selectedBosses, costs
+            character, memo, count: totalBossCount, total: totalMeso, totalCost, netTotal, selectedBosses, costs
           };
         }
         editingBossId = null;
@@ -1397,7 +1467,7 @@
         const newRecord = {
           id: Date.now(),
           date: new Date().toISOString(),
-          character, memo, count, total: totalMeso, totalCost, netTotal, selectedBosses, costs
+          character, memo, count: totalBossCount, total: totalMeso, totalCost, netTotal, selectedBosses, costs
         };
         bossRecords.unshift(newRecord);
       }
@@ -1412,7 +1482,7 @@
       document.getElementById('bossCharName').value = '';
       document.getElementById('bossMemo').value = '';
       
-      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]');
+      const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]');
       checkboxes.forEach(cb => cb.checked = false);
 
       ['qtyElixir1', 'qtyElixir2', 'qtyElixir3', 'qtyElixir4', 'qtyWhetstone', 'costWhetstone', 'qtyRedStar', 'costRedStar', 'qtyHeroPotion', 'costHeroPotion'].forEach(id => {
@@ -1438,10 +1508,14 @@
 
       if (record.selectedBosses) {
         record.selectedBosses.forEach(sb => {
-          const bIndex = bossData.findIndex(b => b.name === sb.boss);
+          const isMonthly = sb.isMonthly || sb.boss === "검은 마법사";
+          const prefix = isMonthly ? 'mboss' : 'boss';
+          const bList = isMonthly ? monthlyBossData : bossData;
+          const bIndex = bList.findIndex(b => b.name === sb.boss);
+
           if (bIndex !== -1) {
-            const cb = document.getElementById(`boss_${bIndex}_${sb.diff}`);
-            const select = document.getElementById(`party_${bIndex}_${sb.diff}`);
+            const cb = document.getElementById(`${prefix}_${bIndex}_${sb.diff}`);
+            const select = document.getElementById(`party_${prefix}_${bIndex}_${sb.diff}`);
             if (cb) cb.checked = true;
             if (select) select.value = sb.partyCount || 1;
           }
@@ -1529,11 +1603,14 @@
       }
 
       const selectedBosses = [];
-      const checkboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
+      const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]:checked');
       checkboxes.forEach(cb => {
-        const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
-        const partyCount = parseInt(document.getElementById(`party_${bIndex}_${cb.dataset.diff}`).value) || 1;
-        selectedBosses.push({ boss: cb.dataset.boss, diff: cb.dataset.diff, partyCount });
+        const isMonthly = cb.dataset.monthly === 'true';
+        const prefix = isMonthly ? 'mboss' : 'boss';
+        const bList = isMonthly ? monthlyBossData : bossData;
+        const bIndex = bList.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        selectedBosses.push({ boss: cb.dataset.boss, diff: cb.dataset.diff, partyCount, isMonthly });
       });
 
       if (selectedBosses.length === 0) {
@@ -1557,10 +1634,14 @@
 
       const presetData = bossPresets[charName];
       presetData.forEach(p => {
-        const bIndex = bossData.findIndex(b => b.name === p.boss);
+        const isMonthly = p.isMonthly || p.boss === "검은 마법사";
+        const prefix = isMonthly ? 'mboss' : 'boss';
+        const bList = isMonthly ? monthlyBossData : bossData;
+        const bIndex = bList.findIndex(b => b.name === p.boss);
+
         if (bIndex !== -1) {
-          const cb = document.getElementById(`boss_${bIndex}_${p.diff}`);
-          const select = document.getElementById(`party_${bIndex}_${p.diff}`);
+          const cb = document.getElementById(`${prefix}_${bIndex}_${p.diff}`);
+          const select = document.getElementById(`party_${prefix}_${bIndex}_${p.diff}`);
           if (cb) cb.checked = true;
           if (select) select.value = p.partyCount || 1;
         }
