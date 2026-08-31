@@ -430,45 +430,60 @@
       font-size: 0.85rem;
     }
 
-    /* 분배금 계산기 전용 스타일 */
-    .calc-result-box {
-      background-color: #0f172a;
-      border: 1px solid #38bdf8;
-      border-radius: 8px;
-      padding: 20px;
+    /* 분배금 계산기 스타일 */
+    .calc-result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
       margin-top: 16px;
+    }
+
+    .calc-card {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
     }
 
-    .calc-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px dashed #334155;
-      padding-bottom: 8px;
+    .calc-card.highlight-card {
+      border-color: #ec4899;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.05), rgba(15, 23, 42, 0.8));
     }
 
-    .calc-row:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .calc-row .title {
+    .calc-card-title {
+      font-size: 0.9rem;
       color: #94a3b8;
-      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .calc-row .value {
-      font-weight: 700;
-      font-size: 1.1rem;
+    .calc-card-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .calc-card-sub {
+      font-size: 0.85rem;
       color: #38bdf8;
     }
 
-    .calc-row .highlight {
-      color: #10b981;
-      font-size: 1.25rem;
+    .error-box {
+      grid-column: span 2;
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
     }
 
     @media (max-width: 768px) {
@@ -485,6 +500,12 @@
       .preset-bar {
         flex-direction: column;
         align-items: stretch;
+      }
+      .calc-result-grid {
+        grid-template-columns: 1fr;
+      }
+      .error-box {
+        grid-column: span 1;
       }
     }
   </style>
@@ -780,38 +801,36 @@
         <div class="form-group">
           <label>경매장 수수료율</label>
           <select id="calcFeeRate" onchange="calculateSplit()">
-            <option value="0.05">일반 수수료 (5%)</option>
             <option value="0.03">MVP / PC방 수수료 (3%)</option>
+            <option value="0.05">일반 수수료 (5%)</option>
           </select>
         </div>
         <div class="form-group">
           <label>파티원 수 (본인 포함)</label>
-          <input type="number" id="calcPartyCount" value="6" min="1" max="6" oninput="calculateSplit()">
+          <input type="number" id="calcPartyCount" value="3" min="1" max="6" oninput="calculateSplit()">
         </div>
       </div>
 
-      <div class="calc-result-box">
-        <div class="calc-row">
-          <span class="title">경매장 수수료 차감 후 총 수령액:</span>
-          <span class="value" id="resTotalNet">0 메소</span>
+      <div class="calc-result-grid">
+        <div class="calc-card">
+          <div class="calc-card-title">👑 파티장 분배금</div>
+          <div class="calc-card-value" id="resPartyLeader">0</div>
+          <div class="calc-card-sub" id="resPartyLeaderText">0 메소</div>
+          <span style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">실수령 기준 잔여</span>
         </div>
-        <div class="calc-row">
-          <span class="title">1인당 목표 실수령액 (N등분):</span>
-          <span class="value" id="resTargetPerPerson">0 메소</span>
+
+        <div class="calc-card highlight-card">
+          <div class="calc-card-title" style="color: #ec4899;">👥 파티원 분배금 (전달 금액)</div>
+          <div class="calc-card-value" id="resPartyMember" style="color: #f472b6;">0</div>
+          <div class="calc-card-sub" id="resPartyMemberText" style="color: #f472b6;">0 메소</div>
+          <span style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">파티원 1인당 전달 금액 (수수료 포함)</span>
         </div>
-        <div class="calc-row" style="background-color: rgba(16, 185, 129, 0.1); padding: 12px; border-radius: 6px;">
-          <span class="title" style="color: #10b981; font-weight: 700;">👉 파티원 1인당 송금할 금액 (파티원 3% 수수료 감안):</span>
-          <span class="value highlight" id="resSendAmount">0 메소</span>
-        </div>
-        <div class="calc-row">
-          <span class="title">판매자 본인에게 남는 금액 (최종 검증):</span>
-          <span class="value" id="resSellerRemain" style="color: #38bdf8;">0 메소</span>
+
+        <div class="error-box">
+          <span>오차액 / 오차율: <strong id="resDiff" style="color: #f8fafc;">0 메소 (0.000000%)</strong></span>
+          <span style="font-size: 0.78rem; color: #64748b;">* 파티원 실수령액: <span id="resMemberNet">0</span> 메소</span>
         </div>
       </div>
-      
-      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 12px;">
-        * 파티원이 받은 메소에서 거래/무역 3% 수수료를 차감받더라도 **모든 파티원의 최종 실수령액이 동일**하도록 보정하여 산출된 송금액입니다.
-      </p>
     </div>
   </div>
 
@@ -967,13 +986,11 @@
 
       const recentThursday = getRecentThursday();
       
-      // 이번 주 사냥 순수익
       let thisWeekHunt = 0;
       huntRecords.forEach(r => {
         if (new Date(r.date) >= recentThursday) thisWeekHunt += r.netEarned;
       });
 
-      // 이번 주 보스 순수익
       let thisWeekBoss = 0;
       bossRecords.forEach(r => {
         if (new Date(r.date) >= recentThursday) thisWeekBoss += (r.netTotal !== undefined ? r.netTotal : r.total);
@@ -1533,30 +1550,61 @@
       document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후 순수익): ${formatMeso(thisWeekTotal)}`;
     }
 
-    /* --- [3] 경매장/분배금 계산기 로직 --- */
+    /* --- [3] 경매장/분배금 계산기 정밀 로직 --- */
     function calculateSplit() {
       const price = parseFloat(document.getElementById('calcPrice').value) || 0;
-      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.05;
+      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
       const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
 
-      // 1. 판매 후 총 정산액 (경매장 수수료 차감 후)
-      const totalNet = price * (1 - feeRate);
+      if (price <= 0 || partyCount < 1) {
+        document.getElementById('resPartyLeader').textContent = "0";
+        document.getElementById('resPartyMember').textContent = "0";
+        return;
+      }
 
-      // 2. 1인당 목표 실수령액 (N등분)
-      const targetPerPerson = totalNet / partyCount;
+      // 1. 경매장 수수료 차감 후 총 정산금
+      const netSales = price * (1 - feeRate);
 
-      // 3. 파티원 1인당 송금할 금액 (파티원이 3% 수수료를 차감받고 받을 금액)
-      // 송금액 * (1 - 0.03) = targetPerPerson  => 송금액 = targetPerPerson / 0.97
-      const sendAmount = partyCount > 1 ? (targetPerPerson / 0.97) : 0;
+      if (partyCount === 1) {
+        document.getElementById('resPartyLeader').textContent = formatNumber(netSales);
+        document.getElementById('resPartyLeaderText').textContent = formatMeso(netSales);
+        document.getElementById('resPartyMember').textContent = "0";
+        document.getElementById('resPartyMemberText').textContent = "0 메소";
+        document.getElementById('resDiff').textContent = "0 메소 (0.000000%)";
+        document.getElementById('resMemberNet').textContent = "0";
+        return;
+      }
 
-      // 4. 판매자 본인에게 남는 금액 (검증)
-      // 총 수령액 - (송금액 * (파티원 수 - 1))
-      const sellerRemain = totalNet - (sendAmount * (partyCount - 1));
+      // 2. 파티장 잔여금 = 파티원 실수령액이 일치하는 계산식
+      // netSales = LeaderNet + (partyCount - 1) * MemberTransfer
+      // MemberNet = MemberTransfer * 0.97
+      // LeaderNet = MemberNet 조건 적용
+      // MemberTransfer = netSales / (partyCount - 0.03)
 
-      document.getElementById('resTotalNet').textContent = formatMeso(totalNet);
-      document.getElementById('resTargetPerPerson').textContent = formatMeso(targetPerPerson);
-      document.getElementById('resSendAmount').textContent = formatMeso(sendAmount);
-      document.getElementById('resSellerRemain').textContent = formatMeso(sellerRemain);
+      const transferExact = netSales / (partyCount - 0.03);
+      
+      // 100메소 단위 반올림 처리
+      const memberTransfer = Math.round(transferExact / 100) * 100;
+
+      // 파티장 잔여금
+      const leaderNet = netSales - (memberTransfer * (partyCount - 1));
+
+      // 파티원 실수령액 (3% 차감)
+      const memberNet = memberTransfer * 0.97;
+
+      // 오차액 및 오차율
+      const diff = Math.abs(leaderNet - memberNet);
+      const diffPercent = (diff / leaderNet) * 100;
+
+      // 화면 출력
+      document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
+      document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
+
+      document.getElementById('resPartyMember').textContent = formatNumber(memberTransfer);
+      document.getElementById('resPartyMemberText').textContent = formatMeso(memberTransfer);
+
+      document.getElementById('resDiff').textContent = `${formatNumber(diff)} 메소 (${diffPercent.toFixed(6)}%)`;
+      document.getElementById('resMemberNet').textContent = formatNumber(memberNet);
     }
 
     // 초기 실행
