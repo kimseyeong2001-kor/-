@@ -5,111 +5,107 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>메이플스토리 수익 가계부 & 분배금 계산기</title>
   <style>
-    /* -------------------------------------
-       [1] 글로벌 & 다크 테마 컬러 변수
-    -------------------------------------- */
     :root {
-      --bg-main: #0f172a;       /* 아주 어두운 남색 배경 */
-      --bg-card: #1e293b;       /* 카드 패널 배경 */
-      --bg-input: #334155;      /* 입력창 배경 */
-      --border-color: #475569;  /* 테두리 색상 */
-      --text-main: #f8fafc;     /* 기본 텍스트 (흰색) */
-      --text-muted: #94a3b8;    /* 보조 텍스트 (회색) */
-      
-      --meso-color: #fbbf24;    /* 메소(금색) */
-      --profit-color: #38bdf8;  /* 흑자(스카이블루) */
-      --loss-color: #f87171;    /* 적자/비용(붉은색) */
-      --boss-color: #c084fc;    /* 보스(보라색) */
-      
-      --btn-primary: linear-gradient(135deg, #3b82f6, #2563eb);
-      --btn-danger: linear-gradient(135deg, #ef4444, #dc2626);
-      --btn-edit: linear-gradient(135deg, #10b981, #059669);
+      --bg-main: #0b0f19;
+      --bg-card: #131c2e;
+      --bg-input: #1e293b;
+      --border-color: #334155;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --meso-color: #fbbf24;
+      --profit-color: #38bdf8;
+      --loss-color: #f87171;
+      --boss-color: #c084fc;
+      --btn-primary: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      --btn-danger: linear-gradient(135deg, #ef4444, #b91c1c);
+      --btn-edit: linear-gradient(135deg, #10b981, #047857);
     }
 
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
-      font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
-      line-height: 1.6;
+      padding: 30px 20px;
+      line-height: 1.5;
     }
 
-    /* -------------------------------------
-       [2] 레이아웃 및 탭 디자인
-    -------------------------------------- */
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 30px;
       background-color: var(--bg-card);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     h1, h2, h3 {
       margin-top: 0;
       color: var(--text-main);
+      font-weight: 700;
     }
+
+    h1 { font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    h2 { font-size: 20px; margin-bottom: 15px; border-left: 4px solid var(--profit-color); padding-left: 10px; }
 
     .tabs {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 25px;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 15px;
     }
 
     .tab-btn {
-      background: transparent;
+      background: var(--bg-input);
       color: var(--text-muted);
-      border: none;
-      font-size: 16px;
-      font-weight: bold;
-      padding: 10px 20px;
+      border: 1px solid var(--border-color);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 10px 24px;
       cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.3s ease;
+      border-radius: 10px;
+      transition: all 0.2s ease;
     }
 
     .tab-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--border-color);
       color: var(--text-main);
     }
 
     .tab-btn.active {
-      color: var(--profit-color);
-      background: rgba(56, 189, 248, 0.1);
+      color: #fff;
+      background: var(--btn-primary);
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
 
-    /* -------------------------------------
-       [3] 입력 폼, 셀렉트, 체크박스
-    -------------------------------------- */
     input[type="text"], 
     input[type="number"], 
     select {
       width: 100%;
-      padding: 12px 15px;
+      padding: 12px 16px;
       background-color: var(--bg-input);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 10px;
       color: var(--text-main);
       font-size: 14px;
       box-sizing: border-box;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.2s;
     }
 
     input:focus, select:focus {
       outline: none;
       border-color: var(--profit-color);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
     }
 
     label {
       display: block;
       margin-bottom: 6px;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 500;
       color: var(--text-muted);
     }
 
@@ -120,93 +116,84 @@
       display: block;
     }
 
-    /* -------------------------------------
-       [4] 보스 카드 UI (그리드 레이아웃)
-    -------------------------------------- */
     #bossListContainer, #monthlyBossListContainer {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
     }
 
     .boss-card {
       background-color: var(--bg-input);
       border-radius: 12px;
-      padding: 15px;
+      padding: 14px;
       border: 1px solid var(--border-color);
-      transition: transform 0.2s, border-color 0.2s;
+      transition: all 0.2s;
     }
 
     .boss-card:hover {
-      transform: translateY(-2px);
       border-color: var(--boss-color);
     }
 
     .boss-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 18px;
+      gap: 8px;
+      font-size: 16px;
       font-weight: bold;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed var(--border-color);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .boss-icon { font-size: 24px; }
+    .boss-icon { font-size: 20px; }
     
     .diff-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-      font-size: 14px;
+      margin-bottom: 6px;
+      font-size: 13px;
     }
 
     .diff-item label {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin: 0;
       cursor: pointer;
       color: var(--text-main);
     }
 
     .diff-item select {
-      width: 70px;
-      padding: 4px 8px;
+      width: 65px;
+      padding: 4px 6px;
+      font-size: 12px;
     }
 
     .diff-price {
       color: var(--meso-color);
-      font-size: 13px;
+      font-size: 12px;
     }
 
-    /* -------------------------------------
-       [5] 버튼 디자인
-    -------------------------------------- */
     button {
       cursor: pointer;
       border: none;
-      border-radius: 8px;
-      font-weight: bold;
+      border-radius: 10px;
+      font-weight: 600;
       color: #fff;
-      padding: 12px 24px;
-      font-size: 15px;
-      transition: opacity 0.2s, transform 0.1s;
+      padding: 12px 20px;
+      font-size: 14px;
+      transition: filter 0.2s, transform 0.1s;
     }
 
     button:active { transform: scale(0.98); }
-    button:hover { opacity: 0.9; }
+    button:hover { filter: brightness(1.1); }
 
-    .btn-submit { background: var(--btn-primary); width: 100%; margin-top: 15px; }
-    .btn-edit { background: var(--btn-edit); padding: 6px 12px; font-size: 13px; }
-    .btn-delete { background: var(--btn-danger); padding: 6px 12px; font-size: 13px; margin-left: 5px; }
+    .btn-submit { background: var(--btn-primary); width: 100%; margin-top: 15px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+    .btn-edit { background: var(--btn-edit); padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+    .btn-delete { background: var(--btn-danger); padding: 6px 12px; font-size: 12px; border-radius: 6px; margin-left: 4px; }
 
-    /* -------------------------------------
-       [6] 데이터 테이블 디자인
-    -------------------------------------- */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -214,13 +201,14 @@
       background-color: var(--bg-input);
       border-radius: 12px;
       overflow: hidden;
+      border: 1px solid var(--border-color);
     }
 
     th, td {
-      padding: 15px;
+      padding: 14px 16px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
-      font-size: 14px;
+      font-size: 13px;
     }
 
     th {
@@ -229,41 +217,40 @@
       font-weight: 600;
     }
 
-    tr:hover td { background-color: rgba(255, 255, 255, 0.03); }
+    tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
     tr:last-child td { border-bottom: none; }
 
     .cost-text { color: var(--loss-color); }
     .item-memo { color: var(--text-muted); font-style: italic; }
 
-    /* -------------------------------------
-       [7] 통계 요약 대시보드
-    -------------------------------------- */
     .summary-box {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
 
     .summary-item {
       flex: 1;
-      min-width: 200px;
+      min-width: 180px;
       background-color: var(--bg-input);
-      padding: 20px;
+      padding: 16px 20px;
       border-radius: 12px;
+      border: 1px solid var(--border-color);
       border-left: 4px solid var(--profit-color);
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     .summary-item .label {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
+      margin: 0;
     }
 
     .summary-item .value {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       color: var(--meso-color);
     }
@@ -272,7 +259,7 @@
 <body>
 
   <div class="container">
-    <h1>메이플스토리 수익 관리기</h1>
+    <h1><span>🍁</span> 메이플스토리 수익 관리기</h1>
     
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('hunt')">사냥 수익</button>
@@ -280,10 +267,9 @@
       <button class="tab-btn" onclick="switchTab('split')">분배금 계산기</button>
     </div>
 
-    <!-- 탭 콘텐츠 영역 등 기본 뼈대 -->
+    <!-- 탭 콘텐츠 영역 -->
     <div id="tab-hunt" class="tab-content">
       <h2>사냥 수익 기록</h2>
-      <!-- 사냥 폼 및 테이블 예시 영역 -->
       <div class="summary-box">
         <div class="summary-item"><span class="label">오늘 사냥 순수익</span><span class="value" id="huntTodayMeso">0 메소</span></div>
         <div class="summary-item"><span class="label">이번 주 사냥 순수익</span><span class="value" id="huntWeekMeso">0 메소</span></div>
@@ -301,34 +287,34 @@
 
     <div id="tab-boss" class="tab-content" style="display:none;">
       <h2>보스 수익 기록</h2>
-      <div class="summary-item" style="margin-bottom: 15px;">
-        <span class="label" id="thisWeekBossTotal">이번 주 (목요일 이후): 0 메소</span>
-        <span class="value" id="currentBossTotal">순수익: 0 메소 (차감: -0 메소)</span>
+      <div class="summary-box">
+        <div class="summary-item"><span class="label" id="thisWeekBossTotal">이번 주 (목요일 이후): 0 메소</span><span class="value" id="currentBossTotal" style="font-size:15px; margin-top:2px;">순수익: 0 메소 (차감: -0 메소)</span></div>
       </div>
-      <div>
-        <input type="text" id="bossCharName" placeholder="캐릭터명 입력" style="margin-bottom:10px;">
-        <input type="text" id="bossMemo" placeholder="메모 입력" style="margin-bottom:10px;">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="bossCharName" placeholder="캐릭터명 입력">
+          <input type="text" id="bossMemo" placeholder="메모 입력">
+        </div>
         
-        <!-- 숨겨진 계산 호환용 필드들 -->
         <input type="hidden" id="qtyElixir1" value="0"><input type="hidden" id="qtyElixir2" value="0"><input type="hidden" id="qtyElixir3" value="0"><input type="hidden" id="qtyElixir4" value="0">
         <input type="hidden" id="qtyWhetstone" value="0"><input type="hidden" id="costWhetstone" value="0">
         <input type="hidden" id="qtyRedStar" value="0"><input type="hidden" id="costRedStar" value="0">
         <input type="hidden" id="qtyHeroPotion" value="0"><input type="hidden" id="costHeroPotion" value="0">
         <span id="bossCount" style="display:none;">0</span>
 
-        <h3>주간 보스 목록 (선택: <span id="bossCountDisplay">0</span>/12)</h3>
+        <h3 style="font-size:16px; margin:10px 0 0 0;">주간 보스 목록 (선택: <span id="bossCountDisplay">0</span>/12)</h3>
         <div id="bossListContainer"></div>
 
-        <h3 style="margin-top:20px;">월간 보스 목록</h3>
+        <h3 style="font-size:16px; margin:15px 0 0 0;">월간 보스 목록</h3>
         <div id="monthlyBossListContainer"></div>
 
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-          <button class="btn-submit" id="btnSaveBoss" onclick="addOrUpdateBossRecord()">보스 기록 저장</button>
-          <button class="btn-delete" id="btnCancelBossEdit" onclick="cancelBossEdit()" style="display:none; margin-top:15px;">취소</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-submit" id="btnSaveBoss" onclick="addOrUpdateBossRecord()" style="margin-top:5px;">보스 기록 저장</button>
+          <button class="btn-delete" id="btnCancelBossEdit" onclick="cancelBossEdit()" style="display:none; margin-top:5px; padding: 0 20px;">취소</button>
         </div>
       </div>
 
-      <table style="margin-top:30px;">
+      <table>
         <thead>
           <tr>
             <th>날짜</th><th>캐릭터</th><th>보스 수</th><th>총 보스 수입</th><th>소모 비용</th><th>순수익</th><th>메모</th><th>관리</th>
@@ -340,7 +326,7 @@
 
     <div id="tab-split" class="tab-content" style="display:none;">
       <h2>경매장 / 파티 분배금 계산기</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
         <div>
           <label>아이템 판매 가격</label>
           <input type="number" id="calcPrice" value="0" oninput="calculateSplit()">
@@ -355,7 +341,7 @@
         </div>
       </div>
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 15px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 15px;">
         <input type="text" id="splitItemName" placeholder="아이템 이름">
         <input type="text" id="splitItemMemo" placeholder="메모 (선택)">
       </div>
@@ -380,7 +366,7 @@
 
       <button class="btn-submit" onclick="addSplitRecord()">분배 기록 저장</button>
 
-      <table style="margin-top:20px;">
+      <table>
         <thead>
           <tr>
             <th>날짜</th><th>아이템 명</th><th>판매가</th><th>파티원수</th><th>파티원 송금액</th><th>메모</th><th>관리</th>
@@ -392,7 +378,6 @@
   </div>
 
   <script>
-    /* 데이터 및 상태 변수 초기화 */
     let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
     let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
     let splitRecords = JSON.parse(localStorage.getItem('mapleSplitRecords')) || [];
@@ -465,10 +450,15 @@
     }
 
     function resetHuntForm() {
-      ['beforeMesoHint', 'afterMesoHint'].forEach(id => document.getElementById(id).textContent = '0 메소');
-      document.getElementById('erdaPriceHint').textContent = '700만 메소';
-      ['costSmallWealthHint', 'costSmallExpHint', 'costSmallHighExpHint', 'costExp50Hint', 'costExp70Hint'].forEach(id => {
-        if(document.getElementById(id)) document.getElementById(id).textContent = '0 메소';
+      ['beforeMesoHint', 'afterMesoHint'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.textContent = '0 메소';
+      });
+      const erda = document.getElementById('erdaPriceHint');
+      if(erda) erda.textContent = '700만 메소';
+      ['costSmallWealth', 'costSmallExp', 'costSmallHighExp', 'costExp50', 'costExp70'].forEach(item => {
+        const el = document.getElementById(item + 'Hint');
+        if(el) el.textContent = '0 메소';
       });
     }
 
@@ -476,29 +466,29 @@
       const record = huntRecords.find(r => r.id === id);
       if (!record) return;
       editingHuntId = id;
-      document.getElementById('huntChar').value = record.character;
-      document.getElementById('huntMemo').value = record.memo || '';
-      document.getElementById('huntTime').value = record.time;
-      document.getElementById('beforeMeso').value = record.beforeMeso;
-      document.getElementById('afterMeso').value = record.afterMeso;
-      document.getElementById('erdaCount').value = record.erdaCount;
-      document.getElementById('erdaPrice').value = record.erdaPrice;
+      if(document.getElementById('huntChar')) document.getElementById('huntChar').value = record.character;
+      if(document.getElementById('huntMemo')) document.getElementById('huntMemo').value = record.memo || '';
+      if(document.getElementById('huntTime')) document.getElementById('huntTime').value = record.time;
+      if(document.getElementById('beforeMeso')) document.getElementById('beforeMeso').value = record.beforeMeso;
+      if(document.getElementById('afterMeso')) document.getElementById('afterMeso').value = record.afterMeso;
+      if(document.getElementById('erdaCount')) document.getElementById('erdaCount').value = record.erdaCount;
+      if(document.getElementById('erdaPrice')) document.getElementById('erdaPrice').value = record.erdaPrice;
       if (record.costs) {
         ['SmallWealth', 'SmallExp', 'SmallHighExp', 'Exp50', 'Exp70'].forEach(item => {
-          document.getElementById(`qty${item}`).value = record.costs[`qty${item}`] || 0;
-          document.getElementById(`cost${item}`).value = record.costs[`cost${item}`] || 0;
+          if(document.getElementById(`qty${item}`)) document.getElementById(`qty${item}`).value = record.costs[`qty${item}`] || 0;
+          if(document.getElementById(`cost${item}`)) document.getElementById(`cost${item}`).value = record.costs[`cost${item}`] || 0;
         });
       }
-      document.getElementById('btnSaveHunt').textContent = '수정 완료';
-      document.getElementById('btnCancelHuntEdit').style.display = 'inline-block';
+      if(document.getElementById('btnSaveHunt')) document.getElementById('btnSaveHunt').textContent = '수정 완료';
+      if(document.getElementById('btnCancelHuntEdit')) document.getElementById('btnCancelHuntEdit').style.display = 'inline-block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelHuntEdit() {
       editingHuntId = null;
       resetHuntForm();
-      document.getElementById('btnSaveHunt').textContent = '기록 추가';
-      document.getElementById('btnCancelHuntEdit').style.display = 'none';
+      if(document.getElementById('btnSaveHunt')) document.getElementById('btnSaveHunt').textContent = '기록 추가';
+      if(document.getElementById('btnCancelHuntEdit')) document.getElementById('btnCancelHuntEdit').style.display = 'none';
     }
 
     function deleteHuntRecord(id) {
@@ -511,6 +501,7 @@
 
     function renderHunt() {
       const tbody = document.getElementById('huntTableBody');
+      if(!tbody) return;
       tbody.innerHTML = '';
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
@@ -542,12 +533,11 @@
         `;
         tbody.appendChild(tr);
       });
-      document.getElementById('huntTodayMeso').textContent = formatMeso(todayTotal);
-      document.getElementById('huntWeekMeso').textContent = formatMeso(weekTotal);
-      document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
+      if(document.getElementById('huntTodayMeso')) document.getElementById('huntTodayMeso').textContent = formatMeso(todayTotal);
+      if(document.getElementById('huntWeekMeso')) document.getElementById('huntWeekMeso').textContent = formatMeso(weekTotal);
+      if(document.getElementById('huntMonthMeso')) document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
     }
 
-    /* 보스 기록 */
     function renderBossCard(boss, bIndex, isMonthly) {
       const card = document.createElement('div');
       card.className = 'boss-card';
@@ -623,15 +613,19 @@
 
     function renderBossList() {
       const container = document.getElementById('bossListContainer');
-      container.innerHTML = '';
-      bossData.forEach((boss, bIndex) => {
-        container.appendChild(renderBossCard(boss, bIndex, false));
-      });
+      if(container) {
+        container.innerHTML = '';
+        bossData.forEach((boss, bIndex) => {
+          container.appendChild(renderBossCard(boss, bIndex, false));
+        });
+      }
       const monthlyContainer = document.getElementById('monthlyBossListContainer');
-      monthlyContainer.innerHTML = '';
-      monthlyBossData.forEach((boss, bIndex) => {
-        monthlyContainer.appendChild(renderBossCard(boss, bIndex, true));
-      });
+      if(monthlyContainer) {
+        monthlyContainer.innerHTML = '';
+        monthlyBossData.forEach((boss, bIndex) => {
+          monthlyContainer.appendChild(renderBossCard(boss, bIndex, true));
+        });
+      }
     }
 
     function calculateBossTotal() {
@@ -643,7 +637,8 @@
         const price = parseFloat(cb.dataset.price);
         const diff = cb.dataset.diff;
         const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
-        const partyCount = parseInt(document.getElementById(`party_boss_${bIndex}_${diff}`).value) || 1;
+        const partySelect = document.getElementById(`party_boss_${bIndex}_${diff}`);
+        const partyCount = partySelect ? (parseInt(partySelect.value) || 1) : 1;
         totalMeso += Math.floor(price / partyCount);
       });
       
@@ -652,35 +647,40 @@
         const price = parseFloat(cb.dataset.price);
         const diff = cb.dataset.diff;
         const bIndex = monthlyBossData.findIndex(b => b.name === cb.dataset.boss);
-        const partyCount = parseInt(document.getElementById(`party_mboss_${bIndex}_${diff}`).value) || 1;
+        const partySelect = document.getElementById(`party_mboss_${bIndex}_${diff}`);
+        const partyCount = partySelect ? (parseInt(partySelect.value) || 1) : 1;
         totalMeso += Math.floor(price / partyCount);
       });
 
-      const qtyE1 = parseFloat(document.getElementById('qtyElixir1').value) || 0;
-      const qtyE2 = parseFloat(document.getElementById('qtyElixir2').value) || 0;
-      const qtyE3 = parseFloat(document.getElementById('qtyElixir3').value) || 0;
-      const qtyE4 = parseFloat(document.getElementById('qtyElixir4').value) || 0;
-      const qtyWhet = parseFloat(document.getElementById('qtyWhetstone').value) || 0;
-      const costWhet = parseFloat(document.getElementById('costWhetstone').value) || 0;
-      const qtyRed = parseFloat(document.getElementById('qtyRedStar').value) || 0;
-      const costRed = parseFloat(document.getElementById('costRedStar').value) || 0;
-      const qtyHero = parseFloat(document.getElementById('qtyHeroPotion').value) || 0;
-      const costHero = parseFloat(document.getElementById('costHeroPotion').value) || 0;
+      const getVal = (id) => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
+      const qtyE1 = getVal('qtyElixir1');
+      const qtyE2 = getVal('qtyElixir2');
+      const qtyE3 = getVal('qtyElixir3');
+      const qtyE4 = getVal('qtyElixir4');
+      const qtyWhet = getVal('qtyWhetstone');
+      const costWhet = getVal('costWhetstone');
+      const qtyRed = getVal('qtyRedStar');
+      const costRed = getVal('costRedStar');
+      const qtyHero = getVal('qtyHeroPotion');
+      const costHero = getVal('costHeroPotion');
 
       const totalCost = (qtyE1 * 2000000) + (qtyE2 * 2000000) + (qtyE3 * 5000000) + (qtyE4 * 20000000) +
                         (qtyWhet * costWhet) + (qtyRed * costRed) + (qtyHero * costHero);
       const netTotal = totalMeso - totalCost;
+      
       const bossCountSpan = document.getElementById('bossCount');
-      bossCountSpan.textContent = weeklyCount;
-      if(document.getElementById('bossCountDisplay')) {
-        document.getElementById('bossCountDisplay').textContent = weeklyCount;
+      if(bossCountSpan) bossCountSpan.textContent = weeklyCount;
+      
+      const bossCountDisplay = document.getElementById('bossCountDisplay');
+      if(bossCountDisplay) {
+        bossCountDisplay.textContent = weeklyCount;
+        bossCountDisplay.style.color = weeklyCount > 12 ? '#ef4444' : '#38bdf8';
       }
-      if (weeklyCount > 12) {
-        bossCountSpan.style.color = '#ef4444';
-      } else {
-        bossCountSpan.style.color = '#38bdf8';
+      
+      const currentBossTotal = document.getElementById('currentBossTotal');
+      if(currentBossTotal) {
+        currentBossTotal.textContent = `순수익: ${formatMeso(netTotal)} (차감: -${formatMeso(totalCost)})`;
       }
-      document.getElementById('currentBossTotal').textContent = `순수익: ${formatMeso(netTotal)} (차감: -${formatMeso(totalCost)})`;
       return { totalMeso, totalCost, netTotal, count: weeklyCount };
     }
 
@@ -695,8 +695,8 @@
         alert("주간 보스는 캐릭터당 최대 12개까지 선택 가능합니다.");
         return;
       }
-      const character = document.getElementById('bossCharName').value || '미지정';
-      const memo = document.getElementById('bossMemo').value || '';
+      const character = document.getElementById('bossCharName')?.value || '미지정';
+      const memo = document.getElementById('bossMemo')?.value || '';
       const selectedBosses = [];
       const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]:checked');
       checkboxes.forEach(cb => {
@@ -704,7 +704,8 @@
         const prefix = isMonthly ? 'mboss' : 'boss';
         const bList = isMonthly ? monthlyBossData : bossData;
         const bIndex = bList.findIndex(b => b.name === cb.dataset.boss);
-        const partyCount = parseInt(document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        const partySelect = document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`);
+        const partyCount = partySelect ? (parseInt(partySelect.value) || 1) : 1;
         selectedBosses.push({
           boss: cb.dataset.boss,
           diff: cb.dataset.diff,
@@ -713,17 +714,18 @@
           isMonthly
         });
       });
+      const getVal = (id) => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
       const costs = {
-        qtyE1: parseFloat(document.getElementById('qtyElixir1').value) || 0,
-        qtyE2: parseFloat(document.getElementById('qtyElixir2').value) || 0,
-        qtyE3: parseFloat(document.getElementById('qtyElixir3').value) || 0,
-        qtyE4: parseFloat(document.getElementById('qtyElixir4').value) || 0,
-        qtyWhet: parseFloat(document.getElementById('qtyWhetstone').value) || 0,
-        costWhet: parseFloat(document.getElementById('costWhetstone').value) || 0,
-        qtyRed: parseFloat(document.getElementById('qtyRedStar').value) || 0,
-        costRed: parseFloat(document.getElementById('costRedStar').value) || 0,
-        qtyHero: parseFloat(document.getElementById('qtyHeroPotion').value) || 0,
-        costHero: parseFloat(document.getElementById('costHeroPotion').value) || 0,
+        qtyE1: getVal('qtyElixir1'),
+        qtyE2: getVal('qtyElixir2'),
+        qtyE3: getVal('qtyElixir3'),
+        qtyE4: getVal('qtyElixir4'),
+        qtyWhet: getVal('qtyWhetstone'),
+        costWhet: getVal('costWhetstone'),
+        qtyRed: getVal('qtyRedStar'),
+        costRed: getVal('costRedStar'),
+        qtyHero: getVal('qtyHeroPotion'),
+        costHero: getVal('costHeroPotion'),
       };
       const totalBossCount = count + monthlyCount;
       if (editingBossId !== null) {
@@ -735,8 +737,8 @@
           };
         }
         editingBossId = null;
-        document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
-        document.getElementById('btnCancelBossEdit').style.display = 'none';
+        if(document.getElementById('btnSaveBoss')) document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
+        if(document.getElementById('btnCancelBossEdit')) document.getElementById('btnCancelBossEdit').style.display = 'none';
       } else {
         const newRecord = {
           id: Date.now(),
@@ -751,8 +753,8 @@
     }
 
     function resetBossForm() {
-      document.getElementById('bossCharName').value = '';
-      document.getElementById('bossMemo').value = '';
+      if(document.getElementById('bossCharName')) document.getElementById('bossCharName').value = '';
+      if(document.getElementById('bossMemo')) document.getElementById('bossMemo').value = '';
       const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]');
       checkboxes.forEach(cb => cb.checked = false);
       ['qtyElixir1', 'qtyElixir2', 'qtyElixir3', 'qtyElixir4', 'qtyWhetstone', 'costWhetstone', 'qtyRedStar', 'costRedStar', 'qtyHeroPotion', 'costHeroPotion'].forEach(id => {
@@ -767,8 +769,8 @@
       if (!record) return;
       resetBossForm();
       editingBossId = id;
-      document.getElementById('bossCharName').value = record.character;
-      document.getElementById('bossMemo').value = record.memo || '';
+      if(document.getElementById('bossCharName')) document.getElementById('bossCharName').value = record.character;
+      if(document.getElementById('bossMemo')) document.getElementById('bossMemo').value = record.memo || '';
       if (record.selectedBosses) {
         record.selectedBosses.forEach(sb => {
           const isMonthly = sb.isMonthly || sb.boss === "검은 마법사";
@@ -784,28 +786,29 @@
         });
       }
       if (record.costs) {
-        document.getElementById('qtyElixir1').value = record.costs.qtyE1 || 0;
-        document.getElementById('qtyElixir2').value = record.costs.qtyE2 || 0;
-        document.getElementById('qtyElixir3').value = record.costs.qtyE3 || 0;
-        document.getElementById('qtyElixir4').value = record.costs.qtyE4 || 0;
-        document.getElementById('qtyWhetstone').value = record.costs.qtyWhet || 0;
-        document.getElementById('costWhetstone').value = record.costs.costWhet || 0;
-        document.getElementById('qtyRedStar').value = record.costs.qtyRed || 0;
-        document.getElementById('costRedStar').value = record.costs.costRed || 0;
-        document.getElementById('qtyHeroPotion').value = record.costs.qtyHero || 0;
-        document.getElementById('costHeroPotion').value = record.costs.costHero || 0;
+        const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+        setVal('qtyElixir1', record.costs.qtyE1 || 0);
+        setVal('qtyElixir2', record.costs.qtyE2 || 0);
+        setVal('qtyElixir3', record.costs.qtyE3 || 0);
+        setVal('qtyElixir4', record.costs.qtyE4 || 0);
+        setVal('qtyWhetstone', record.costs.qtyWhet || 0);
+        setVal('costWhetstone', record.costs.costWhet || 0);
+        setVal('qtyRedStar', record.costs.qtyRed || 0);
+        setVal('costRedStar', record.costs.costRed || 0);
+        setVal('qtyHeroPotion', record.costs.qtyHero || 0);
+        setVal('costHeroPotion', record.costs.costHero || 0);
       }
       calculateBossTotal();
-      document.getElementById('btnSaveBoss').textContent = '수정 완료';
-      document.getElementById('btnCancelBossEdit').style.display = 'inline-block';
+      if(document.getElementById('btnSaveBoss')) document.getElementById('btnSaveBoss').textContent = '수정 완료';
+      if(document.getElementById('btnCancelBossEdit')) document.getElementById('btnCancelBossEdit').style.display = 'inline-block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelBossEdit() {
       editingBossId = null;
       resetBossForm();
-      document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
-      document.getElementById('btnCancelBossEdit').style.display = 'none';
+      if(document.getElementById('btnSaveBoss')) document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
+      if(document.getElementById('btnCancelBossEdit')) document.getElementById('btnCancelBossEdit').style.display = 'none';
     }
 
     function deleteBossRecord(id) {
@@ -818,6 +821,7 @@
 
     function renderBossRecords() {
       const tbody = document.getElementById('bossTableBody');
+      if(!tbody) return;
       tbody.innerHTML = '';
       const recentThursday = getRecentThursday();
       let thisWeekTotal = 0;
@@ -845,22 +849,22 @@
         `;
         tbody.appendChild(tr);
       });
-      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
+      const totalEl = document.getElementById('thisWeekBossTotal');
+      if(totalEl) totalEl.textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
     }
 
-    /* --- [3] 분배금 계산기 로직 --- */
     function calculateSplit() {
-      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
-      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
-      const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
+      const price = parseFloat(document.getElementById('calcPrice')?.value) || 0;
+      const feeRate = parseFloat(document.getElementById('calcFeeRate')?.value) || 0.03;
+      const partyCount = parseInt(document.getElementById('calcPartyCount')?.value) || 1;
       
       if (partyCount <= 0 || price <= 0) {
-        document.getElementById('resPartyLeader').textContent = '0';
-        document.getElementById('resPartyLeaderText').textContent = '0 메소';
-        document.getElementById('resPartyMember').textContent = '0';
-        document.getElementById('resPartyMemberText').textContent = '0 메소';
-        document.getElementById('resDiffVal').textContent = '0';
-        document.getElementById('resDiffRate').textContent = '0%';
+        if(document.getElementById('resPartyLeader')) document.getElementById('resPartyLeader').textContent = '0';
+        if(document.getElementById('resPartyLeaderText')) document.getElementById('resPartyLeaderText').textContent = '0 메소';
+        if(document.getElementById('resPartyMember')) document.getElementById('resPartyMember').textContent = '0';
+        if(document.getElementById('resPartyMemberText')) document.getElementById('resPartyMemberText').textContent = '0 메소';
+        if(document.getElementById('resDiffVal')) document.getElementById('resDiffVal').textContent = '0';
+        if(document.getElementById('resDiffRate')) document.getElementById('resDiffRate').textContent = '0%';
         return;
       }
       const leaderReceived = price * (1 - feeRate);
@@ -871,18 +875,18 @@
       const diffVal = Math.abs(leaderNet - memberTakeHome);
       const diffRate = price > 0 ? (diffVal / price) * 100 : 0;
       
-      document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
-      document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
-      document.getElementById('resPartyMember').textContent = formatNumber(memberPay);
-      document.getElementById('resPartyMemberText').textContent = formatMeso(memberPay);
-      document.getElementById('resDiffVal').textContent = formatNumber(Math.round(diffVal));
-      document.getElementById('resDiffRate').textContent = `${diffRate.toFixed(8)}%`;
+      if(document.getElementById('resPartyLeader')) document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
+      if(document.getElementById('resPartyLeaderText')) document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
+      if(document.getElementById('resPartyMember')) document.getElementById('resPartyMember').textContent = formatNumber(memberPay);
+      if(document.getElementById('resPartyMemberText')) document.getElementById('resPartyMemberText').textContent = formatMeso(memberPay);
+      if(document.getElementById('resDiffVal')) document.getElementById('resDiffVal').textContent = formatNumber(Math.round(diffVal));
+      if(document.getElementById('resDiffRate')) document.getElementById('resDiffRate').textContent = `${diffRate.toFixed(8)}%`;
     }
 
     function addSplitRecord() {
-      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
-      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
-      const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
+      const price = parseFloat(document.getElementById('calcPrice')?.value) || 0;
+      const feeRate = parseFloat(document.getElementById('calcFeeRate')?.value) || 0.03;
+      const partyCount = parseInt(document.getElementById('calcPartyCount')?.value) || 1;
       if (price <= 0 || partyCount <= 0) {
         alert('올바른 판매 금액과 파티원 수를 입력해 주세요.');
         return;
