@@ -326,11 +326,10 @@
       color: #6366f1;
     }
 
-    /* 슬림하게 다듬어진 보스 카드 레이아웃 스타일 */
     .boss-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 최소 폭 축소 */
-      gap: 10px; /* 카드 간격 축소 */
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
       margin-bottom: 14px;
     }
 
@@ -338,10 +337,10 @@
       background-color: #0f172a;
       border: 1px solid #334155;
       border-radius: 8px;
-      padding: 10px 12px; /* 패딩 축소 */
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px; /* 내부 요소 간격 축소 */
+      gap: 6px;
     }
 
     .boss-item.monthly-boss {
@@ -355,7 +354,7 @@
       align-items: center;
       font-weight: 700;
       color: #f1f5f9;
-      font-size: 0.9rem; /* 폰트 축소 */
+      font-size: 0.9rem;
       border-bottom: 1px solid #1e293b;
       padding-bottom: 4px;
     }
@@ -363,7 +362,7 @@
     .boss-options {
       display: flex;
       flex-direction: column;
-      gap: 4px; /* 옵션 간격 축소 */
+      gap: 4px;
     }
 
     .diff-row {
@@ -371,7 +370,7 @@
       justify-content: space-between;
       align-items: center;
       background-color: #1e293b;
-      padding: 3px 8px; /* 세로 여백 축소 */
+      padding: 3px 8px;
       border-radius: 5px;
       border: 1px solid #334155;
       transition: all 0.2s;
@@ -390,7 +389,6 @@
       font-weight: 600;
     }
 
-    /* 슬림 난이도 이모지 배지 스타일 */
     .diff-badge {
       display: inline-flex;
       align-items: center;
@@ -422,7 +420,7 @@
       border: 1px solid #475569;
       color: #f8fafc;
       border-radius: 4px;
-      padding: 1px 4px; /* 파티선택 패딩 축소 */
+      padding: 1px 4px;
       font-size: 0.75rem;
       cursor: pointer;
       font-weight: 600;
@@ -472,10 +470,10 @@
       font-size: 0.8rem;
     }
 
-    /* 분배금 계산기 스타일 */
+    /* 분배금 계산기 스타일 수정 */
     .calc-result-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-top: 12px;
     }
@@ -515,17 +513,11 @@
       color: #38bdf8;
     }
 
-    .error-box {
-      grid-column: span 2;
-      background-color: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
+    .calc-footer-info {
+      margin-top: 10px;
+      font-size: 0.78rem;
       color: #94a3b8;
+      text-align: center;
     }
 
     @media (max-width: 768px) {
@@ -545,9 +537,6 @@
       }
       .calc-result-grid {
         grid-template-columns: 1fr;
-      }
-      .error-box {
-        grid-column: span 1;
       }
     }
   </style>
@@ -624,7 +613,6 @@
         </div>
       </div>
 
-      <!-- 사냥 차감 요소 -->
       <div class="section-title">📉 사냥 차감 요소 (개수 및 단가 입력)</div>
       <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
         <div class="form-group">
@@ -743,7 +731,6 @@
         </div>
       </div>
 
-      <!-- 보스 차감 요소 -->
       <div class="section-title">📉 보스 차감 요소 (개수 선택 및 차감)</div>
       
       <div class="form-grid" style="margin-bottom: 8px;">
@@ -802,11 +789,9 @@
         <span style="font-size: 0.8rem; color: #94a3b8;">* 주간 보스 캐릭터당 최대 12개 선택 가능</span>
       </div>
 
-      <!-- 주간 보스 목록 -->
       <h3 style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">🗓️ 주간 보스 목록</h3>
       <div class="boss-grid" id="bossListContainer"></div>
 
-      <!-- 월간 보스 목록 섹션 분리 -->
       <h3 style="font-size: 0.95rem; font-weight: 700; color: #a855f7; margin: 16px 0 8px 0; border-top: 1px dashed #334155; padding-top: 12px;">🔴 월간 보스</h3>
       <div class="boss-grid" id="monthlyBossListContainer"></div>
     </div>
@@ -862,25 +847,32 @@
         </div>
       </div>
 
+      <!-- 정산 결과 카드 3열 배치 (요청된 구조와 수식 그대로 적용) -->
       <div class="calc-result-grid">
         <div class="calc-card">
-          <div class="calc-card-title">👑 파티장 분배금</div>
+          <div class="calc-card-title">파티장 분배금</div>
           <div class="calc-card-value" id="resPartyLeader">0</div>
           <div class="calc-card-sub" id="resPartyLeaderText">0 메소</div>
           <span style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">실수령 기준 잔여</span>
         </div>
 
         <div class="calc-card highlight-card">
-          <div class="calc-card-title" style="color: #ec4899;">👥 파티원 분배금 (전달 금액)</div>
+          <div class="calc-card-title" style="color: #ec4899;">파티원 분배금</div>
           <div class="calc-card-value" id="resPartyMember" style="color: #f472b6;">0</div>
           <div class="calc-card-sub" id="resPartyMemberText" style="color: #f472b6;">0 메소</div>
-          <span style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">파티원 1인당 전달 금액 (수수료 포함)</span>
+          <span style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">전달 금액 (수수료 포함)</span>
         </div>
 
-        <div class="error-box">
-          <span>오차액 / 오차율: <strong id="resDiff" style="color: #f8fafc;">0 메소 (0.000000%)</strong></span>
-          <span style="font-size: 0.75rem; color: #64748b;">* 파티원 실수령액: <span id="resMemberNet">0</span> 메소</span>
+        <div class="calc-card">
+          <div class="calc-card-title">오차액 / 오차율</div>
+          <div class="calc-card-value" id="resDiffVal">0</div>
+          <div class="calc-card-sub" id="resDiffRate" style="color: #94a3b8;">0%</div>
+          <span style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">절사로 인한 오차</span>
         </div>
+      </div>
+
+      <div class="calc-footer-info">
+        💡 파티원 분배 금액은 100의 자리에서 내리고, 파티장이 나머지를 갖습니다.
       </div>
     </div>
 
@@ -923,7 +915,6 @@
   </div>
 
   <script>
-    // 주간 보스 목록
     const bossData = [
       { name: "파풀라투스", diffs: { "카오스": 13100000 } },
       { name: "스우", diffs: { "익스트림": 574000000, "하드": 51500000, "노말": 16700000 } },
@@ -945,12 +936,10 @@
       { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } }
     ];
 
-    // 월간 보스 목록
     const monthlyBossData = [
       { name: "검은 마법사", diffs: { "익스트림": 8740000000, "하드": 665000000 } }
     ];
 
-    // 난이도별 이모지
     const diffIcons = {
       "이지": "🟢",
       "노말": "🔵",
@@ -999,8 +988,12 @@
       
       if (eok > 0) result += `${eok}억 `;
       if (man > 0) result += `${man}만 `;
-      if (result === "") result = `${absAmount} `;
       
+      const rest = absAmount % 10000;
+      if (rest > 0 || (eok === 0 && man === 0)) {
+        result += `${rest} `;
+      }
+
       return (isNegative ? "-" : "") + result.trim() + " 메소";
     }
 
@@ -1009,7 +1002,6 @@
       document.getElementById(hintId).textContent = formatMeso(val);
     }
 
-    /* 백업 & 복구 */
     function exportData() {
       const backupData = {
         mapleHuntRecords: huntRecords,
@@ -1077,7 +1069,6 @@
       reader.readAsText(file);
     }
 
-    /* 목표 달성률 계산 */
     function getRecentThursday() {
       const now = new Date();
       const day = now.getDay();
@@ -1115,7 +1106,7 @@
       progressText.textContent = `${formatMeso(currentTotal)} / ${formatMeso(weeklyGoal)} (${percentage.toFixed(1)}%)`;
     }
 
-    /* --- [1] 사냥 로직 --- */
+    /* 사냥 기록 */
     function addOrUpdateHuntRecord() {
       const character = document.getElementById('huntChar').value || '미지정';
       const memo = document.getElementById('huntMemo').value || '';
@@ -1288,7 +1279,7 @@
       document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
     }
 
-    /* --- [2] 보스 로직 (슬림 디자인) --- */
+    /* 보스 기록 */
     function renderBossCard(boss, bIndex, isMonthly = false) {
       const bossDiv = document.createElement('div');
       bossDiv.className = `boss-item ${isMonthly ? 'monthly-boss' : ''}`;
@@ -1352,7 +1343,6 @@
       let totalMeso = 0;
       let weeklyCount = 0;
 
-      // 주간 보스 계산
       const weeklyCheckboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
       weeklyCheckboxes.forEach(cb => {
         weeklyCount++;
@@ -1363,7 +1353,6 @@
         totalMeso += Math.floor(price / partyCount);
       });
 
-      // 월간 보스 계산
       const monthlyCheckboxes = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked');
       monthlyCheckboxes.forEach(cb => {
         const price = parseFloat(cb.dataset.price);
@@ -1373,7 +1362,6 @@
         totalMeso += Math.floor(price / partyCount);
       });
 
-      // 도핑 차감액
       const qtyE1 = parseFloat(document.getElementById('qtyElixir1').value) || 0;
       const qtyE2 = parseFloat(document.getElementById('qtyElixir2').value) || 0;
       const qtyE3 = parseFloat(document.getElementById('qtyElixir3').value) || 0;
@@ -1594,7 +1582,6 @@
       document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
     }
 
-    /* 프리셋 관리 */
     function savePreset() {
       const charName = document.getElementById('bossCharName').value.trim();
       if (!charName) {
@@ -1676,29 +1663,46 @@
       });
     }
 
-    /* --- [3] 경매장/분배금 계산기 로직 --- */
+    /* --- [3] 새로 수정된 경매장/분배금 계산기 로직 --- */
     function calculateSplit() {
       const price = parseFloat(document.getElementById('calcPrice').value) || 0;
       const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
       const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
 
-      const netAmount = price * (1 - feeRate);
-      const memberNet = Math.floor(netAmount / partyCount);
-      const memberPay = Math.ceil(memberNet / (1 - feeRate));
-      const leaderNet = netAmount - (memberNet * (partyCount - 1));
+      if (partyCount <= 0 || price <= 0) {
+        document.getElementById('resPartyLeader').textContent = '0';
+        document.getElementById('resPartyLeaderText').textContent = '0 메소';
+        document.getElementById('resPartyMember').textContent = '0';
+        document.getElementById('resPartyMemberText').textContent = '0 메소';
+        document.getElementById('resDiffVal').textContent = '0';
+        document.getElementById('resDiffRate').textContent = '0%';
+        return;
+      }
 
-      const totalCalculated = leaderNet + (memberNet * (partyCount - 1));
-      const diff = totalCalculated - netAmount;
-      const diffPercent = netAmount > 0 ? (diff / netAmount) * 100 : 0;
+      // 1. 파티원 분배금 계산 (실수령액 1/N 기준 정산 원금 계산 및 100의 자리 내림)
+      // 전달금액 = (총 판매금액 / 파티원 수) * (1 - 수수료율)
+      const exactMemberPay = (price / partyCount) * (1 - feeRate);
+      // 백의 자리 절사 (Math.floor(x / 1000) * 1000)
+      const memberPay = Math.floor(exactMemberPay / 1000) * 1000;
 
+      // 2. 파티장 분배금 = 총 판매금액 - (파티원 1인당 전달금액 * (파티원 수 - 1))
+      const leaderNet = price - (memberPay * (partyCount - 1));
+
+      // 3. 오차액 / 오차율 계산 (절사로 발생한 수령 총액과 실효 가치 차이)
+      const targetPerPerson = (price * (1 - feeRate)) / partyCount;
+      const leaderEffective = leaderNet * (1 - feeRate);
+      const diffVal = Math.abs(leaderEffective - targetPerPerson);
+      const diffRate = price > 0 ? (diffVal / price) * 100 : 0;
+
+      // UI 반영
       document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
       document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
 
       document.getElementById('resPartyMember').textContent = formatNumber(memberPay);
       document.getElementById('resPartyMemberText').textContent = formatMeso(memberPay);
 
-      document.getElementById('resMemberNet').textContent = formatNumber(memberNet);
-      document.getElementById('resDiff').textContent = `${formatMeso(diff)} (${diffPercent.toFixed(6)}%)`;
+      document.getElementById('resDiffVal').textContent = formatNumber(diffVal);
+      document.getElementById('resDiffRate').textContent = diffRate < 0.000001 && diffRate > 0 ? '0.000001% 미만' : `${diffRate.toFixed(6)}%`;
     }
 
     function addSplitRecord() {
@@ -1706,9 +1710,8 @@
       const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
       const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
 
-      const netAmount = price * (1 - feeRate);
-      const memberNet = Math.floor(netAmount / partyCount);
-      const memberPay = Math.ceil(memberNet / (1 - feeRate));
+      const exactMemberPay = (price / partyCount) * (1 - feeRate);
+      const memberPay = Math.floor(exactMemberPay / 1000) * 1000;
 
       const itemName = document.getElementById('splitItemName').value.trim() || '미지정 아이템';
       const memo = document.getElementById('splitItemMemo').value.trim() || '';
@@ -1762,7 +1765,6 @@
       });
     }
 
-    /* 초기화 실행 */
     window.onload = function() {
       document.getElementById('weeklyGoalInput').value = weeklyGoal;
       renderBossList();
