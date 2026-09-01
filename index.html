@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>메이플스토리 보스 결정석 & 스펙업 계산기</title>
+  <title>메이플스토리 통합 계산기 (보스 & 사냥 일지)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -23,23 +23,7 @@
       gap: 20px;
     }
 
-    /* 커스텀 스크롤바 */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0b1120;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
-    /* 상단 헤더 */
+    /* 상단 헤더 & 탭 */
     .top-header {
       display: flex;
       justify-content: space-between;
@@ -50,13 +34,7 @@
       gap: 12px;
     }
 
-    .tab-container {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .backup-container {
+    .tab-container, .backup-container {
       display: flex;
       gap: 8px;
     }
@@ -100,7 +78,6 @@
     .btn-backup:hover {
       background-color: #334155;
       color: #ffffff;
-      border-color: #475569;
     }
 
     /* 목표 달성 대시보드 */
@@ -127,33 +104,23 @@
       font-size: 1.05rem;
       font-weight: 700;
       color: #38bdf8;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .goal-input-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     .progress-outer {
       width: 100%;
       background-color: #0b1120;
-      height: 20px;
+      height: 22px;
       border-radius: 10px;
       overflow: hidden;
       border: 1px solid #334155;
       position: relative;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     }
 
     .progress-inner {
       height: 100%;
       background: linear-gradient(90deg, #6366f1, #38bdf8);
       width: 0%;
-      transition: width 0.5s ease-out;
+      transition: width 0.4s ease;
       border-radius: 10px;
     }
 
@@ -166,7 +133,6 @@
       font-weight: 800;
       color: #ffffff;
       text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-      letter-spacing: 0.5px;
     }
 
     .tab-content {
@@ -201,9 +167,9 @@
     }
 
     .section-title {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: #f87171;
+      color: #38bdf8;
       margin: 16px 0 10px 0;
       padding-top: 12px;
       border-top: 1px dashed #334155;
@@ -235,22 +201,7 @@
       min-height: 1.1em;
     }
 
-    .item-cost-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .item-cost-row input[type="number"] {
-      width: 100%;
-    }
-
-    .qty-input {
-      max-width: 65px !important;
-      text-align: center;
-    }
-
-    input[type="text"], input[type="number"], select {
+    input[type="text"], input[type="number"], select, input[type="date"] {
       background-color: #0b1120;
       border: 1px solid #334155;
       border-radius: 8px;
@@ -282,24 +233,17 @@
     }
 
     button:hover {
-      transform: translateY(-1px);
-      opacity: 0.95;
-    }
-
-    button:active {
-      transform: translateY(0);
+      opacity: 0.9;
     }
 
     .btn-primary {
       background: linear-gradient(135deg, #6366f1, #4f46e5);
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .btn-secondary {
       background: linear-gradient(135deg, #10b981, #059669);
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .btn-edit {
@@ -319,7 +263,7 @@
       border-radius: 6px;
     }
 
-    /* 통계 그리드 */
+    /* 통계 카드 */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -332,11 +276,6 @@
       border: 1px solid #334155;
       border-radius: 10px;
       padding: 14px 16px;
-      transition: border-color 0.2s;
-    }
-
-    .stat-card:hover {
-      border-color: #475569;
     }
 
     .stat-card .label {
@@ -350,18 +289,6 @@
       font-size: 1.3rem;
       font-weight: 800;
       color: #ffffff;
-      letter-spacing: -0.5px;
-    }
-
-    .info-bar {
-      background-color: #0b1120;
-      border-radius: 8px;
-      padding: 10px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      border: 1px solid #334155;
     }
 
     .preset-bar {
@@ -383,10 +310,10 @@
       border-radius: 12px;
     }
 
-    /* 보스 그리드 & 카드 */
+    /* 보스 카드 레이아웃 */
     .boss-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 12px;
       margin-bottom: 16px;
     }
@@ -399,25 +326,9 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .boss-item:hover {
-      border-color: #475569;
-      transform: translateY(-2px);
-    }
-
-    .boss-item.monthly-boss {
-      border: 1px solid #818cf8;
-      background: linear-gradient(145deg, #131b2e, #0b1120);
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
     }
 
     .boss-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       font-weight: 700;
       color: #f1f5f9;
       font-size: 0.95rem;
@@ -438,13 +349,6 @@
       background-color: #1e293b;
       padding: 5px 10px;
       border-radius: 6px;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-    }
-
-    .diff-row:hover {
-      background-color: #273549;
-      border-color: rgba(99, 102, 241, 0.4);
     }
 
     .diff-label {
@@ -463,34 +367,6 @@
       cursor: pointer;
     }
 
-    .diff-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-    }
-
-    .diff-badge.이지 { background-color: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-    .diff-badge.노말 { background-color: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-    .diff-badge.하드 { background-color: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-    .diff-badge.카오스 { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .diff-badge.익스트림 { background-color: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
-
-    .diff-price-tag {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      font-weight: 500;
-    }
-
-    .party-select-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
     .party-select {
       background-color: #0b1120;
       border: 1px solid #475569;
@@ -498,8 +374,6 @@
       border-radius: 5px;
       padding: 2px 6px;
       font-size: 0.75rem;
-      cursor: pointer;
-      font-weight: 600;
     }
 
     /* 테이블 스타일 */
@@ -535,28 +409,13 @@
       background-color: rgba(15, 23, 42, 0.5);
     }
 
-    tr:hover {
-      background-color: rgba(51, 65, 85, 0.3);
-    }
-
     .total-summary {
       font-size: 1.25rem;
       font-weight: 800;
       color: #38bdf8;
     }
 
-    .item-memo {
-      color: #f59e0b;
-      font-size: 0.8rem;
-    }
-
-    .cost-text {
-      color: #f87171;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    /* 분배금 계산기 결과 카드 */
+    /* 분배금 결과 영역 */
     .calc-result-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -574,63 +433,27 @@
       gap: 6px;
     }
 
-    .calc-card.highlight-card {
-      border-color: #ec4899;
-      background: linear-gradient(145deg, rgba(236, 72, 153, 0.1), rgba(15, 23, 42, 0.9));
-      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.15);
-    }
-
     .calc-card-title {
       font-size: 0.85rem;
       color: #94a3b8;
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .calc-card-value {
       font-size: 1.4rem;
       font-weight: 800;
       color: #ffffff;
-      letter-spacing: -0.5px;
     }
 
     .calc-card-sub {
       font-size: 0.8rem;
       color: #38bdf8;
-      font-weight: 600;
     }
 
-    .calc-footer-info {
-      margin-top: 12px;
-      font-size: 0.78rem;
-      color: #94a3b8;
-      text-align: center;
-    }
-
-    /* 반응형 쿼리 */
     @media (max-width: 768px) {
-      body {
-        padding: 14px;
-      }
-      .top-header {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .form-grid {
-        grid-template-columns: repeat(1, 1fr);
-      }
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-      .preset-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .calc-result-grid {
-        grid-template-columns: 1fr;
-      }
+      body { padding: 14px; }
+      .top-header { flex-direction: column; align-items: stretch; }
+      .form-grid, .stats-grid, .calc-result-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -640,7 +463,7 @@
   <div class="top-header">
     <div class="tab-container">
       <button class="tab-btn active" onclick="switchTab('bossTab')">👾 보스 결정석 계산기</button>
-      <button class="tab-btn" onclick="switchTab('upgradeTab')">⚔️ 스펙업 버짓 플래너</button>
+      <button class="tab-btn" onclick="switchTab('huntingTab')">🗡️ 사냥 기록 일지</button>
       <button class="tab-btn" onclick="switchTab('splitTab')">⚖️ 경매장 분배금 계산기</button>
     </div>
     <div class="backup-container">
@@ -652,28 +475,27 @@
   <!-- 목표 달성 대시보드 -->
   <div class="goal-card">
     <div class="goal-header">
-      <div class="goal-title">🎯 목표 스펙업 비용 달성률</div>
-      <div class="goal-input-container">
+      <div class="goal-title">🎯 목표 수익 달성률 (보스 + 사냥)</div>
+      <div>
         <label for="goalInput" style="font-size: 0.8rem; color: #94a3b8;">목표 금액:</label>
-        <input type="text" id="goalInput" placeholder="예: 50억 또는 5000000000" style="width: 220px;" oninput="updateGoalFromInput(this.value)">
+        <input type="text" id="goalInput" placeholder="예: 50억" style="width: 200px;" oninput="updateGoalFromInput(this.value)">
       </div>
     </div>
     <div class="progress-outer">
       <div class="progress-inner" id="goalProgressBar"></div>
-      <div class="progress-text" id="goalProgressText">0% (0 / 0 메소)</div>
+      <div class="progress-text" id="goalProgressText">0%</div>
     </div>
   </div>
 
   <!-- 1. 보스 결정석 계산기 탭 -->
   <div id="bossTab" class="tab-content active">
-    <!-- 통합 요약 통계 -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="label">계정 전체 주간 총 수익</div>
         <div class="value" id="accountWeeklyTotal">0 메소</div>
       </div>
       <div class="stat-card">
-        <div class="label">계정 전체 월간 보스 수익 (1회)</div>
+        <div class="label">계정 전체 월간 보스 수익</div>
         <div class="value" id="accountMonthlyTotal">0 메소</div>
       </div>
       <div class="stat-card">
@@ -682,7 +504,6 @@
       </div>
     </div>
 
-    <!-- 캐릭터 등록 및 계산 입력 카드 -->
     <div class="card">
       <div class="card-title">
         <span id="bossFormTitle">캐릭터 보스 설정</span>
@@ -706,18 +527,16 @@
       </div>
 
       <div class="preset-bar">
-        <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 600;">현재 선택 상태:</span>
+        <span style="font-size: 0.85rem; color: #94a3b8;">현재 선택 상태:</span>
         <span style="font-size: 0.85rem;">주간 보스: <span id="weeklySelectedCount" class="count-badge">0 / 12</span></span>
         <span style="font-size: 0.85rem;">월간 보스: <span id="monthlySelectedCount" class="count-badge">0 / 1</span></span>
         <span style="font-size: 0.85rem; margin-left: auto;">선택 캐릭터 총 예상 수익: <strong id="currentCharTotal" style="color: #38bdf8;">0 메소</strong></span>
       </div>
 
-      <!-- 주간 보스 목록 -->
-      <div class="section-title">📅 주간 보스 (캐릭터당 최대 12개)</div>
+      <div class="section-title">📅 주간 보스</div>
       <div class="boss-grid" id="bossListContainer"></div>
 
-      <!-- 월간 보스 목록 -->
-      <div class="section-title" style="color: #818cf8;">🌕 월간 보스 (캐릭터당 최대 1개)</div>
+      <div class="section-title" style="color: #818cf8;">🌕 월간 보스</div>
       <div class="boss-grid" id="monthlyBossListContainer"></div>
 
       <div class="btn-group" style="margin-top: 12px;">
@@ -726,7 +545,6 @@
       </div>
     </div>
 
-    <!-- 저장된 캐릭터 목록 테이블 -->
     <div class="card">
       <div class="card-title">📋 저장된 캐릭터 보스 수익 목록</div>
       <div class="table-container">
@@ -734,9 +552,9 @@
           <thead>
             <tr>
               <th>캐릭터명</th>
-              <th>주간 보스 (선택)</th>
+              <th>주간 보스</th>
               <th>주간 수익</th>
-              <th>월간 보스 (선택)</th>
+              <th>월간 보스</th>
               <th>월간 수익</th>
               <th>월 총 예상 수익</th>
               <th>관리</th>
@@ -752,69 +570,103 @@
     </div>
   </div>
 
-  <!-- 2. 스펙업 버짓 플래너 탭 -->
-  <div id="upgradeTab" class="tab-content">
-    <div class="card">
-      <div class="card-title">
-        <span id="upgradeFormTitle">➕ 스펙업 항목 추가</span>
-        <button id="cancelUpgradeEditBtn" class="btn-delete" style="display: none;" onclick="resetUpgradeForm()">수정 취소</button>
+  <!-- 2. 사냥 기록 일지 탭 -->
+  <div id="huntingTab" class="tab-content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">총 누적 사냥 시간</div>
+        <div class="value" id="totalHuntTime">0 시간</div>
       </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="itemCategory">분류</label>
-          <select id="itemCategory">
-            <option value="장비">장비 (무기/방어구/장신구)</option>
-            <option value="심볼">아케인/어센틱 심볼</option>
-            <option value="코어강화">코어 강화</option>
-            <option value="시드링">시드링/어빌리티</option>
-            <option value="기타">기타 스펙업</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="itemName">아이템 / 스펙업 명칭</label>
-          <input type="text" id="itemName" placeholder="예: 22성 아케인셰이드 숏소드">
-        </div>
-        <div class="form-group">
-          <label for="itemCost">비용 (메소)</label>
-          <div class="item-cost-row">
-            <input type="number" id="itemCost" placeholder="예: 5000000000" oninput="updateUnitHint('itemCost', 'itemCostHint')">
-            <input type="number" id="itemQty" class="qty-input" value="1" min="1" placeholder="수량">
-          </div>
-          <div class="unit-hint" id="itemCostHint"></div>
-        </div>
+      <div class="stat-card">
+        <div class="label">총 누적 획득 순메소</div>
+        <div class="value" id="totalHuntMeso">0 메소</div>
       </div>
-      <div class="form-group" style="margin-bottom: 14px;">
-        <label for="itemMemo">메모 / 목표 상세 (선택)</label>
-        <input type="text" id="itemMemo" placeholder="예: 윗잠 3줄, 15퍼 완작">
-      </div>
-      <div class="btn-group">
-        <button class="btn-secondary" onclick="addOrUpdateUpgradeRecord()">➕ 항목 저장/수정</button>
+      <div class="stat-card">
+        <div class="label">총 누적 재화 환산 수익</div>
+        <div class="value" id="totalHuntEstimated" style="color: #10b981;">0 메소</div>
       </div>
     </div>
 
-    <!-- 스펙업 목표 목록 테이블 -->
     <div class="card">
       <div class="card-title">
-        <span>🎯 스펙업 목표 목록</span>
-        <span class="total-summary" id="upgradeTotalCost">총 0 메소</span>
+        <span id="huntingFormTitle">➕ 사냥 기록 작성</span>
+        <button id="cancelHuntingEditBtn" class="btn-delete" style="display: none;" onclick="resetHuntingForm()">수정 취소</button>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="huntDate">사냥 날짜</label>
+          <input type="date" id="huntDate">
+        </div>
+        <div class="form-group">
+          <label for="huntCharName">캐릭터명</label>
+          <input type="text" id="huntCharName" placeholder="예: 나이트로드">
+        </div>
+        <div class="form-group">
+          <label for="huntMap">사냥터</label>
+          <input type="text" id="huntMap" placeholder="예: 세르니움 서쪽 성벽 1">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="huntMinutes">사냥 시간 (분)</label>
+          <input type="number" id="huntMinutes" placeholder="예: 60" min="1">
+        </div>
+        <div class="form-group">
+          <label for="huntEarnedMeso">획득 순메소</label>
+          <input type="number" id="huntEarnedMeso" placeholder="예: 50000000" oninput="updateUnitHint('huntEarnedMeso', 'huntMesoHint')">
+          <div class="unit-hint" id="huntMesoHint"></div>
+        </div>
+        <div class="form-group">
+          <label for="huntNodeStones">솔 에르다 조각 / 코어 젬스톤 (개)</label>
+          <input type="number" id="huntNodeStones" placeholder="개수 입력" value="0">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="huntItemDrop">아이템 획득 확률 (%)</label>
+          <input type="number" id="huntItemDrop" placeholder="예: 200">
+        </div>
+        <div class="form-group">
+          <label for="huntMesoAcq">메소 획득량 (%)</label>
+          <input type="number" id="huntMesoAcq" placeholder="예: 100">
+        </div>
+        <div class="form-group">
+          <label for="huntMemo">메모 (선택)</label>
+          <input type="text" id="huntMemo" placeholder="예: 재경완, 재치원 사용">
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-secondary" onclick="addOrUpdateHuntingRecord()">➕ 사냥 기록 저장</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>📜 사냥 기록 일지 목록</span>
+        <span class="total-summary" id="huntingSummaryText">총 0회 사냥</span>
       </div>
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>상태</th>
-              <th>분류</th>
-              <th>명칭</th>
+              <th>날짜</th>
+              <th>캐릭터</th>
+              <th>사냥터</th>
+              <th>시간</th>
+              <th>획득 메소</th>
+              <th>조각/젬스톤</th>
+              <th>아획/메획</th>
               <th>메모</th>
-              <th>단가</th>
-              <th>수량</th>
-              <th>총 비용</th>
               <th>관리</th>
             </tr>
           </thead>
-          <tbody id="upgradeTableBody">
+          <tbody id="huntingTableBody">
             <tr>
-              <td colspan="8" style="text-align: center; color: #64748b; padding: 20px;">등록된 스펙업 목표가 없습니다.</td>
+              <td colspan="9" style="text-align: center; color: #64748b; padding: 20px;">저장된 사냥 기록이 없습니다.</td>
             </tr>
           </tbody>
         </table>
@@ -826,7 +678,7 @@
   <div id="splitTab" class="tab-content">
     <div class="card">
       <div class="card-title">⚖️ 경매장 낙찰금 & 파티 분배금 계산기</div>
-      <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+      <div class="form-grid">
         <div class="form-group">
           <label for="itemSalePrice">경매장 판매/낙찰 금액</label>
           <input type="number" id="itemSalePrice" placeholder="예: 1000000000" oninput="calculateSplit(); updateUnitHint('itemSalePrice', 'salePriceHint');">
@@ -857,7 +709,7 @@
           <div class="calc-card-value" id="splitNetTotal">0 메소</div>
           <div class="calc-card-sub" id="splitFeeAmount">수수료: 0 메소</div>
         </div>
-        <div class="calc-card highlight-card">
+        <div class="calc-card" style="border-color: #ec4899;">
           <div class="calc-card-title">1인당 분배금 (1/N)</div>
           <div class="calc-card-value" id="splitPerPerson" style="color: #ec4899;">0 메소</div>
           <div class="calc-card-sub">수수료 공제 후 균등 분배</div>
@@ -868,12 +720,10 @@
           <div class="calc-card-sub" id="splitBuyerText">구매자 외 파티원에게 지급할 금액</div>
         </div>
       </div>
-      <div class="calc-footer-info">
-        * 파티원이 아이템을 직접 입찰해 구매한 경우, **구매자 페이백 금액**을 나머지 파티원들에게 각각 입금해주시면 됩니다.
-      </div>
     </div>
   </div>
 
+  <!-- 메인 스크립트 -->
   <script>
     // --- 보스 데이터 정의 ---
     const BOSS_DATA = [
@@ -920,17 +770,20 @@
 
     // --- 상태 변수 ---
     let bossRecords = [];
-    let upgradeRecords = [];
+    let huntingRecords = [];
     let editingBossId = null;
-    let editingUpgradeId = null;
+    let editingHuntingId = null;
     let targetGoalMeso = 0;
 
     // --- 초기화 ---
     window.onload = function() {
+      // 기본 날짜 오늘로 세팅
+      document.getElementById('huntDate').value = new Date().toISOString().substring(0, 10);
+      
       loadLocalStorage();
       renderBossList();
       renderBossTable();
-      renderUpgradeTable();
+      renderHuntingTable();
       calculateSplit();
       updateGoalProgress();
     };
@@ -989,7 +842,7 @@
 
     function renderBossCard(boss, bIndex, isMonthly) {
       const card = document.createElement('div');
-      card.className = `boss-item ${isMonthly ? 'monthly-boss' : ''}`;
+      card.className = 'boss-item';
 
       const prefix = isMonthly ? 'mboss' : 'boss';
       let diffsHtml = '';
@@ -1001,17 +854,11 @@
         diffsHtml += `
           <div class="diff-row">
             <label class="diff-label" for="${inputId}">
-              <input type="checkbox" 
-                     id="${inputId}" 
-                     data-boss="${boss.name}" 
-                     data-diff="${diff}" 
-                     data-price="${price}" 
-                     data-monthly="${isMonthly}" 
-                     onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})">
-              <span class="diff-badge ${diff}">${diff}</span>
+              <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" data-monthly="${isMonthly}" onchange="calculateBossTotal()">
+              <span>${diff}</span>
             </label>
-            <span class="diff-price-tag">${formatMeso(price)}</span>
-            <div class="party-select-wrapper">
+            <span style="font-size: 0.75rem; color: #94a3b8;">${formatMeso(price)}</span>
+            <div>
               <select id="${partyId}" class="party-select" onchange="calculateBossTotal()">
                 <option value="1">1인</option>
                 <option value="2">2인</option>
@@ -1025,52 +872,12 @@
         `;
       });
 
-      const bossIcon = boss.icon || '👾';
-
       card.innerHTML = `
-        <div class="boss-header">
-          <span>${bossIcon} ${boss.name}</span>
-        </div>
+        <div class="boss-header">${boss.name}</div>
         <div class="boss-options">${diffsHtml}</div>
       `;
 
       return card;
-    }
-
-    // 단일 난이도 선택 & 주간 12개 / 월간 1개 제한 처리 함수
-    function handleBossSelect(currentCb, bossName, isMonthly) {
-      if (!currentCb.checked) {
-        calculateBossTotal();
-        return;
-      }
-
-      const containerId = isMonthly ? 'monthlyBossListContainer' : 'bossListContainer';
-      const sameBossCheckboxes = document.querySelectorAll(`#${containerId} input[data-boss="${bossName}"]`);
-      
-      sameBossCheckboxes.forEach(cb => {
-        if (cb !== currentCb) {
-          cb.checked = false;
-        }
-      });
-
-      const weeklyCount = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked').length;
-      const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
-
-      if (isMonthly && monthlyCount > 1) {
-        alert('월간 보스는 최대 1개만 선택할 수 있습니다.');
-        currentCb.checked = false;
-        calculateBossTotal();
-        return;
-      }
-
-      if (!isMonthly && weeklyCount > 12) {
-        alert('주간 보스는 캐릭터당 최대 12개까지 선택할 수 있습니다.');
-        currentCb.checked = false;
-        calculateBossTotal();
-        return;
-      }
-
-      calculateBossTotal();
     }
 
     // --- 보스 선택 및 계산 ---
@@ -1096,8 +903,8 @@
         monthlyTotal += Math.floor(price / partyCount);
       });
 
-      document.getElementById('weeklySelectedCount').innerText = `${weeklyCount} / 12`;
-      document.getElementById('monthlySelectedCount').innerText = `${monthlyCount} / 1`;
+      document.getElementById('weeklySelectedCount').innerText = `${weeklyCount} 개`;
+      document.getElementById('monthlySelectedCount').innerText = `${monthlyCount} 개`;
       document.getElementById('currentCharTotal').innerText = formatMeso(weeklyTotal + monthlyTotal);
 
       return { weeklyTotal, monthlyTotal, weeklyCount, monthlyCount };
@@ -1267,131 +1074,142 @@
       updateGoalProgress();
     }
 
-    // --- 스펙업 버짓 플래너 ---
-    function addOrUpdateUpgradeRecord() {
-      const category = document.getElementById('itemCategory').value;
-      const name = document.getElementById('itemName').value.trim();
-      const cost = Number(document.getElementById('itemCost').value) || 0;
-      const qty = Number(document.getElementById('itemQty').value) || 1;
-      const memo = document.getElementById('itemMemo').value.trim();
+    // --- 사냥 기록 일지 기능 ---
+    function addOrUpdateHuntingRecord() {
+      const date = document.getElementById('huntDate').value;
+      const charName = document.getElementById('huntCharName').value.trim();
+      const map = document.getElementById('huntMap').value.trim();
+      const minutes = Number(document.getElementById('huntMinutes').value) || 0;
+      const earnedMeso = Number(document.getElementById('huntEarnedMeso').value) || 0;
+      const nodeStones = Number(document.getElementById('huntNodeStones').value) || 0;
+      const itemDrop = Number(document.getElementById('huntItemDrop').value) || 0;
+      const mesoAcq = Number(document.getElementById('huntMesoAcq').value) || 0;
+      const memo = document.getElementById('huntMemo').value.trim();
 
-      if (!name) {
-        alert('아이템 명칭을 입력해 주세요.');
+      if (!charName || !map || minutes <= 0) {
+        alert('캐릭터명, 사냥터, 사냥 시간(분)을 바르게 입력해 주세요.');
         return;
       }
 
-      if (editingUpgradeId !== null) {
-        const record = upgradeRecords.find(r => r.id === editingUpgradeId);
+      if (editingHuntingId !== null) {
+        const record = huntingRecords.find(r => r.id === editingHuntingId);
         if (record) {
-          record.category = category;
-          record.name = name;
-          record.cost = cost;
-          record.qty = qty;
+          record.date = date;
+          record.charName = charName;
+          record.map = map;
+          record.minutes = minutes;
+          record.earnedMeso = earnedMeso;
+          record.nodeStones = nodeStones;
+          record.itemDrop = itemDrop;
+          record.mesoAcq = mesoAcq;
           record.memo = memo;
         }
       } else {
-        upgradeRecords.push({
+        huntingRecords.push({
           id: Date.now(),
-          category: category,
-          name: name,
-          cost: cost,
-          qty: qty,
-          memo: memo,
-          completed: false
+          date: date,
+          charName: charName,
+          map: map,
+          minutes: minutes,
+          earnedMeso: earnedMeso,
+          nodeStones: nodeStones,
+          itemDrop: itemDrop,
+          mesoAcq: mesoAcq,
+          memo: memo
         });
       }
 
       saveLocalStorage();
-      renderUpgradeTable();
-      resetUpgradeForm();
+      renderHuntingTable();
+      resetHuntingForm();
     }
 
-    function toggleUpgradeComplete(id) {
-      const record = upgradeRecords.find(r => r.id === id);
-      if (record) {
-        record.completed = !record.completed;
-        saveLocalStorage();
-        renderUpgradeTable();
-      }
-    }
-
-    function editUpgradeRecord(id) {
-      const record = upgradeRecords.find(r => r.id === id);
+    function editHuntingRecord(id) {
+      const record = huntingRecords.find(r => r.id === id);
       if (!record) return;
 
-      editingUpgradeId = id;
-      document.getElementById('upgradeFormTitle').innerText = '✏️ 스펙업 항목 수정';
-      document.getElementById('cancelUpgradeEditBtn').style.display = 'inline-block';
+      editingHuntingId = id;
+      document.getElementById('huntingFormTitle').innerText = '✏️ 사냥 기록 수정';
+      document.getElementById('cancelHuntingEditBtn').style.display = 'inline-block';
 
-      document.getElementById('itemCategory').value = record.category;
-      document.getElementById('itemName').value = record.name;
-      document.getElementById('itemCost').value = record.cost;
-      document.getElementById('itemQty').value = record.qty;
-      document.getElementById('itemMemo').value = record.memo;
+      document.getElementById('huntDate').value = record.date;
+      document.getElementById('huntCharName').value = record.charName;
+      document.getElementById('huntMap').value = record.map;
+      document.getElementById('huntMinutes').value = record.minutes;
+      document.getElementById('huntEarnedMeso').value = record.earnedMeso;
+      document.getElementById('huntNodeStones').value = record.nodeStones;
+      document.getElementById('huntItemDrop').value = record.itemDrop;
+      document.getElementById('huntMesoAcq').value = record.mesoAcq;
+      document.getElementById('huntMemo').value = record.memo;
 
-      updateUnitHint('itemCost', 'itemCostHint');
+      updateUnitHint('huntEarnedMeso', 'huntMesoHint');
     }
 
-    function deleteUpgradeRecord(id) {
-      if (!confirm('해당 스펙업 목표를 삭제하시겠습니까?')) return;
-      upgradeRecords = upgradeRecords.filter(r => r.id !== id);
+    function deleteHuntingRecord(id) {
+      if (!confirm('해당 사냥 기록을 삭제하시겠습니까?')) return;
+      huntingRecords = huntingRecords.filter(r => r.id !== id);
       saveLocalStorage();
-      renderUpgradeTable();
+      renderHuntingTable();
     }
 
-    function resetUpgradeForm() {
-      editingUpgradeId = null;
-      document.getElementById('upgradeFormTitle').innerText = '➕ 스펙업 항목 추가';
-      document.getElementById('cancelUpgradeEditBtn').style.display = 'none';
+    function resetHuntingForm() {
+      editingHuntingId = null;
+      document.getElementById('huntingFormTitle').innerText = '➕ 사냥 기록 작성';
+      document.getElementById('cancelHuntingEditBtn').style.display = 'none';
 
-      document.getElementById('itemName').value = '';
-      document.getElementById('itemCost').value = '';
-      document.getElementById('itemQty').value = '1';
-      document.getElementById('itemMemo').value = '';
-      document.getElementById('itemCostHint').innerText = '';
+      document.getElementById('huntDate').value = new Date().toISOString().substring(0, 10);
+      document.getElementById('huntCharName').value = '';
+      document.getElementById('huntMap').value = '';
+      document.getElementById('huntMinutes').value = '';
+      document.getElementById('huntEarnedMeso').value = '';
+      document.getElementById('huntNodeStones').value = '0';
+      document.getElementById('huntItemDrop').value = '';
+      document.getElementById('huntMesoAcq').value = '';
+      document.getElementById('huntMemo').value = '';
+      document.getElementById('huntMesoHint').innerText = '';
     }
 
-    function renderUpgradeTable() {
-      const tbody = document.getElementById('upgradeTableBody');
+    function renderHuntingTable() {
+      const tbody = document.getElementById('huntingTableBody');
       tbody.innerHTML = '';
 
-      let totalCost = 0;
+      let totalMins = 0;
+      let totalMeso = 0;
 
-      if (upgradeRecords.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b; padding: 20px;">등록된 스펙업 목표가 없습니다.</td></tr>';
+      if (huntingRecords.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #64748b; padding: 20px;">저장된 사냥 기록이 없습니다.</td></tr>';
       } else {
-        upgradeRecords.forEach(r => {
-          const itemTotal = r.cost * r.qty;
-          if (!r.completed) totalCost += itemTotal;
+        // 최근 날짜순 정렬
+        huntingRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        huntingRecords.forEach(r => {
+          totalMins += r.minutes;
+          totalMeso += r.earnedMeso;
 
           const tr = document.createElement('tr');
-          if (r.completed) tr.style.opacity = '0.5';
-
           tr.innerHTML = `
+            <td>${r.date}</td>
+            <td><strong>${r.charName}</strong></td>
+            <td>${r.map}</td>
+            <td>${r.minutes}분</td>
+            <td style="color: #38bdf8;">${formatMeso(r.earnedMeso)}</td>
+            <td style="color: #10b981;">${r.nodeStones}개</td>
+            <td style="font-size: 0.8rem; color: #94a3b8;">아획 ${r.itemDrop}% / 메획 ${r.mesoAcq}%</td>
+            <td style="color: #f59e0b; font-size: 0.8rem;">${r.memo || '-'}</td>
             <td>
-              <input type="checkbox" ${r.completed ? 'checked' : ''} onchange="toggleUpgradeComplete(${r.id})" style="cursor: pointer;">
-            </td>
-            <td><span class="count-badge">${r.category}</span></td>
-            <td style="${r.completed ? 'text-decoration: line-through;' : 'font-weight: bold;'}">${r.name}</td>
-            <td class="item-memo">${r.memo || '-'}</td>
-            <td>${formatMeso(r.cost)}</td>
-            <td>${r.qty}개</td>
-            <td class="cost-text">${formatMeso(itemTotal)}</td>
-            <td>
-              <button class="btn-edit" onclick="editUpgradeRecord(${r.id})">수정</button>
-              <button class="btn-delete" onclick="deleteUpgradeRecord(${r.id})">삭제</button>
+              <button class="btn-edit" onclick="editHuntingRecord(${r.id})">수정</button>
+              <button class="btn-delete" onclick="deleteHuntingRecord(${r.id})">삭제</button>
             </td>
           `;
           tbody.appendChild(tr);
         });
       }
 
-      document.getElementById('upgradeTotalCost').innerText = '미완료 목표 총액: ' + formatMeso(totalCost);
-      
-      if (targetGoalMeso === 0 && totalCost > 0) {
-        targetGoalMeso = totalCost;
-        document.getElementById('goalInput').value = totalCost;
-      }
+      const totalHours = (totalMins / 60).toFixed(1);
+      document.getElementById('totalHuntTime').innerText = `${totalHours} 시간 (${totalMins}분)`;
+      document.getElementById('totalHuntMeso').innerText = formatMeso(totalMeso);
+      document.getElementById('totalHuntEstimated').innerText = formatMeso(totalMeso); // 조각/젬 가격 가상 계산 확장 가능
+      document.getElementById('huntingSummaryText').innerText = `총 ${huntingRecords.length}회 기록`;
 
       updateGoalProgress();
     }
@@ -1411,7 +1229,7 @@
       document.getElementById('splitFeeAmount').innerText = `수수료: ${formatMeso(feeAmount)}`;
       document.getElementById('splitPerPerson').innerText = formatMeso(perPerson);
       document.getElementById('splitBuyerPayback').innerText = formatMeso(buyerPayback);
-      document.getElementById('splitBuyerText').innerText = `구매자 외 ${count - 1}명에게각각 ${formatMeso(perPerson)} 지급`;
+      document.getElementById('splitBuyerText').innerText = `구매자 외 ${count - 1}명에게 각각 ${formatMeso(perPerson)} 지급`;
     }
 
     // --- 목표 진행도 대시보드 ---
@@ -1423,8 +1241,15 @@
 
     function updateGoalProgress() {
       let currentMonthMeso = 0;
+      
+      // 월간 보스 수익 계산
       bossRecords.forEach(r => {
         currentMonthMeso += (r.weeklyTotal * 4) + r.monthlyTotal;
+      });
+
+      // 누적 사냥 메소 추가
+      huntingRecords.forEach(r => {
+        currentMonthMeso += r.earnedMeso;
       });
 
       const goalInput = document.getElementById('goalInput');
@@ -1443,14 +1268,14 @@
 
       const pct = Math.min(100, Math.round((currentMonthMeso / targetGoalMeso) * 100));
       bar.style.width = `${pct}%`;
-      text.innerText = `${pct}% (월 예상 수익: ${formatMeso(currentMonthMeso)} / 목표: ${formatMeso(targetGoalMeso)})`;
+      text.innerText = `${pct}% (누적 획득: ${formatMeso(currentMonthMeso)} / 목표: ${formatMeso(targetGoalMeso)})`;
     }
 
     // --- 데이터 저장 / 불러오기 (Local Storage & JSON) ---
     function saveLocalStorage() {
       const data = {
         bossRecords: bossRecords,
-        upgradeRecords: upgradeRecords,
+        huntingRecords: huntingRecords,
         targetGoalMeso: targetGoalMeso
       };
       localStorage.setItem('maple_calculator_data', JSON.stringify(data));
@@ -1462,7 +1287,7 @@
         try {
           const parsed = JSON.parse(saved);
           bossRecords = parsed.bossRecords || [];
-          upgradeRecords = parsed.upgradeRecords || [];
+          huntingRecords = parsed.huntingRecords || [];
           targetGoalMeso = parsed.targetGoalMeso || 0;
         } catch (e) {
           console.error("로컬 데이터 로드 실패", e);
@@ -1473,7 +1298,7 @@
     function exportData() {
       const data = {
         bossRecords: bossRecords,
-        upgradeRecords: upgradeRecords,
+        huntingRecords: huntingRecords,
         targetGoalMeso: targetGoalMeso
       };
       const jsonStr = JSON.stringify(data, null, 2);
@@ -1500,14 +1325,14 @@
         reader.onload = event => {
           try {
             const parsed = JSON.parse(event.target.result);
-            if (parsed.bossRecords || parsed.upgradeRecords) {
+            if (parsed.bossRecords || parsed.huntingRecords) {
               bossRecords = parsed.bossRecords || [];
-              upgradeRecords = parsed.upgradeRecords || [];
+              huntingRecords = parsed.huntingRecords || [];
               targetGoalMeso = parsed.targetGoalMeso || 0;
 
               saveLocalStorage();
               renderBossTable();
-              renderUpgradeTable();
+              renderHuntingTable();
               alert('데이터를 성공적으로 불러왔습니다!');
             } else {
               alert('올바른 백업 파일 형식이 아닙니다.');
