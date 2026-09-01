@@ -1280,51 +1280,87 @@
     }
 
     /* 보스 기록 */
-    function renderBossCard(boss, bIndex, isMonthly = false) {
-      const bossDiv = document.createElement('div');
-      bossDiv.className = `boss-item ${isMonthly ? 'monthly-boss' : ''}`;
+function renderBossCard(boss, bIndex, isMonthly) {
+  const card = document.createElement('div');
+  card.className = 'boss-card';
 
-      let diffsHTML = '';
-      Object.keys(boss.diffs).forEach(diff => {
-        const price = boss.diffs[diff];
-        const prefix = isMonthly ? 'mboss' : 'boss';
-        const inputId = `${prefix}_${bIndex}_${diff}`;
-        const selectId = `party_${prefix}_${bIndex}_${diff}`;
-        const icon = diffIcons[diff] || '✨';
+  const prefix = isMonthly ? 'mboss' : 'boss';
+  let diffsHtml = '';
 
-        diffsHTML += `
-          <div class="diff-row">
-            <label class="diff-label" for="${inputId}">
-              <input type="checkbox" id="${inputId}" data-boss="${boss.name}" data-diff="${diff}" data-price="${price}" data-monthly="${isMonthly}" onchange="calculateBossTotal()">
-              <span class="diff-badge ${diff}">${icon} ${diff}</span>
-              <span class="diff-price-tag">(${formatMeso(price)})</span>
-            </label>
-            <div class="party-select-wrapper">
-              <select class="party-select" id="${selectId}" onchange="calculateBossTotal()">
-                <option value="1">👤1인</option>
-                <option value="2">👥2인</option>
-                <option value="3">👥3인</option>
-                <option value="4">👥4인</option>
-                <option value="5">👥5인</option>
-                <option value="6">👥6인</option>
-              </select>
-            </div>
-          </div>
-        `;
-      });
+  Object.entries(boss.diffs).forEach(([diff, price]) => {
+    const inputId = `${prefix}_${bIndex}_${diff}`;
+    const partyId = `party_${prefix}_${bIndex}_${diff}`;
 
-      const bossIcon = isMonthly ? '🔴' : '😈';
-      bossDiv.innerHTML = `
-        <div class="boss-header">
-          <span>${bossIcon} ${boss.name}</span>
-        </div>
-        <div class="boss-options">
-          ${diffsHTML}
-        </div>
-      `;
-      return bossDiv;
+    diffsHtml += `
+      <div class="diff-item" style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          <input type="checkbox" 
+                 id="${inputId}" 
+                 data-boss="${boss.name}" 
+                 data-diff="${diff}" 
+                 data-price="${price}" 
+                 data-monthly="${isMonthly}" 
+                 onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})">
+          <span>${diff} (${formatMeso(price)})</span>
+        </label>
+        <select id="${partyId}" onchange="calculateBossTotal()" style="padding: 2px 4px; font-size: 0.8rem;">
+          <option value="1">1인</option>
+          <option value="2">2인</option>
+          <option value="3">3인</option>
+          <option value="4">4인</option>
+          <option value="5">5인</option>
+          <option value="6">6인</option>
+        </select>
+      </div>
+    `;
+  });
+
+  card.innerHTML = `
+    <div class="boss-title" style="font-weight: bold; margin-bottom: 6px;">${boss.name}</div>
+    <div class="boss-diffs">${diffsHtml}</div>
+  `;
+
+  return card;
+}
+function handleBossSelect(currentCb, bossName, isMonthly) {
+  // 1. 체크 해제한 경우 단순 재계산
+  if (!currentCb.checked) {
+    calculateBossTotal();
+    return;
+  }
+
+  // 2. 해당 보스의 다른 난이도 체크박스 해제 (단일 난이도 선택)
+  const containerId = isMonthly ? 'monthlyBossListContainer' : 'bossListContainer';
+  const sameBossCheckboxes = document.querySelectorAll(`#${containerId} input[data-boss="${bossName}"]`);
+  
+  sameBossCheckboxes.forEach(cb => {
+    if (cb !== currentCb) {
+      cb.checked = false;
     }
+  });
 
+  // 3. 현재 선택된 총 개수 확인 및 제한 체크
+  const weeklyCount = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked').length;
+  const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
+
+  if (isMonthly && monthlyCount > 1) {
+    alert('월간 보스는 최대 1개만 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  if (!isMonthly && weeklyCount > 12) {
+    alert('주간 보스는 캐릭터당 최대 12개까지 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  // 4. 총합 재계산 및 UI 갱신
+  calculateBossTotal();
+}
+    
     function renderBossList() {
       const container = document.getElementById('bossListContainer');
       container.innerHTML = '';
