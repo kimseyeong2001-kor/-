@@ -3,517 +3,1320 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>메이플스토리 수익 가계부 & 분배금 계산기</title>
-  <style>
-    :root {
-      --bg-main: #0b0f19;
-      --bg-card: #131c2e;
-      --bg-input: #1e293b;
-      --border-color: #334155;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --meso-color: #fbbf24;
-      --profit-color: #38bdf8;
-      --loss-color: #f87171;
-      --boss-color: #c084fc;
-      --btn-primary: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      --btn-danger: linear-gradient(135deg, #ef4444, #b91c1c);
-      --btn-edit: linear-gradient(135deg, #10b981, #047857);
-    }
+  <title>메이플스토리 통합 수익 기록기</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
 
+  body {
+    background-color: #0b1120;
+    color: #f8fafc;
+    padding: 24px;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* 커스텀 스크롤바 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b1120;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+
+  /* 상단 헤더 */
+  .top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1e293b;
+    padding-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tab-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .backup-container {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tab-btn {
+    background-color: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn:hover {
+    background-color: #334155;
+    color: #f1f5f9;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  }
+
+  .btn-backup {
+    background-color: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    font-size: 0.8rem;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-backup:hover {
+    background-color: #334155;
+    color: #ffffff;
+    border-color: #475569;
+  }
+
+  /* 목표 달성 대시보드 */
+  .goal-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .goal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .goal-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .progress-outer {
+    width: 100%;
+    background-color: #0b1120;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #334155;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .progress-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #38bdf8);
+    width: 0%;
+    transition: width 0.5s ease-out;
+    border-radius: 10px;
+  }
+
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    letter-spacing: 0.5px;
+  }
+
+  .tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tab-content.active {
+    display: flex;
+  }
+
+  /* 메인 카드 컨테이너 */
+  .card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #f8fafc;
+    border-left: 4px solid #6366f1;
+    padding-left: 10px;
+  }
+
+  .section-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #f87171;
+    margin: 16px 0 10px 0;
+    padding-top: 12px;
+    border-top: 1px dashed #334155;
+  }
+
+  /* 폼 및 입력 필드 */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  .unit-hint {
+    font-size: 0.75rem;
+    color: #38bdf8;
+    min-height: 1.1em;
+  }
+
+  .item-cost-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .item-cost-row input[type="number"] {
+    width: 100%;
+  }
+
+  .qty-input {
+    max-width: 65px !important;
+    text-align: center;
+  }
+
+  input[type="text"], input[type="number"], select {
+    background-color: #0b1120;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #ffffff;
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  input:focus, select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  button {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-edit {
+    background-color: #f59e0b;
+    color: white;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    margin-right: 2px;
+  }
+
+  .btn-delete {
+    background-color: #ef4444;
+    color: white;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
+
+  /* 통계 그리드 */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .stat-card {
+    background: linear-gradient(145deg, #0f172a, #0b1120);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover {
+    border-color: #475569;
+  }
+
+  .stat-card .label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .stat-card .value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+  }
+
+  .info-bar {
+    background-color: #0b1120;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    border: 1px solid #334155;
+  }
+
+  .preset-bar {
+    background-color: #182232;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    border: 1px dashed #475569;
+  }
+
+  .count-badge {
+    font-weight: bold;
+    color: #818cf8;
+    background: rgba(99, 102, 241, 0.15);
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  /* 보스 그리드 & 카드 */
+  .boss-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .boss-item {
+    background: linear-gradient(145deg, #0f172a, #0b1120);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .boss-item:hover {
+    border-color: #475569;
+    transform: translateY(-2px);
+  }
+
+  .boss-item.monthly-boss {
+    border: 1px solid #818cf8;
+    background: linear-gradient(145deg, #131b2e, #0b1120);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+  }
+
+  .boss-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #f1f5f9;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 6px;
+  }
+
+  .boss-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .diff-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e293b;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .diff-row:hover {
+    background-color: #273549;
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+
+  .diff-label {
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  .diff-label input[type="checkbox"] {
+    accent-color: #6366f1;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+
+  .diff-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  .diff-badge.이지 { background-color: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .diff-badge.노말 { background-color: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+  .diff-badge.하드 { background-color: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+  .diff-badge.카오스 { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+  .diff-badge.익스트림 { background-color: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
+
+  .diff-price-tag {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .party-select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .party-select {
+    background-color: #0b1120;
+    border: 1px solid #475569;
+    color: #f8fafc;
+    border-radius: 5px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* 테이블 스타일 */
+  .table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #334155;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  th {
+    background-color: #0b1120;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 10px 12px;
+    border-bottom: 1px solid #334155;
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #1e293b;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+  }
+
+  tr:nth-child(even) {
+    background-color: rgba(15, 23, 42, 0.5);
+  }
+
+  tr:hover {
+    background-color: rgba(51, 65, 85, 0.3);
+  }
+
+  .total-summary {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #38bdf8;
+  }
+
+  .item-memo {
+    color: #f59e0b;
+    font-size: 0.8rem;
+  }
+
+  .cost-text {
+    color: #f87171;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* 분배금 계산기 결과 카드 */
+  .calc-result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .calc-card {
+    background: linear-gradient(145deg, #0f172a, #0b1120);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .calc-card.highlight-card {
+    border-color: #ec4899;
+    background: linear-gradient(145deg, rgba(236, 72, 153, 0.1), rgba(15, 23, 42, 0.9));
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.15);
+  }
+
+  .calc-card-title {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .calc-card-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+  }
+
+  .calc-card-sub {
+    font-size: 0.8rem;
+    color: #38bdf8;
+    font-weight: 600;
+  }
+
+  .calc-footer-info {
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  /* 반응형 쿼리 */
+  @media (max-width: 768px) {
     body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-      margin: 0;
-      padding: 30px 20px;
-      line-height: 1.5;
+      padding: 14px;
     }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 30px;
-      background-color: var(--bg-card);
-      border-radius: 20px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    h1, h2, h3 {
-      margin-top: 0;
-      color: var(--text-main);
-      font-weight: 700;
-    }
-
-    h1 { font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    h2 { font-size: 20px; margin-bottom: 15px; border-left: 4px solid var(--profit-color); padding-left: 10px; }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 25px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 15px;
-    }
-
-    .tab-btn {
-      background: var(--bg-input);
-      color: var(--text-muted);
-      border: 1px solid var(--border-color);
-      font-size: 15px;
-      font-weight: 600;
-      padding: 10px 24px;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn:hover {
-      background: var(--border-color);
-      color: var(--text-main);
-    }
-
-    .tab-btn.active {
-      color: #fff;
-      background: var(--btn-primary);
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    input[type="text"], 
-    input[type="number"], 
-    select {
-      width: 100%;
-      padding: 12px 16px;
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      color: var(--text-main);
-      font-size: 14px;
-      box-sizing: border-box;
-      transition: all 0.2s;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--profit-color);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
-    .hint-text {
-      font-size: 12px;
-      color: var(--meso-color);
-      margin-top: 4px;
-      display: block;
-    }
-
-    /* 보스 카드 레이아웃 스타일 개편 (이미지 맞춤형 4열 그리드) */
-    #bossListContainer {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 10px;
-    }
-    #monthlyBossListContainer {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 1024px) {
-      #bossListContainer, #monthlyBossListContainer {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    @media (max-width: 640px) {
-      #bossListContainer, #monthlyBossListContainer {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .boss-card {
-      background-color: var(--bg-input);
-      border-radius: 12px;
-      padding: 12px;
-      border: 1px solid var(--border-color);
-      transition: all 0.2s;
-    }
-
-    .boss-card:hover {
-      border-color: var(--boss-color);
-    }
-
-    .boss-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--boss-color);
-    }
-
-    .boss-icon { font-size: 16px; }
-    
-    .diff-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-      font-size: 12px;
-    }
-
-    .diff-item label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin: 0;
-      cursor: pointer;
-      color: var(--text-main);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .diff-item select {
-      width: 55px;
-      padding: 2px 4px;
-      font-size: 11px;
-      background-color: var(--bg-card);
-    }
-
-    .diff-price {
-      color: var(--meso-color);
-      font-size: 11px;
-      margin-left: auto;
-      padding-right: 6px;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      color: #fff;
-      padding: 12px 20px;
-      font-size: 14px;
-      transition: filter 0.2s, transform 0.1s;
-    }
-
-    button:active { transform: scale(0.98); }
-    button:hover { filter: brightness(1.1); }
-
-    .btn-submit { background: var(--btn-primary); width: 100%; margin-top: 15px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-    .btn-edit { background: var(--btn-edit); padding: 6px 12px; font-size: 12px; border-radius: 6px; }
-    .btn-delete { background: var(--btn-danger); padding: 6px 12px; font-size: 12px; border-radius: 6px; margin-left: 4px; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background-color: var(--bg-input);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
-
-    th, td {
-      padding: 14px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 13px;
-    }
-
-    th {
-      background-color: rgba(0, 0, 0, 0.2);
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
-    tr:last-child td { border-bottom: none; }
-
-    .cost-text { color: var(--loss-color); }
-    .item-memo { color: var(--text-muted); font-style: italic; }
-
-    .summary-box {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .summary-item {
-      flex: 1;
-      min-width: 180px;
-      background-color: var(--bg-input);
-      padding: 16px 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--profit-color);
-      display: flex;
+    .top-header {
       flex-direction: column;
-      gap: 4px;
+      align-items: stretch;
     }
-
-    .summary-item .label {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin: 0;
+    .form-grid {
+      grid-template-columns: repeat(1, 1fr);
     }
-
-    .summary-item .value {
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--meso-color);
+    .stats-grid {
+      grid-template-columns: 1fr;
     }
-  </style>
+    .preset-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .calc-result-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <h1><span>🍁</span> 메이플스토리 수익 관리기</h1>
-    
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('hunt')">사냥 수익</button>
-      <button class="tab-btn" onclick="switchTab('boss')">보스 수익</button>
-      <button class="tab-btn" onclick="switchTab('split')">분배금 계산기</button>
+  <div class="top-header">
+    <div class="tab-container">
+      <button class="tab-btn active" onclick="switchTab('hunt')">⚔️ 사냥 수익 기록</button>
+      <button class="tab-btn" onclick="switchTab('boss')">👑 보스 수익 기록</button>
+      <button class="tab-btn" onclick="switchTab('calc')">🧮 경매장/분배금 계산기</button>
     </div>
 
-    <!-- 탭 콘텐츠 영역 -->
-    <div id="tab-hunt" class="tab-content">
-      <h2>사냥 수익 기록</h2>
-      <div class="summary-box">
-        <div class="summary-item"><span class="label">오늘 사냥 순수익</span><span class="value" id="huntTodayMeso">0 메소</span></div>
-        <div class="summary-item"><span class="label">이번 주 사냥 순수익</span><span class="value" id="huntWeekMeso">0 메소</span></div>
-        <div class="summary-item"><span class="label">이번 달 사냥 순수익</span><span class="value" id="huntMonthMeso">0 메소</span></div>
+    <div class="backup-container">
+      <button class="btn-backup" onclick="exportData()">💾 데이터 백업</button>
+      <button class="btn-backup" onclick="document.getElementById('importFile').click()">📂 데이터 복구</button>
+      <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+    </div>
+  </div>
+
+  <!-- 주간 목표 대시보드 -->
+  <div class="goal-card">
+    <div class="goal-header">
+      <div class="goal-title">🎯 이번 주 목표 순수익 달성률</div>
+      <div class="goal-input-container">
+        <label style="font-size: 0.8rem; color: #94a3b8;">주간 목표 메소:</label>
+        <input type="number" id="weeklyGoalInput" value="1000000000" style="width: 130px; padding: 4px 8px;" oninput="updateGoalProgress()">
+        <span id="weeklyGoalHint" class="unit-hint" style="font-size:0.8rem;">10억 메소</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>날짜</th><th>캐릭터</th><th>메모</th><th>시간</th><th>조각</th><th>소모 비용</th><th>순수익</th><th>시간당 수익</th><th>관리</th>
-          </tr>
-        </thead>
-        <tbody id="huntTableBody"></tbody>
-      </table>
+    </div>
+    <div class="progress-outer">
+      <div class="progress-inner" id="goalProgressBar"></div>
+      <div class="progress-text" id="goalProgressText">0 / 0 메소 (0%)</div>
+    </div>
+  </div>
+
+  <!-- 1. 사냥 수익 기록 탭 -->
+  <div id="tab-hunt" class="tab-content active">
+    <div class="card">
+      <div class="card-title">⚔️ 사냥 수익 기록</div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>캐릭터</label>
+          <input type="text" id="huntChar" placeholder="캐릭터명">
+        </div>
+        <div class="form-group">
+          <label>메모</label>
+          <input type="text" id="huntMemo" placeholder="메모 입력">
+        </div>
+        <div class="form-group">
+          <label>사냥 시간(분)</label>
+          <input type="number" id="huntTime" value="60">
+        </div>
+
+        <div class="form-group">
+          <label>사냥 전 메소</label>
+          <input type="number" id="beforeMeso" value="0" oninput="updateMesoUnit('beforeMeso', 'beforeMesoHint')">
+          <span class="unit-hint" id="beforeMesoHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>사냥 후 메소</label>
+          <input type="number" id="afterMeso" value="0" oninput="updateMesoUnit('afterMeso', 'afterMesoHint')">
+          <span class="unit-hint" id="afterMesoHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>획득 솔 에르다 조각</label>
+          <input type="number" id="erdaCount" value="0">
+        </div>
+        <div class="form-group">
+          <label>조각 1개 가격</label>
+          <input type="number" id="erdaPrice" value="7000000" oninput="updateMesoUnit('erdaPrice', 'erdaPriceHint')">
+          <span class="unit-hint" id="erdaPriceHint">700만 메소</span>
+        </div>
+      </div>
+
+      <div class="section-title">📉 사냥 차감 요소 (개수 및 단가 입력)</div>
+      <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="form-group">
+          <label>소형 재물 획득의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtySmallWealth" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costSmallWealth" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costSmallWealth', 'costSmallWealthHint')">
+          </div>
+          <span class="unit-hint" id="costSmallWealthHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>소형 경험치 획득의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtySmallExp" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costSmallExp" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costSmallExp', 'costSmallExpHint')">
+          </div>
+          <span class="unit-hint" id="costSmallExpHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>소형 고농축 경험치 획득의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtySmallHighExp" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costSmallHighExp" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costSmallHighExp', 'costSmallHighExpHint')">
+          </div>
+          <span class="unit-hint" id="costSmallHighExpHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>추가 경험치 50% 쿠폰</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyExp50" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costExp50" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costExp50', 'costExp50Hint')">
+          </div>
+          <span class="unit-hint" id="costExp50Hint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>추가 경험치 70% 쿠폰</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyExp70" class="qty-input" value="0" placeholder="개수">
+            <input type="number" id="costExp70" value="0" placeholder="개당 메소" oninput="updateMesoUnit('costExp70', 'costExp70Hint')">
+          </div>
+          <span class="unit-hint" id="costExp70Hint">0 메소</span>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-primary" id="btnSaveHunt" onclick="addOrUpdateHuntRecord()">기록 추가</button>
+        <button class="btn-backup" id="btnCancelHuntEdit" style="display:none;" onclick="cancelHuntEdit()">수정 취소</button>
+      </div>
     </div>
 
-    <div id="tab-boss" class="tab-content" style="display:none;">
-      <h2>보스 수익 기록</h2>
-      <div class="summary-box">
-        <div class="summary-item"><span class="label" id="thisWeekBossTotal">이번 주 (목요일 이후): 0 메소</span><span class="value" id="currentBossTotal" style="font-size:15px; margin-top:2px;">순수익: 0 메소 (차감: -0 메소)</span></div>
+    <div class="card">
+      <div class="card-title">📊 사냥 순수익 통계</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">오늘</div>
+          <div class="value" id="huntTodayMeso">0 메소</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">이번 주</div>
+          <div class="value" id="huntWeekMeso">0 메소</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">이번 달</div>
+          <div class="value" id="huntMonthMeso">0 메소</div>
+        </div>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <div style="display: flex; gap: 10px;">
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>캐릭터</th>
+              <th>메모</th>
+              <th>시간</th>
+              <th>조각</th>
+              <th>차감 비용</th>
+              <th>순수익</th>
+              <th>시간당 순수익</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="huntTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 보스 수익 기록 탭 -->
+  <div id="tab-boss" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>👑 보스 선택 및 기록</span>
+        <span class="total-summary" id="currentBossTotal">0 메소</span>
+      </div>
+
+      <div class="preset-bar">
+        <span style="font-weight: 600; font-size: 0.85rem;">💾 캐릭터 프리셋:</span>
+        <select id="presetSelect" style="flex: 1;" onchange="loadPreset()">
+          <option value="">-- 프리셋 선택 --</option>
+        </select>
+        <button class="btn-secondary" onclick="savePreset()">현재 설정 프리셋으로 저장</button>
+        <button style="background-color: #64748b; color: white;" onclick="deletePreset()">프리셋 삭제</button>
+      </div>
+
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 8px;">
+        <div class="form-group">
+          <label>캐릭터명</label>
           <input type="text" id="bossCharName" placeholder="캐릭터명 입력">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>득템 / 메모</label>
           <input type="text" id="bossMemo" placeholder="메모 입력">
         </div>
-        
-        <input type="hidden" id="qtyElixir1" value="0"><input type="hidden" id="qtyElixir2" value="0"><input type="hidden" id="qtyElixir3" value="0"><input type="hidden" id="qtyElixir4" value="0">
-        <input type="hidden" id="qtyWhetstone" value="0"><input type="hidden" id="costWhetstone" value="0">
-        <input type="hidden" id="qtyRedStar" value="0"><input type="hidden" id="costRedStar" value="0">
-        <input type="hidden" id="qtyHeroPotion" value="0"><input type="hidden" id="costHeroPotion" value="0">
-        <span id="bossCount" style="display:none;">0</span>
+      </div>
 
-        <h3 style="font-size:15px; margin:10px 0 0 0; color: var(--boss-color);">주간 보스 목록 (선택: <span id="bossCountDisplay">0</span>/12)</h3>
-        <div id="bossListContainer"></div>
-
-        <h3 style="font-size:15px; margin:15px 0 0 0; color: var(--boss-color);">월간 보스 목록</h3>
-        <div id="monthlyBossListContainer"></div>
-
-        <div style="display: flex; gap: 10px;">
-          <button class="btn-submit" id="btnSaveBoss" onclick="addOrUpdateBossRecord()" style="margin-top:5px;">보스 기록 저장</button>
-          <button class="btn-delete" id="btnCancelBossEdit" onclick="cancelBossEdit()" style="display:none; margin-top:5px; padding: 0 20px;">취소</button>
+      <div class="section-title">📉 보스 차감 요소 (개수 선택 및 차감)</div>
+      
+      <div class="form-grid" style="margin-bottom: 8px;">
+        <div class="form-group">
+          <label>세이람의 영약 (200만/개)</label>
+          <input type="number" id="qtyElixir1" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+        <div class="form-group">
+          <label>알레리아의 영약 (200만/개)</label>
+          <input type="number" id="qtyElixir2" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+        <div class="form-group">
+          <label>명예의 영약 (500만/개)</label>
+          <input type="number" id="qtyElixir3" value="0" placeholder="개수" oninput="calculateBossTotal()">
+        </div>
+        <div class="form-group">
+          <label>콜렉터의 영약 (2000만/개)</label>
+          <input type="number" id="qtyElixir4" value="0" placeholder="개수" oninput="calculateBossTotal()">
         </div>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>날짜</th><th>캐릭터</th><th>보스 수</th><th>총 보스 수입</th><th>소모 비용</th><th>순수익</th><th>메모</th><th>관리</th>
-          </tr>
-        </thead>
-        <tbody id="bossTableBody"></tbody>
-      </table>
+      <div class="form-grid" style="margin-bottom: 14px;">
+        <div class="form-group">
+          <label>숫돌 (개수 / 개당 메소)</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyWhetstone" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
+            <input type="number" id="costWhetstone" value="0" placeholder="개당 메소" oninput="calculateBossTotal(); updateMesoUnit('costWhetstone', 'costWhetstoneHint')">
+          </div>
+          <span class="unit-hint" id="costWhetstoneHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>반짝이는 빨간 별 물약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyRedStar" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
+            <input type="number" id="costRedStar" value="0" placeholder="개당 메소" oninput="calculateBossTotal(); updateMesoUnit('costRedStar', 'costRedStarHint')">
+          </div>
+          <span class="unit-hint" id="costRedStarHint">0 메소</span>
+        </div>
+        <div class="form-group">
+          <label>전설 대영웅의 비약</label>
+          <div class="item-cost-row">
+            <input type="number" id="qtyHeroPotion" class="qty-input" value="0" placeholder="개수" oninput="calculateBossTotal()">
+            <input type="number" id="costHeroPotion" value="0" placeholder="개당 메소" oninput="calculateBossTotal(); updateMesoUnit('costHeroPotion', 'costHeroPotionHint')">
+          </div>
+          <span class="unit-hint" id="costHeroPotionHint">0 메소</span>
+        </div>
+      </div>
+
+      <div class="btn-group" style="margin-bottom: 14px;">
+        <button class="btn-primary" id="btnSaveBoss" onclick="addOrUpdateBossRecord()">보스 기록 저장</button>
+        <button class="btn-backup" id="btnCancelBossEdit" style="display:none;" onclick="cancelBossEdit()">수정 취소</button>
+      </div>
+
+      <div class="info-bar">
+        <span>선택된 주간 보스 개수: <span id="bossCount" class="count-badge">0</span> / 12</span>
+        <span style="font-size: 0.8rem; color: #94a3b8;">* 주간 보스 캐릭터당 최대 12개 선택 가능</span>
+      </div>
+
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">🗓️ 주간 보스 목록</h3>
+      <div class="boss-grid" id="bossListContainer"></div>
+
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #a855f7; margin: 16px 0 8px 0; border-top: 1px dashed #334155; padding-top: 12px;">🔴 월간 보스</h3>
+      <div class="boss-grid" id="monthlyBossListContainer"></div>
     </div>
 
-    <div id="tab-split" class="tab-content" style="display:none;">
-      <h2>경매장 / 파티 분배금 계산기</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
-        <div>
-          <label>아이템 판매 가격</label>
-          <input type="number" id="calcPrice" value="0" oninput="calculateSplit()">
-        </div>
-        <div>
-          <label>경매장 수수료율</label>
-          <input type="number" id="calcFeeRate" value="0.03" step="0.01" oninput="calculateSplit()">
-        </div>
-        <div>
-          <label>파티원 인원수</label>
-          <input type="number" id="calcPartyCount" value="1" min="1" oninput="calculateSplit()">
-        </div>
+    <div class="card">
+      <div class="card-title">
+        <span>📜 보스 순수익 기록 목록</span>
+        <span style="font-size: 0.95rem; color: #38bdf8;" id="thisWeekBossTotal">이번 주 (목요일 이후): 0 메소</span>
       </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>캐릭터명</th>
+              <th>보스 수</th>
+              <th>결정석 수익</th>
+              <th>차감 비용</th>
+              <th>최종 순수익</th>
+              <th>득템 / 메모</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="bossTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 경매장 & 분배금 계산기 탭 -->
+  <div id="tab-calc" class="tab-content">
+    <div class="card">
+      <div class="card-title">🧮 경매장 수수료 & 파티원 분배금 정산기</div>
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 15px;">
-        <input type="text" id="splitItemName" placeholder="아이템 이름">
-        <input type="text" id="splitItemMemo" placeholder="메모 (선택)">
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-item">
-          <span class="label">파티장 잔여금 (원)</span>
-          <span class="value" id="resPartyLeader">0</span>
-          <span class="hint-text" id="resPartyLeaderText">0 메소</span>
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="form-group">
+          <label>경매장 판매 금액 (메소)</label>
+          <input type="number" id="calcPrice" value="1000000000" oninput="calculateSplit(); updateMesoUnit('calcPrice', 'calcPriceHint');">
+          <span class="unit-hint" id="calcPriceHint">10억 메소</span>
         </div>
-        <div class="summary-item">
-          <span class="label">파티원 1인당 송금액 (원)</span>
-          <span class="value" id="resPartyMember">0</span>
-          <span class="hint-text" id="resPartyMemberText">0 메소</span>
+        <div class="form-group">
+          <label>경매장 수수료율</label>
+          <select id="calcFeeRate" onchange="calculateSplit()">
+            <option value="0.03">MVP / PC방 수수료 (3%)</option>
+            <option value="0.05">일반 수수료 (5%)</option>
+          </select>
         </div>
-        <div class="summary-item">
-          <span class="label">오차 금액 / 비율</span>
-          <span class="value" id="resDiffVal">0</span>
-          <span class="hint-text" id="resDiffRate">0%</span>
+        <div class="form-group">
+          <label>파티원 수 (본인 포함)</label>
+          <input type="number" id="calcPartyCount" value="3" min="1" max="6" oninput="calculateSplit()">
         </div>
       </div>
 
-      <button class="btn-submit" onclick="addSplitRecord()">분배 기록 저장</button>
+      <!-- 정산 결과 카드 3열 배치 (요청된 구조와 수식 그대로 적용) -->
+      <div class="calc-result-grid">
+        <div class="calc-card">
+          <div class="calc-card-title">파티장 분배금</div>
+          <div class="calc-card-value" id="resPartyLeader">0</div>
+          <div class="calc-card-sub" id="resPartyLeaderText">0 메소</div>
+          <span style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">실수령 기준 잔여</span>
+        </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>날짜</th><th>아이템 명</th><th>판매가</th><th>파티원수</th><th>파티원 송금액</th><th>메모</th><th>관리</th>
-          </tr>
-        </thead>
-        <tbody id="splitTableBody"></tbody>
-      </table>
+        <div class="calc-card highlight-card">
+          <div class="calc-card-title" style="color: #ec4899;">파티원 분배금</div>
+          <div class="calc-card-value" id="resPartyMember" style="color: #f472b6;">0</div>
+          <div class="calc-card-sub" id="resPartyMemberText" style="color: #f472b6;">0 메소</div>
+          <span style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">전달 금액 (수수료 포함)</span>
+        </div>
+
+        <div class="calc-card">
+          <div class="calc-card-title">오차액 / 오차율</div>
+          <div class="calc-card-value" id="resDiffVal">0</div>
+          <div class="calc-card-sub" id="resDiffRate" style="color: #94a3b8;">0%</div>
+          <span style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">절사로 인한 오차</span>
+        </div>
+      </div>
+
+      <div class="calc-footer-info">
+        💡 파티원 분배 금액은 100의 자리에서 내리고, 파티장이 나머지를 갖습니다.
+      </div>
+    </div>
+
+    <!-- 분배금 항목 기록 기능 -->
+    <div class="card">
+      <div class="card-title">📝 분배 항목 기록 (무엇을 분배했는지)</div>
+      
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 8px;">
+        <div class="form-group">
+          <label>분배 항목 명칭</label>
+          <input type="text" id="splitItemName" placeholder="예: 칠흑의 보장, 거한마, 마법의 제어구 등">
+        </div>
+        <div class="form-group">
+          <label>메모</label>
+          <input type="text" id="splitItemMemo" placeholder="파티원 이름 또는 추가 사항 입력">
+        </div>
+        <div class="form-group" style="display: flex; align-items: flex-end;">
+          <button class="btn-primary" style="width: 100%;" onclick="addSplitRecord()">현재 계산 결과로 기록 저장</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>분배 항목</th>
+              <th>판매 금액</th>
+              <th>파티원 수</th>
+              <th>1인당 전달 금액</th>
+              <th>메모</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="splitTableBody">
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <script>
-    let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
-    let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
-    let splitRecords = JSON.parse(localStorage.getItem('mapleSplitRecords')) || [];
-    let bossPresets = JSON.parse(localStorage.getItem('mapleBossPresets')) || {};
-    let editingHuntId = null;
-    let editingBossId = null;
-    let weeklyGoal = 100000000;
-
     const bossData = [
-      { name: "자쿰", icon: "🌋", diffs: { "CHAOS": 9000000 } },
-      { name: "매그너스", icon: "🐍", diffs: { "HARD": 15000000 } },
-      { name: "힐라", icon: "💀", diffs: { "HARD": 17000000 } },
-      { name: "파풀라투스", icon: "⏰", diffs: { "CHAOS": 42000000 } },
-      { name: "피에르", icon: "🃏", diffs: { "CHAOS": 16000000 } },
-      { name: "반반", icon: "⏰", diffs: { "CHAOS": 16000000 } },
-      { name: "블러디퀸", icon: "👑", diffs: { "CHAOS": 16000000 } },
-      { name: "벨룸", icon: "🐉", diffs: { "CHAOS": 31000000 } },
-      { name: "핑크빈", icon: "🐰", diffs: { "CHAOS": 18000000 } },
-      { name: "시그너스", icon: "🦅", diffs: { "CYGNUS": 23000000 } },
-      { name: "스우", icon: "🤖", diffs: { "NORMAL": 55000000, "HARD": 210000000, "EXTREME": 1500000000 } },
-      { name: "데미안", icon: "⚔️", diffs: { "NORMAL": 57000000, "HARD": 220000000 } },
-      { name: "가디언 엔젤 슬라임", icon: "🟢", diffs: { "NORMAL": 60000000, "CHAOS": 240000000 } },
-      { name: "루시드", icon: "🦋", diffs: { "EASY": 50000000, "NORMAL": 70000000, "HARD": 250000000 } },
-      { name: "윌", icon: "🕸️", diffs: { "EASY": 52000000, "NORMAL": 73000000, "HARD": 260000000 } },
-      { name: "더스크", icon: "🦑", diffs: { "NORMAL": 80000000, "HARD": 270000000 } },
-      { name: "진 힐라", icon: "🕷️", diffs: { "NORMAL": 100000000, "HARD": 300000000 } },
-      { name: "듄켈", icon: "🛡️", diffs: { "NORMAL": 95000000, "HARD": 290000000 } },
-      { name: "세렌", icon: "☀️", diffs: { "NORMAL": 150000000, "HARD": 450000000 } },
-      { name: "칼로스", icon: "👁️", diffs: { "EASY": 180000000, "NORMAL": 500000000, "CHAOS": 1200000000 } },
-      { name: "카링", icon: "🐅", diffs: { "EASY": 200000000, "NORMAL": 550000000, "CHAOS": 1300000000 } }
+      { name: "파풀라투스", diffs: { "카오스": 13100000 } },
+      { name: "스우", diffs: { "익스트림": 574000000, "하드": 51500000, "노말": 16700000 } },
+      { name: "데미안", diffs: { "하드": 48900000, "노말": 17500000 } },
+      { name: "루시드", diffs: { "하드": 62900000, "노말": 35600000, "이지": 29800000 } },
+      { name: "윌", diffs: { "하드": 77100000, "노말": 41100000, "이지": 32300000 } },
+      { name: "가엔슬", diffs: { "카오스": 75100000, "노말": 25500000 } },
+      { name: "더스크", diffs: { "카오스": 69800000, "노말": 44000000 } },
+      { name: "듄켈", diffs: { "하드": 94400000, "노말": 47500000 } },
+      { name: "진 힐라", diffs: { "하드": 106000000, "노말": 71200000 } },
+      { name: "세렌", diffs: { "익스트림": 2835000000, "하드": 356000000, "노말": 239000000 } },
+      { name: "칼로스", diffs: { "익스트림": 4104000000, "카오스": 1273000000, "노말": 505000000, "이지": 280000000 } },
+      { name: "대적자", diffs: { "익스트림": 4712000000, "하드": 1435000000, "노말": 560000000, "이지": 308000000 } },
+      { name: "카링", diffs: { "익스트림": 5387000000, "하드": 1739000000, "노말": 678000000, "이지": 377000000 } },
+      { name: "흉성", diffs: { "하드": 2678000000, "노말": 625000000 } },
+      { name: "림보", diffs: { "하드": 2385000000, "노말": 1026000000 } },
+      { name: "벨로나", diffs: { "하드": 2950000000, "노말": 850000000, "이지": 440000000 } },
+      { name: "발드릭스", diffs: { "하드": 3078000000, "노말": 1368000000 } },
+      { name: "유피테르", diffs: { "하드": 4845000000, "노말": 1615000000 } }
     ];
 
     const monthlyBossData = [
-      { name: "검은 마법사", icon: "⚫", diffs: { "HARD": 1500000000, "EXTREME": 5000000000 } }
+      { name: "검은 마법사", diffs: { "익스트림": 8740000000, "하드": 665000000 } }
     ];
 
-    function formatMeso(amount) {
-      if (isNaN(amount)) return '0 메소';
-      if (Math.abs(amount) >= 100000000) {
-        const eok = Math.floor(amount / 100000000);
-        const man = Math.floor((amount % 100000000) / 10000);
-        return man > 0 ? `${eok}억 ${man.toLocaleString()}만 메소` : `${eok}억 메소`;
-      } else if (Math.abs(amount) >= 10000) {
-        const man = Math.floor(amount / 10000);
-        return `${man.toLocaleString()}만 메소`;
-      }
-      return `${amount.toLocaleString()} 메소`;
-    }
+    const diffIcons = {
+      "이지": "🟢",
+      "노말": "🔵",
+      "하드": "🟣",
+      "카오스": "🔴",
+      "익스트림": "💥"
+    };
 
-    function formatNumber(amount) {
-      if (isNaN(amount)) return '0';
-      return Math.round(amount).toLocaleString();
-    }
+    let huntRecords = JSON.parse(localStorage.getItem('mapleHuntRecords')) || [];
+    let bossRecords = JSON.parse(localStorage.getItem('mapleBossRecords')) || [];
+    let bossPresets = JSON.parse(localStorage.getItem('mapleBossPresets')) || {};
+    let splitRecords = JSON.parse(localStorage.getItem('mapleSplitRecords')) || [];
+    let weeklyGoal = parseFloat(localStorage.getItem('mapleWeeklyGoal')) || 1000000000;
+
+    let editingHuntId = null;
+    let editingBossId = null;
 
     function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(`tab-${tabName}`).style.display = 'block';
-      event.currentTarget.classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'hunt') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tab-hunt').classList.add('active');
+      } else if (tabName === 'boss') {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tab-boss').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        document.getElementById('tab-calc').classList.add('active');
+        calculateSplit();
+      }
+    }
+
+    function formatNumber(num) {
+      return Math.round(num).toLocaleString('ko-KR');
+    }
+
+    function formatMeso(amount) {
+      if (!amount || amount === 0) return "0 메소";
+      const isNegative = amount < 0;
+      let absAmount = Math.abs(amount);
+      let result = "";
+      const eok = Math.floor(absAmount / 100000000);
+      const man = Math.floor((absAmount % 100000000) / 10000);
+      
+      if (eok > 0) result += `${eok}억 `;
+      if (man > 0) result += `${man}만 `;
+      
+      const rest = absAmount % 10000;
+      if (rest > 0 || (eok === 0 && man === 0)) {
+        result += `${rest} `;
+      }
+
+      return (isNegative ? "-" : "") + result.trim() + " 메소";
+    }
+
+    function updateMesoUnit(inputId, hintId) {
+      const val = parseFloat(document.getElementById(inputId).value) || 0;
+      document.getElementById(hintId).textContent = formatMeso(val);
+    }
+
+    function exportData() {
+      const backupData = {
+        mapleHuntRecords: huntRecords,
+        mapleBossRecords: bossRecords,
+        mapleBossPresets: bossPresets,
+        mapleSplitRecords: splitRecords,
+        mapleWeeklyGoal: weeklyGoal,
+        exportDate: new Date().toISOString()
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const fileName = `maple_revenue_backup_${new Date().toISOString().split('T')[0]}.json`;
+
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+
+          if (confirm("기존 기록에 불러온 데이터를 덮어씌우시겠습니까?")) {
+            if (imported.mapleHuntRecords) {
+              huntRecords = imported.mapleHuntRecords;
+              localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
+            }
+            if (imported.mapleBossRecords) {
+              bossRecords = imported.mapleBossRecords;
+              localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
+            }
+            if (imported.mapleBossPresets) {
+              bossPresets = imported.mapleBossPresets;
+              localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+            }
+            if (imported.mapleSplitRecords) {
+              splitRecords = imported.mapleSplitRecords;
+              localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+            }
+            if (imported.mapleWeeklyGoal) {
+              weeklyGoal = imported.mapleWeeklyGoal;
+              localStorage.setItem('mapleWeeklyGoal', weeklyGoal);
+              document.getElementById('weeklyGoalInput').value = weeklyGoal;
+            }
+
+            renderHunt();
+            renderBossRecords();
+            renderPresetSelect();
+            renderSplitRecords();
+            updateGoalProgress();
+            alert("데이터가 성공적으로 복구되었습니다!");
+          }
+        } catch (err) {
+          alert("유효하지 않은 백업 파일입니다.");
+        }
+      };
+      reader.readAsText(file);
     }
 
     function getRecentThursday() {
       const now = new Date();
       const day = now.getDay();
       const diff = (day >= 4) ? (day - 4) : (day + 3);
-      const thursday = new Date(now);
-      thursday.setDate(now.getDate() - diff);
-      thursday.setHours(10, 0, 0, 0);
-      return thursday;
+      const recentThursday = new Date(now);
+      recentThursday.setDate(now.getDate() - diff);
+      recentThursday.setHours(0, 0, 0, 0);
+      return recentThursday;
+    }
+
+    function updateGoalProgress() {
+      weeklyGoal = parseFloat(document.getElementById('weeklyGoalInput').value) || 0;
+      localStorage.setItem('mapleWeeklyGoal', weeklyGoal);
+      updateMesoUnit('weeklyGoalInput', 'weeklyGoalHint');
+
+      const recentThursday = getRecentThursday();
+      
+      let thisWeekHunt = 0;
+      huntRecords.forEach(r => {
+        if (new Date(r.date) >= recentThursday) thisWeekHunt += r.netEarned;
+      });
+
+      let thisWeekBoss = 0;
+      bossRecords.forEach(r => {
+        if (new Date(r.date) >= recentThursday) thisWeekBoss += (r.netTotal !== undefined ? r.netTotal : r.total);
+      });
+
+      const currentTotal = thisWeekHunt + thisWeekBoss;
+      const percentage = weeklyGoal > 0 ? Math.min(100, Math.max(0, (currentTotal / weeklyGoal) * 100)) : 0;
+
+      const progressBar = document.getElementById('goalProgressBar');
+      const progressText = document.getElementById('goalProgressText');
+
+      progressBar.style.width = `${percentage.toFixed(1)}%`;
+      progressText.textContent = `${formatMeso(currentTotal)} / ${formatMeso(weeklyGoal)} (${percentage.toFixed(1)}%)`;
+    }
+
+    /* 사냥 기록 */
+    function addOrUpdateHuntRecord() {
+      const character = document.getElementById('huntChar').value || '미지정';
+      const memo = document.getElementById('huntMemo').value || '';
+      const time = parseFloat(document.getElementById('huntTime').value) || 0;
+      const beforeMeso = parseFloat(document.getElementById('beforeMeso').value) || 0;
+      const afterMeso = parseFloat(document.getElementById('afterMeso').value) || 0;
+      const erdaCount = parseFloat(document.getElementById('erdaCount').value) || 0;
+      const erdaPrice = parseFloat(document.getElementById('erdaPrice').value) || 0;
+
+      const qtySmallWealth = parseFloat(document.getElementById('qtySmallWealth').value) || 0;
+      const costSmallWealth = parseFloat(document.getElementById('costSmallWealth').value) || 0;
+      const qtySmallExp = parseFloat(document.getElementById('qtySmallExp').value) || 0;
+      const costSmallExp = parseFloat(document.getElementById('costSmallExp').value) || 0;
+      const qtySmallHighExp = parseFloat(document.getElementById('qtySmallHighExp').value) || 0;
+      const costSmallHighExp = parseFloat(document.getElementById('costSmallHighExp').value) || 0;
+      const qtyExp50 = parseFloat(document.getElementById('qtyExp50').value) || 0;
+      const costExp50 = parseFloat(document.getElementById('costExp50').value) || 0;
+      const qtyExp70 = parseFloat(document.getElementById('qtyExp70').value) || 0;
+      const costExp70 = parseFloat(document.getElementById('costExp70').value) || 0;
+
+      const totalCost = (qtySmallWealth * costSmallWealth) +
+                        (qtySmallExp * costSmallExp) +
+                        (qtySmallHighExp * costSmallHighExp) +
+                        (qtyExp50 * costExp50) +
+                        (qtyExp70 * costExp70);
+
+      const mesoEarned = afterMeso - beforeMeso;
+      const erdaEarned = erdaCount * erdaPrice;
+      const grossEarned = mesoEarned + erdaEarned;
+      const netEarned = grossEarned - totalCost;
+      const hourlyNet = time > 0 ? (netEarned / time) * 60 : 0;
+
+      if (editingHuntId !== null) {
+        const index = huntRecords.findIndex(r => r.id === editingHuntId);
+        if (index !== -1) {
+          huntRecords[index] = {
+            ...huntRecords[index],
+            character, memo, time, beforeMeso, afterMeso,
+            erdaCount, erdaPrice, totalCost, netEarned, hourlyNet,
+            costs: { qtySmallWealth, costSmallWealth, qtySmallExp, costSmallExp, qtySmallHighExp, costSmallHighExp, qtyExp50, costExp50, qtyExp70, costExp70 }
+          };
+        }
+        editingHuntId = null;
+        document.getElementById('btnSaveHunt').textContent = '기록 추가';
+        document.getElementById('btnCancelHuntEdit').style.display = 'none';
+      } else {
+        const newRecord = {
+          id: Date.now(),
+          date: new Date().toISOString(),
+          character, memo, time, beforeMeso, afterMeso,
+          erdaCount, erdaPrice, totalCost, netEarned, hourlyNet,
+          costs: { qtySmallWealth, costSmallWealth, qtySmallExp, costSmallExp, qtySmallHighExp, costSmallHighExp, qtyExp50, costExp50, qtyExp70, costExp70 }
+        };
+        huntRecords.unshift(newRecord);
+      }
+
+      localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
+      resetHuntForm();
+      renderHunt();
+      updateGoalProgress();
     }
 
     function resetHuntForm() {
-      ['beforeMesoHint', 'afterMesoHint'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.textContent = '0 메소';
+      document.getElementById('huntChar').value = '';
+      document.getElementById('huntMemo').value = '';
+      document.getElementById('huntTime').value = '60';
+      document.getElementById('beforeMeso').value = '0';
+      document.getElementById('afterMeso').value = '0';
+      document.getElementById('erdaCount').value = '0';
+      document.getElementById('erdaPrice').value = '7000000';
+
+      ['SmallWealth', 'SmallExp', 'SmallHighExp', 'Exp50', 'Exp70'].forEach(item => {
+        document.getElementById(`qty${item}`).value = '0';
+        document.getElementById(`cost${item}`).value = '0';
       });
-      const erda = document.getElementById('erdaPriceHint');
-      if(erda) erda.textContent = '700만 메소';
-      ['costSmallWealth', 'costSmallExp', 'costSmallHighExp', 'costExp50', 'costExp70'].forEach(item => {
-        const el = document.getElementById(item + 'Hint');
-        if(el) el.textContent = '0 메소';
+
+      ['beforeMesoHint', 'afterMesoHint'].forEach(id => document.getElementById(id).textContent = '0 메소');
+      document.getElementById('erdaPriceHint').textContent = '700만 메소';
+      ['costSmallWealthHint', 'costSmallExpHint', 'costSmallHighExpHint', 'costExp50Hint', 'costExp70Hint'].forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).textContent = '0 메소';
       });
     }
 
     function editHuntRecord(id) {
       const record = huntRecords.find(r => r.id === id);
       if (!record) return;
+
       editingHuntId = id;
-      if(document.getElementById('huntChar')) document.getElementById('huntChar').value = record.character;
-      if(document.getElementById('huntMemo')) document.getElementById('huntMemo').value = record.memo || '';
-      if(document.getElementById('huntTime')) document.getElementById('huntTime').value = record.time;
-      if(document.getElementById('beforeMeso')) document.getElementById('beforeMeso').value = record.beforeMeso;
-      if(document.getElementById('afterMeso')) document.getElementById('afterMeso').value = record.afterMeso;
-      if(document.getElementById('erdaCount')) document.getElementById('erdaCount').value = record.erdaCount;
-      if(document.getElementById('erdaPrice')) document.getElementById('erdaPrice').value = record.erdaPrice;
+      document.getElementById('huntChar').value = record.character;
+      document.getElementById('huntMemo').value = record.memo || '';
+      document.getElementById('huntTime').value = record.time;
+      document.getElementById('beforeMeso').value = record.beforeMeso;
+      document.getElementById('afterMeso').value = record.afterMeso;
+      document.getElementById('erdaCount').value = record.erdaCount;
+      document.getElementById('erdaPrice').value = record.erdaPrice;
+
       if (record.costs) {
         ['SmallWealth', 'SmallExp', 'SmallHighExp', 'Exp50', 'Exp70'].forEach(item => {
-          if(document.getElementById(`qty${item}`)) document.getElementById(`qty${item}`).value = record.costs[`qty${item}`] || 0;
-          if(document.getElementById(`cost${item}`)) document.getElementById(`cost${item}`).value = record.costs[`cost${item}`] || 0;
+          document.getElementById(`qty${item}`).value = record.costs[`qty${item}`] || 0;
+          document.getElementById(`cost${item}`).value = record.costs[`cost${item}`] || 0;
         });
       }
-      if(document.getElementById('btnSaveHunt')) document.getElementById('btnSaveHunt').textContent = '수정 완료';
-      if(document.getElementById('btnCancelHuntEdit')) document.getElementById('btnCancelHuntEdit').style.display = 'inline-block';
+
+      updateMesoUnit('beforeMeso', 'beforeMesoHint');
+      updateMesoUnit('afterMeso', 'afterMesoHint');
+      updateMesoUnit('erdaPrice', 'erdaPriceHint');
+
+      document.getElementById('btnSaveHunt').textContent = '수정 완료';
+      document.getElementById('btnCancelHuntEdit').style.display = 'inline-block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelHuntEdit() {
       editingHuntId = null;
       resetHuntForm();
-      if(document.getElementById('btnSaveHunt')) document.getElementById('btnSaveHunt').textContent = '기록 추가';
-      if(document.getElementById('btnCancelHuntEdit')) document.getElementById('btnCancelHuntEdit').style.display = 'none';
+      document.getElementById('btnSaveHunt').textContent = '기록 추가';
+      document.getElementById('btnCancelHuntEdit').style.display = 'none';
     }
 
     function deleteHuntRecord(id) {
@@ -521,26 +1324,31 @@
         huntRecords = huntRecords.filter(r => r.id !== id);
         localStorage.setItem('mapleHuntRecords', JSON.stringify(huntRecords));
         renderHunt();
+        updateGoalProgress();
       }
     }
 
     function renderHunt() {
       const tbody = document.getElementById('huntTableBody');
-      if(!tbody) return;
       tbody.innerHTML = '';
+
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
       const recentThursday = getRecentThursday();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
       let todayTotal = 0;
       let weekTotal = 0;
       let monthTotal = 0;
+
       huntRecords.forEach(r => {
         const rDate = new Date(r.date);
         const rDateStr = r.date.split('T')[0];
+
         if (rDateStr === todayStr) todayTotal += r.netEarned;
         if (rDate >= recentThursday) weekTotal += r.netEarned;
         if (rDate >= firstDayOfMonth) monthTotal += r.netEarned;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${rDateStr}</td>
@@ -548,9 +1356,9 @@
           <td><span class="item-memo">${r.memo || '-'}</span></td>
           <td>${r.time}분</td>
           <td>${r.erdaCount}개</td>
-          <td class="cost-text">-${formatMeso(r.totalCost || 0)}</td>
+          <td class="cost-text">-${formatMeso(r.totalCost)}</td>
           <td style="font-weight: bold; color: ${r.netEarned >= 0 ? '#38bdf8' : '#ef4444'};">${formatMeso(r.netEarned)}</td>
-          <td>${formatMeso(r.hourlyNet || 0)}/h</td>
+          <td>${formatMeso(r.hourlyNet)}/h</td>
           <td>
             <button class="btn-edit" onclick="editHuntRecord(${r.id})">수정</button>
             <button class="btn-delete" onclick="deleteHuntRecord(${r.id})">삭제</button>
@@ -558,160 +1366,207 @@
         `;
         tbody.appendChild(tr);
       });
-      if(document.getElementById('huntTodayMeso')) document.getElementById('huntTodayMeso').textContent = formatMeso(todayTotal);
-      if(document.getElementById('huntWeekMeso')) document.getElementById('huntWeekMeso').textContent = formatMeso(weekTotal);
-      if(document.getElementById('huntMonthMeso')) document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
+
+      document.getElementById('huntTodayMeso').textContent = formatMeso(todayTotal);
+      document.getElementById('huntWeekMeso').textContent = formatMeso(weekTotal);
+      document.getElementById('huntMonthMeso').textContent = formatMeso(monthTotal);
     }
 
-    function renderBossCard(boss, bIndex, isMonthly) {
-      const card = document.createElement('div');
-      card.className = 'boss-card';
-      const prefix = isMonthly ? 'mboss' : 'boss';
-      let diffsHtml = '';
-      Object.entries(boss.diffs).forEach(([diff, price]) => {
-        const inputId = `${prefix}_${bIndex}_${diff}`;
-        const partyId = `party_${prefix}_${bIndex}_${diff}`;
-        diffsHtml += `
-          <div class="diff-item">
-            <label>
-              <input type="checkbox"
-                     id="${inputId}"
-                     data-boss="${boss.name}"
-                     data-diff="${diff}"
-                     data-price="${price}"
-                     data-monthly="${isMonthly}"
-                     onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})">
-              <span class="diff-name ${diff.toLowerCase()}">${diff}</span>
-            </label>
-            <span class="diff-price">${formatMeso(price)}</span>
-            <select id="${partyId}" onchange="calculateBossTotal()">
-              <option value="1">1인</option>
-              <option value="2">2인</option>
-              <option value="3">3인</option>
-              <option value="4">4인</option>
-              <option value="5">5인</option>
-              <option value="6">6인</option>
-            </select>
-          </div>
-        `;
-      });
-      const bossIcon = boss.icon ? boss.icon : '👾';
-      card.innerHTML = `
-        <div class="boss-header">
-          <span class="boss-icon">${bossIcon}</span>
-          <span class="boss-title">${boss.name}</span>
-        </div>
-        <div class="boss-diffs">${diffsHtml}</div>
-      `;
-      return card;
-    }
+    /* 보스 기록 */
+function renderBossCard(boss, bIndex, isMonthly) {
+  const card = document.createElement('div');
+  card.className = 'boss-card';
 
-    function handleBossSelect(currentCb, bossName, isMonthly) {
-      if (!currentCb.checked) {
-        calculateBossTotal();
-        return;
-      }
-      const containerId = isMonthly ? 'monthlyBossListContainer' : 'bossListContainer';
-      const sameBossCheckboxes = document.querySelectorAll(`#${containerId} input[data-boss="${bossName}"]`);
-      sameBossCheckboxes.forEach(cb => {
-        if (cb !== currentCb) {
-          cb.checked = false;
-        }
-      });
-      const weeklyCount = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked').length;
-      const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
-      
-      if (isMonthly && monthlyCount > 1) {
-        alert('월간 보스는 최대 1개만 선택할 수 있습니다.');
-        currentCb.checked = false;
-        calculateBossTotal();
-        return;
-      }
-      if (!isMonthly && weeklyCount > 12) {
-        alert('주간 보스는 캐릭터당 최대 12개까지 선택할 수 있습니다.');
-        currentCb.checked = false;
-        calculateBossTotal();
-        return;
-      }
-      calculateBossTotal();
-    }
+  const prefix = isMonthly ? 'mboss' : 'boss';
+  let diffsHtml = '';
 
+  Object.entries(boss.diffs).forEach(([diff, price]) => {
+    const inputId = `${prefix}_${bIndex}_${diff}`;
+    const partyId = `party_${prefix}_${bIndex}_${diff}`;
+
+    diffsHtml += `
+      <div class="diff-item">
+        <label>
+          <input type="checkbox" 
+                 id="${inputId}" 
+                 data-boss="${boss.name}" 
+                 data-diff="${diff}" 
+                 data-price="${price}" 
+                 data-monthly="${isMonthly}" 
+                 onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})">
+          <span class="diff-name ${diff.toLowerCase()}">${diff}</span>
+          <span class="diff-price">${formatMeso(price)}</span>
+        </label>
+        <select id="${partyId}" onchange="calculateBossTotal()">
+          <option value="1">1인</option>
+          <option value="2">2인</option>
+          <option value="3">3인</option>
+          <option value="4">4인</option>
+          <option value="5">5인</option>
+          <option value="6">6인</option>
+        </select>
+      </div>
+    `;
+  });
+
+  // 이모지 또는 보스 아이콘 표시
+  const bossIcon = boss.icon ? boss.icon : '👾';
+
+  card.innerHTML = `
+    <div class="boss-header">
+      <span class="boss-icon">${bossIcon}</span>
+      <span class="boss-title">${boss.name}</span>
+    </div>
+    <div class="boss-diffs">${diffsHtml}</div>
+  `;
+
+  return card;
+}
+
+// 클릭 제어 함수 (한 보스당 1개 난이도 제한 & 주간 12개 / 월간 1개 제한)
+function handleBossSelect(currentCb, bossName, isMonthly) {
+  if (!currentCb.checked) {
+    calculateBossTotal();
+    return;
+  }
+
+  // 해당 보스의 다른 난이도 체크 해제 (단일 선택)
+  const containerId = isMonthly ? 'monthlyBossListContainer' : 'bossListContainer';
+  const sameBossCheckboxes = document.querySelectorAll(`#${containerId} input[data-boss="${bossName}"]`);
+  
+  sameBossCheckboxes.forEach(cb => {
+    if (cb !== currentCb) cb.checked = false;
+  });
+
+  // 개수 제한 체크
+  const weeklyCount = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked').length;
+  const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
+
+  if (isMonthly && monthlyCount > 1) {
+    alert('월간 보스는 최대 1개만 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  if (!isMonthly && weeklyCount > 12) {
+    alert('주간 보스는 캐릭터당 최대 12개까지 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  calculateBossTotal();
+}
+function handleBossSelect(currentCb, bossName, isMonthly) {
+  // 1. 체크 해제한 경우 단순 재계산
+  if (!currentCb.checked) {
+    calculateBossTotal();
+    return;
+  }
+
+  // 2. 해당 보스의 다른 난이도 체크박스 해제 (단일 난이도 선택)
+  const containerId = isMonthly ? 'monthlyBossListContainer' : 'bossListContainer';
+  const sameBossCheckboxes = document.querySelectorAll(`#${containerId} input[data-boss="${bossName}"]`);
+  
+  sameBossCheckboxes.forEach(cb => {
+    if (cb !== currentCb) {
+      cb.checked = false;
+    }
+  });
+
+  // 3. 현재 선택된 총 개수 확인 및 제한 체크
+  const weeklyCount = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked').length;
+  const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
+
+  if (isMonthly && monthlyCount > 1) {
+    alert('월간 보스는 최대 1개만 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  if (!isMonthly && weeklyCount > 12) {
+    alert('주간 보스는 캐릭터당 최대 12개까지 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  // 4. 총합 재계산 및 UI 갱신
+  calculateBossTotal();
+}
+    
     function renderBossList() {
       const container = document.getElementById('bossListContainer');
-      if(container) {
-        container.innerHTML = '';
-        bossData.forEach((boss, bIndex) => {
-          container.appendChild(renderBossCard(boss, bIndex, false));
-        });
-      }
+      container.innerHTML = '';
+      bossData.forEach((boss, bIndex) => {
+        container.appendChild(renderBossCard(boss, bIndex, false));
+      });
+
       const monthlyContainer = document.getElementById('monthlyBossListContainer');
-      if(monthlyContainer) {
-        monthlyContainer.innerHTML = '';
-        monthlyBossData.forEach((boss, bIndex) => {
-          monthlyContainer.appendChild(renderBossCard(boss, bIndex, true));
-        });
-      }
+      monthlyContainer.innerHTML = '';
+      monthlyBossData.forEach((boss, bIndex) => {
+        monthlyContainer.appendChild(renderBossCard(boss, bIndex, true));
+      });
     }
 
     function calculateBossTotal() {
       let totalMeso = 0;
       let weeklyCount = 0;
+
       const weeklyCheckboxes = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked');
       weeklyCheckboxes.forEach(cb => {
         weeklyCount++;
         const price = parseFloat(cb.dataset.price);
         const diff = cb.dataset.diff;
         const bIndex = bossData.findIndex(b => b.name === cb.dataset.boss);
-        const partySelect = document.getElementById(`party_boss_${bIndex}_${diff}`);
-        const partyCount = partySelect ? (parseInt(partySelect.value) || 1) : 1;
+        const partyCount = parseInt(document.getElementById(`party_boss_${bIndex}_${diff}`).value) || 1;
         totalMeso += Math.floor(price / partyCount);
       });
-      
+
       const monthlyCheckboxes = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked');
       monthlyCheckboxes.forEach(cb => {
         const price = parseFloat(cb.dataset.price);
         const diff = cb.dataset.diff;
         const bIndex = monthlyBossData.findIndex(b => b.name === cb.dataset.boss);
-        const partySelect = document.getElementById(`party_mboss_${bIndex}_${diff}`);
-        const partyCount = partySelect ? (parseInt(partySelect.value) || 1) : 1;
+        const partyCount = parseInt(document.getElementById(`party_mboss_${bIndex}_${diff}`).value) || 1;
         totalMeso += Math.floor(price / partyCount);
       });
 
-      const getVal = (id) => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
-      const qtyE1 = getVal('qtyElixir1');
-      const qtyE2 = getVal('qtyElixir2');
-      const qtyE3 = getVal('qtyElixir3');
-      const qtyE4 = getVal('qtyElixir4');
-      const qtyWhet = getVal('qtyWhetstone');
-      const costWhet = getVal('costWhetstone');
-      const qtyRed = getVal('qtyRedStar');
-      const costRed = getVal('costRedStar');
-      const qtyHero = getVal('qtyHeroPotion');
-      const costHero = getVal('costHeroPotion');
+      const qtyE1 = parseFloat(document.getElementById('qtyElixir1').value) || 0;
+      const qtyE2 = parseFloat(document.getElementById('qtyElixir2').value) || 0;
+      const qtyE3 = parseFloat(document.getElementById('qtyElixir3').value) || 0;
+      const qtyE4 = parseFloat(document.getElementById('qtyElixir4').value) || 0;
+
+      const qtyWhet = parseFloat(document.getElementById('qtyWhetstone').value) || 0;
+      const costWhet = parseFloat(document.getElementById('costWhetstone').value) || 0;
+      const qtyRed = parseFloat(document.getElementById('qtyRedStar').value) || 0;
+      const costRed = parseFloat(document.getElementById('costRedStar').value) || 0;
+      const qtyHero = parseFloat(document.getElementById('qtyHeroPotion').value) || 0;
+      const costHero = parseFloat(document.getElementById('costHeroPotion').value) || 0;
 
       const totalCost = (qtyE1 * 2000000) + (qtyE2 * 2000000) + (qtyE3 * 5000000) + (qtyE4 * 20000000) +
                         (qtyWhet * costWhet) + (qtyRed * costRed) + (qtyHero * costHero);
+
       const netTotal = totalMeso - totalCost;
-      
+
       const bossCountSpan = document.getElementById('bossCount');
-      if(bossCountSpan) bossCountSpan.textContent = weeklyCount;
-      
-      const bossCountDisplay = document.getElementById('bossCountDisplay');
-      if(bossCountDisplay) {
-        bossCountDisplay.textContent = weeklyCount;
-        bossCountDisplay.style.color = weeklyCount > 12 ? '#ef4444' : '#38bdf8';
+      bossCountSpan.textContent = weeklyCount;
+      if (weeklyCount > 12) {
+        bossCountSpan.style.color = '#ef4444';
+      } else {
+        bossCountSpan.style.color = '#6366f1';
       }
-      
-      const currentBossTotal = document.getElementById('currentBossTotal');
-      if(currentBossTotal) {
-        currentBossTotal.textContent = `순수익: ${formatMeso(netTotal)} (차감: -${formatMeso(totalCost)})`;
-      }
+
+      document.getElementById('currentBossTotal').textContent = `순수익: ${formatMeso(netTotal)} (차감: -${formatMeso(totalCost)})`;
       return { totalMeso, totalCost, netTotal, count: weeklyCount };
     }
 
     function addOrUpdateBossRecord() {
       const { totalMeso, totalCost, netTotal, count } = calculateBossTotal();
       const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
+
       if (count === 0 && monthlyCount === 0) {
         alert("최소 1개 이상의 보스를 선택해주세요.");
         return;
@@ -720,8 +1575,10 @@
         alert("주간 보스는 캐릭터당 최대 12개까지 선택 가능합니다.");
         return;
       }
-      const character = document.getElementById('bossCharName')?.value || '미지정';
-      const memo = document.getElementById('bossMemo')?.value || '';
+
+      const character = document.getElementById('bossCharName').value || '미지정';
+      const memo = document.getElementById('bossMemo').value || '';
+
       const selectedBosses = [];
       const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]:checked');
       checkboxes.forEach(cb => {
@@ -729,8 +1586,8 @@
         const prefix = isMonthly ? 'mboss' : 'boss';
         const bList = isMonthly ? monthlyBossData : bossData;
         const bIndex = bList.findIndex(b => b.name === cb.dataset.boss);
-        const partySelect = document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`);
-        const partyCount = partySelect ? (parseInt(partySelect.value) || 1) : 1;
+        const partyCount = parseInt(document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        
         selectedBosses.push({
           boss: cb.dataset.boss,
           diff: cb.dataset.diff,
@@ -739,20 +1596,22 @@
           isMonthly
         });
       });
-      const getVal = (id) => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
+
       const costs = {
-        qtyE1: getVal('qtyElixir1'),
-        qtyE2: getVal('qtyElixir2'),
-        qtyE3: getVal('qtyElixir3'),
-        qtyE4: getVal('qtyElixir4'),
-        qtyWhet: getVal('qtyWhetstone'),
-        costWhet: getVal('costWhetstone'),
-        qtyRed: getVal('qtyRedStar'),
-        costRed: getVal('costRedStar'),
-        qtyHero: getVal('qtyHeroPotion'),
-        costHero: getVal('costHeroPotion'),
+        qtyE1: parseFloat(document.getElementById('qtyElixir1').value) || 0,
+        qtyE2: parseFloat(document.getElementById('qtyElixir2').value) || 0,
+        qtyE3: parseFloat(document.getElementById('qtyElixir3').value) || 0,
+        qtyE4: parseFloat(document.getElementById('qtyElixir4').value) || 0,
+        qtyWhet: parseFloat(document.getElementById('qtyWhetstone').value) || 0,
+        costWhet: parseFloat(document.getElementById('costWhetstone').value) || 0,
+        qtyRed: parseFloat(document.getElementById('qtyRedStar').value) || 0,
+        costRed: parseFloat(document.getElementById('costRedStar').value) || 0,
+        qtyHero: parseFloat(document.getElementById('qtyHeroPotion').value) || 0,
+        costHero: parseFloat(document.getElementById('costHeroPotion').value) || 0,
       };
+
       const totalBossCount = count + monthlyCount;
+
       if (editingBossId !== null) {
         const index = bossRecords.findIndex(r => r.id === editingBossId);
         if (index !== -1) {
@@ -762,8 +1621,8 @@
           };
         }
         editingBossId = null;
-        if(document.getElementById('btnSaveBoss')) document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
-        if(document.getElementById('btnCancelBossEdit')) document.getElementById('btnCancelBossEdit').style.display = 'none';
+        document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
+        document.getElementById('btnCancelBossEdit').style.display = 'none';
       } else {
         const newRecord = {
           id: Date.now(),
@@ -772,36 +1631,48 @@
         };
         bossRecords.unshift(newRecord);
       }
+
       localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
       resetBossForm();
       renderBossRecords();
+      updateGoalProgress();
     }
 
     function resetBossForm() {
-      if(document.getElementById('bossCharName')) document.getElementById('bossCharName').value = '';
-      if(document.getElementById('bossMemo')) document.getElementById('bossMemo').value = '';
+      document.getElementById('bossCharName').value = '';
+      document.getElementById('bossMemo').value = '';
+      
       const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]');
       checkboxes.forEach(cb => cb.checked = false);
+
       ['qtyElixir1', 'qtyElixir2', 'qtyElixir3', 'qtyElixir4', 'qtyWhetstone', 'costWhetstone', 'qtyRedStar', 'costRedStar', 'qtyHeroPotion', 'costHeroPotion'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.value = '0';
+        document.getElementById(id).value = '0';
       });
+
+      ['costWhetstoneHint', 'costRedStarHint', 'costHeroPotionHint'].forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).textContent = '0 메소';
+      });
+
       calculateBossTotal();
     }
 
     function editBossRecord(id) {
       const record = bossRecords.find(r => r.id === id);
       if (!record) return;
+
       resetBossForm();
       editingBossId = id;
-      if(document.getElementById('bossCharName')) document.getElementById('bossCharName').value = record.character;
-      if(document.getElementById('bossMemo')) document.getElementById('bossMemo').value = record.memo || '';
+
+      document.getElementById('bossCharName').value = record.character;
+      document.getElementById('bossMemo').value = record.memo || '';
+
       if (record.selectedBosses) {
         record.selectedBosses.forEach(sb => {
           const isMonthly = sb.isMonthly || sb.boss === "검은 마법사";
           const prefix = isMonthly ? 'mboss' : 'boss';
           const bList = isMonthly ? monthlyBossData : bossData;
           const bIndex = bList.findIndex(b => b.name === sb.boss);
+
           if (bIndex !== -1) {
             const cb = document.getElementById(`${prefix}_${bIndex}_${sb.diff}`);
             const select = document.getElementById(`party_${prefix}_${bIndex}_${sb.diff}`);
@@ -810,30 +1681,31 @@
           }
         });
       }
+
       if (record.costs) {
-        const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-        setVal('qtyElixir1', record.costs.qtyE1 || 0);
-        setVal('qtyElixir2', record.costs.qtyE2 || 0);
-        setVal('qtyElixir3', record.costs.qtyE3 || 0);
-        setVal('qtyElixir4', record.costs.qtyE4 || 0);
-        setVal('qtyWhetstone', record.costs.qtyWhet || 0);
-        setVal('costWhetstone', record.costs.costWhet || 0);
-        setVal('qtyRedStar', record.costs.qtyRed || 0);
-        setVal('costRedStar', record.costs.costRed || 0);
-        setVal('qtyHeroPotion', record.costs.qtyHero || 0);
-        setVal('costHeroPotion', record.costs.costHero || 0);
+        document.getElementById('qtyElixir1').value = record.costs.qtyE1 || 0;
+        document.getElementById('qtyElixir2').value = record.costs.qtyE2 || 0;
+        document.getElementById('qtyElixir3').value = record.costs.qtyE3 || 0;
+        document.getElementById('qtyElixir4').value = record.costs.qtyE4 || 0;
+        document.getElementById('qtyWhetstone').value = record.costs.qtyWhet || 0;
+        document.getElementById('costWhetstone').value = record.costs.costWhet || 0;
+        document.getElementById('qtyRedStar').value = record.costs.qtyRed || 0;
+        document.getElementById('costRedStar').value = record.costs.costRed || 0;
+        document.getElementById('qtyHeroPotion').value = record.costs.qtyHero || 0;
+        document.getElementById('costHeroPotion').value = record.costs.costHero || 0;
       }
+
       calculateBossTotal();
-      if(document.getElementById('btnSaveBoss')) document.getElementById('btnSaveBoss').textContent = '수정 완료';
-      if(document.getElementById('btnCancelBossEdit')) document.getElementById('btnCancelBossEdit').style.display = 'inline-block';
+      document.getElementById('btnSaveBoss').textContent = '수정 완료';
+      document.getElementById('btnCancelBossEdit').style.display = 'inline-block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelBossEdit() {
       editingBossId = null;
       resetBossForm();
-      if(document.getElementById('btnSaveBoss')) document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
-      if(document.getElementById('btnCancelBossEdit')) document.getElementById('btnCancelBossEdit').style.display = 'none';
+      document.getElementById('btnSaveBoss').textContent = '보스 기록 저장';
+      document.getElementById('btnCancelBossEdit').style.display = 'none';
     }
 
     function deleteBossRecord(id) {
@@ -841,23 +1713,27 @@
         bossRecords = bossRecords.filter(r => r.id !== id);
         localStorage.setItem('mapleBossRecords', JSON.stringify(bossRecords));
         renderBossRecords();
+        updateGoalProgress();
       }
     }
 
     function renderBossRecords() {
       const tbody = document.getElementById('bossTableBody');
-      if(!tbody) return;
       tbody.innerHTML = '';
+
       const recentThursday = getRecentThursday();
       let thisWeekTotal = 0;
+
       bossRecords.forEach(r => {
         const rDate = new Date(r.date);
         const rDateStr = r.date.split('T')[0];
         const netVal = r.netTotal !== undefined ? r.netTotal : r.total;
         const costVal = r.totalCost || 0;
+
         if (rDate >= recentThursday) {
           thisWeekTotal += netVal;
         }
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${rDateStr}</td>
@@ -874,113 +1750,221 @@
         `;
         tbody.appendChild(tr);
       });
-      const totalEl = document.getElementById('thisWeekBossTotal');
-      if(totalEl) totalEl.textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
+
+      document.getElementById('thisWeekBossTotal').textContent = `이번 주 (목요일 이후): ${formatMeso(thisWeekTotal)}`;
     }
 
-    function calculateSplit() {
-      const price = parseFloat(document.getElementById('calcPrice')?.value) || 0;
-      const feeRate = parseFloat(document.getElementById('calcFeeRate')?.value) || 0.03;
-      const partyCount = parseInt(document.getElementById('calcPartyCount')?.value) || 1;
-      
-      if (partyCount <= 0 || price <= 0) {
-        if(document.getElementById('resPartyLeader')) document.getElementById('resPartyLeader').textContent = '0';
-        if(document.getElementById('resPartyLeaderText')) document.getElementById('resPartyLeaderText').textContent = '0 메소';
-        if(document.getElementById('resPartyMember')) document.getElementById('resPartyMember').textContent = '0';
-        if(document.getElementById('resPartyMemberText')) document.getElementById('resPartyMemberText').textContent = '0 메소';
-        if(document.getElementById('resDiffVal')) document.getElementById('resDiffVal').textContent = '0';
-        if(document.getElementById('resDiffRate')) document.getElementById('resDiffRate').textContent = '0%';
+    function savePreset() {
+      const charName = document.getElementById('bossCharName').value.trim();
+      if (!charName) {
+        alert("프리셋으로 저장할 캐릭터명을 입력해주세요.");
         return;
       }
-      const leaderReceived = price * (1 - feeRate);
-      const exactMemberPay = leaderReceived / (partyCount - feeRate);
-      const memberPay = Math.round(exactMemberPay);
-      const leaderNet = leaderReceived - (memberPay * (partyCount - 1));
-      const memberTakeHome = memberPay * (1 - feeRate);
-      const diffVal = Math.abs(leaderNet - memberTakeHome);
-      const diffRate = price > 0 ? (diffVal / price) * 100 : 0;
-      
-      if(document.getElementById('resPartyLeader')) document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
-      if(document.getElementById('resPartyLeaderText')) document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
-      if(document.getElementById('resPartyMember')) document.getElementById('resPartyMember').textContent = formatNumber(memberPay);
-      if(document.getElementById('resPartyMemberText')) document.getElementById('resPartyMemberText').textContent = formatMeso(memberPay);
-      if(document.getElementById('resDiffVal')) document.getElementById('resDiffVal').textContent = formatNumber(Math.round(diffVal));
-      if(document.getElementById('resDiffRate')) document.getElementById('resDiffRate').textContent = `${diffRate.toFixed(8)}%`;
-    }
 
-    function addSplitRecord() {
-      const price = parseFloat(document.getElementById('calcPrice')?.value) || 0;
-      const feeRate = parseFloat(document.getElementById('calcFeeRate')?.value) || 0.03;
-      const partyCount = parseInt(document.getElementById('calcPartyCount')?.value) || 1;
-      if (price <= 0 || partyCount <= 0) {
-        alert('올바른 판매 금액과 파티원 수를 입력해 주세요.');
+      const selectedBosses = [];
+      const checkboxes = document.querySelectorAll('#tab-boss input[type="checkbox"]:checked');
+      checkboxes.forEach(cb => {
+        const isMonthly = cb.dataset.monthly === 'true';
+        const prefix = isMonthly ? 'mboss' : 'boss';
+        const bList = isMonthly ? monthlyBossData : bossData;
+        const bIndex = bList.findIndex(b => b.name === cb.dataset.boss);
+        const partyCount = parseInt(document.getElementById(`party_${prefix}_${bIndex}_${cb.dataset.diff}`).value) || 1;
+        selectedBosses.push({ boss: cb.dataset.boss, diff: cb.dataset.diff, partyCount, isMonthly });
+      });
+
+      if (selectedBosses.length === 0) {
+        alert("선택된 보스가 없습니다.");
         return;
       }
-      const leaderReceived = price * (1 - feeRate);
-      const exactMemberPay = leaderReceived / (partyCount - feeRate);
-      const memberPay = Math.round(exactMemberPay);
-      const leaderNet = leaderReceived - (memberPay * (partyCount - 1));
-      const memberTakeHome = memberPay * (1 - feeRate);
-      const diffVal = Math.abs(leaderNet - memberTakeHome);
-      const itemName = document.getElementById('splitItemName')?.value.trim() || '미지정 아이템';
-      const memo = document.getElementById('splitItemMemo')?.value.trim() || '';
-      
-      const record = {
-        id: Date.now(),
-        date: new Date().toISOString(),
-        itemName: itemName,
-        memo: memo,
-        price: price,
-        partyCount: partyCount,
-        feeRate: feeRate,
-        memberPay: memberPay,
-        leaderNet: leaderNet,
-        memberTakeHome: memberTakeHome,
-        diffVal: Math.round(diffVal)
-      };
-      splitRecords.unshift(record);
-      localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
-      
-      if (document.getElementById('splitItemName')) document.getElementById('splitItemName').value = '';
-      if (document.getElementById('splitItemMemo')) document.getElementById('splitItemMemo').value = '';
-      renderSplitRecords();
+
+      bossPresets[charName] = selectedBosses;
+      localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+      renderPresetSelect();
+      document.getElementById('presetSelect').value = charName;
+      alert(`'${charName}' 프리셋이 저장되었습니다.`);
     }
 
-    function deleteSplitRecord(id) {
-      if (confirm("이 분배 기록을 삭제하시겠습니까?")) {
-        splitRecords = splitRecords.filter(r => r.id !== id);
-        localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
-        renderSplitRecords();
+    function loadPreset() {
+      const charName = document.getElementById('presetSelect').value;
+      if (!charName || !bossPresets[charName]) return;
+
+      resetBossForm();
+      document.getElementById('bossCharName').value = charName;
+
+      const presetData = bossPresets[charName];
+      presetData.forEach(p => {
+        const isMonthly = p.isMonthly || p.boss === "검은 마법사";
+        const prefix = isMonthly ? 'mboss' : 'boss';
+        const bList = isMonthly ? monthlyBossData : bossData;
+        const bIndex = bList.findIndex(b => b.name === p.boss);
+
+        if (bIndex !== -1) {
+          const cb = document.getElementById(`${prefix}_${bIndex}_${p.diff}`);
+          const select = document.getElementById(`party_${prefix}_${bIndex}_${p.diff}`);
+          if (cb) cb.checked = true;
+          if (select) select.value = p.partyCount || 1;
+        }
+      });
+
+      calculateBossTotal();
+    }
+
+    function deletePreset() {
+      const charName = document.getElementById('presetSelect').value;
+      if (!charName) {
+        alert("삭제할 프리셋을 선택해주세요.");
+        return;
+      }
+
+      if (confirm(`'${charName}' 프리셋을 삭제하시겠습니까?`)) {
+        delete bossPresets[charName];
+        localStorage.setItem('mapleBossPresets', JSON.stringify(bossPresets));
+        renderPresetSelect();
+        resetBossForm();
       }
     }
 
-    function renderSplitRecords() {
-      const tbody = document.getElementById('splitTableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      splitRecords.forEach(r => {
-        const rDateStr = r.date ? r.date.split('T')[0] : '';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${rDateStr}</td>
-          <td style="font-weight: bold; color: #f8fafc;">${r.itemName || '미지정'}</td>
-          <td>${formatMeso(r.price)}</td>
-          <td>${r.partyCount}명</td>
-          <td style="font-weight: bold; color: #f472b6;">${formatMeso(r.memberPay)}</td>
-          <td><span class="item-memo">${r.memo || '-'}</span></td>
-          <td>
-            <button class="btn-delete" onclick="deleteSplitRecord(${r.id})">삭제</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
+    function renderPresetSelect() {
+      const select = document.getElementById('presetSelect');
+      select.innerHTML = '<option value="">-- 프리셋 선택 --</option>';
+      Object.keys(bossPresets).forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
       });
     }
 
+    /* --- [3] 새로 수정된 경매장/분배금 계산기 로직 --- */
+function calculateSplit() {
+  const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+  const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03; // 수수료 3%
+  const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
+
+  if (partyCount <= 0 || price <= 0) {
+    document.getElementById('resPartyLeader').textContent = '0';
+    document.getElementById('resPartyLeaderText').textContent = '0 메소';
+    document.getElementById('resPartyMember').textContent = '0';
+    document.getElementById('resPartyMemberText').textContent = '0 메소';
+    document.getElementById('resDiffVal').textContent = '0';
+    document.getElementById('resDiffRate').textContent = '0%';
+    return;
+  }
+
+  // 1. 경매장 수수료 차감 후 파티장 보유금액
+  const leaderReceived = price * (1 - feeRate);
+
+  // 2. 파티원 1명당 보낼 금액 (1원 단위 반올림으로 절사 오차 최소화)
+  const exactMemberPay = leaderReceived / (partyCount - feeRate);
+  const memberPay = Math.round(exactMemberPay);
+
+  // 3. 파티장 잔여금액 (파티원들에게 보낸 후 남은 돈)
+  const leaderNet = leaderReceived - (memberPay * (partyCount - 1));
+
+  // 4. 파티원 실제 수령액 (수수료 3% 차감)
+  const memberTakeHome = memberPay * (1 - feeRate);
+
+  // 5. 오차 계산
+  const diffVal = Math.abs(leaderNet - memberTakeHome);
+  const diffRate = price > 0 ? (diffVal / price) * 100 : 0;
+
+  // UI 출력
+  document.getElementById('resPartyLeader').textContent = formatNumber(leaderNet);
+  document.getElementById('resPartyLeaderText').textContent = formatMeso(leaderNet);
+
+  document.getElementById('resPartyMember').textContent = formatNumber(memberPay);
+  document.getElementById('resPartyMemberText').textContent = formatMeso(memberPay);
+
+  document.getElementById('resDiffVal').textContent = formatNumber(Math.round(diffVal));
+  document.getElementById('resDiffRate').textContent = `${diffRate.toFixed(8)}%`;
+}
+
+function addSplitRecord() {
+  const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+  const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
+  const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
+
+  if (price <= 0 || partyCount <= 0) {
+    alert('올바른 판매 금액과 파티원 수를 입력해 주세요.');
+    return;
+  }
+
+  // 1. 역산 로직 계산
+  const leaderReceived = price * (1 - feeRate);
+  const exactMemberPay = leaderReceived / (partyCount - feeRate);
+  const memberPay = Math.round(exactMemberPay);
+  const leaderNet = leaderReceived - (memberPay * (partyCount - 1));
+  const memberTakeHome = memberPay * (1 - feeRate);
+  const diffVal = Math.abs(leaderNet - memberTakeHome);
+
+  // HTML 입력값 가져오기
+  const itemName = document.getElementById('splitItemName')?.value.trim() || '미지정 아이템';
+  const memo = document.getElementById('splitItemMemo')?.value.trim() || '';
+
+  // 2. 기록 객체 생성
+  const record = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    itemName: itemName,
+    memo: memo,
+    price: price,
+    partyCount: partyCount,
+    feeRate: feeRate,
+    memberPay: memberPay,           // 파티원 전달 금액
+    leaderNet: leaderNet,           // 파티장 잔여금
+    memberTakeHome: memberTakeHome,   // 파티원 실수령액
+    diffVal: Math.round(diffVal)    // 오차액
+  };
+
+  // 3. 변수 및 LocalStorage 일치시켜 저장
+  splitRecords.unshift(record);
+  localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+
+  // 4. 입력 폼 초기화 및 테이블 갱신
+  if (document.getElementById('splitItemName')) document.getElementById('splitItemName').value = '';
+  if (document.getElementById('splitItemMemo')) document.getElementById('splitItemMemo').value = '';
+
+  renderSplitRecords();
+}
+function deleteSplitRecord(id) {
+  if (confirm("이 분배 기록을 삭제하시겠습니까?")) {
+    splitRecords = splitRecords.filter(r => r.id !== id);
+    localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+    renderSplitRecords();
+  }
+}
+
+function renderSplitRecords() {
+  const tbody = document.getElementById('splitTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  splitRecords.forEach(r => {
+    const rDateStr = r.date ? r.date.split('T')[0] : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${rDateStr}</td>
+      <td style="font-weight: bold; color: #f8fafc;">${r.itemName || '미지정'}</td>
+      <td>${formatMeso(r.price)}</td>
+      <td>${r.partyCount}명</td>
+      <td style="font-weight: bold; color: #f472b6;">${formatMeso(r.memberPay)}</td>
+      <td><span class="item-memo">${r.memo || '-'}</span></td>
+      <td>
+        <button class="btn-delete" onclick="deleteSplitRecord(${r.id})">삭제</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
     window.onload = function() {
+      document.getElementById('weeklyGoalInput').value = weeklyGoal;
       renderBossList();
       renderHunt();
       renderBossRecords();
+      renderPresetSelect();
       renderSplitRecords();
+      updateGoalProgress();
       calculateSplit();
     };
   </script>
