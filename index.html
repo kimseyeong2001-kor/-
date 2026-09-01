@@ -1707,35 +1707,65 @@ function calculateSplit() {
   document.getElementById('resDiffRate').textContent = `${diffRate.toFixed(8)}%`;
 }
 
-    function addSplitRecord() {
-      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
-      const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
-      const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
+function addSplitRecord() {
+  const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+  const feeRate = parseFloat(document.getElementById('calcFeeRate').value) || 0.03;
+  const partyCount = parseInt(document.getElementById('calcPartyCount').value) || 1;
 
-      const exactMemberPay = (price / partyCount) * (1 - feeRate);
-      const memberPay = Math.floor(exactMemberPay / 1000) * 1000;
+  if (price <= 0 || partyCount <= 0) {
+    alert('올바른 판매 금액과 파티원 수를 입력해 주세요.');
+    return;
+  }
 
-      const itemName = document.getElementById('splitItemName').value.trim() || '미지정 아이템';
-      const memo = document.getElementById('splitItemMemo').value.trim() || '';
+  // 1. 역산 로직 계산
+  // 경매장 수수료 차감 후 파티장 보유금액
+  const leaderReceived = price * (1 - feeRate);
 
-      const newRecord = {
-        id: Date.now(),
-        date: new Date().toISOString(),
-        itemName,
-        price,
-        partyCount,
-        memberPay,
-        memo
-      };
+  // 파티원 1명에게 보낼 금액 (1원 단위 반올림)
+  const exactMemberPay = leaderReceived / (partyCount - feeRate);
+  const memberPay = Math.round(exactMemberPay);
 
-      splitRecords.unshift(newRecord);
-      localStorage.setItem('mapleSplitRecords', JSON.stringify(splitRecords));
+  // 파티장 보낸 후 잔여금액
+  const leaderNet = leaderReceived - (memberPay * (partyCount - 1));
 
-      document.getElementById('splitItemName').value = '';
-      document.getElementById('splitItemMemo').value = '';
-      renderSplitRecords();
-    }
+  // 파티원 실제 수령액 (수수료 차감 후)
+  const memberTakeHome = memberPay * (1 - feeRate);
 
+  // 오차액 (파티장 잔여금 - 파티원 실수령액)
+  const diffVal = Math.abs(leaderNet - memberTakeHome);
+
+  // 2. 기록 객체 생성
+  const record = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    price: price,
+    partyCount: partyCount,
+    feeRate: feeRate,
+    memberPay: memberPay,           // 파티원 보낼 금액
+    leaderNet: leaderNet,           // 파티장 잔여금
+    memberTakeHome: memberTakeHome,   // 파티원 실수령액
+    diffVal: Math.round(diffVal)    // 오차액
+  };
+
+  // 3. 기록 배열 저장 (글로벌 변수 splitHistory 또는 localStorage 사용 시)
+  if (typeof splitHistory !== 'undefined') {
+    splitHistory.unshift(record);
+  }
+  
+  // localStorage 사용 예시 (기존 코드 구조에 맞게 유지)
+  let savedHistory = JSON.parse(localStorage.getItem('splitHistory')) || [];
+  savedHistory.unshift(record);
+  localStorage.setItem('splitHistory', JSON.stringify(savedHistory));
+
+  // 4. 테이블/목록 화면 갱신 함수 호출 (기존 렌더링 함수 호출)
+  if (typeof renderSplitHistory === 'function') {
+    renderSplitHistory();
+  } else if (typeof renderHistory === 'function') {
+    renderHistory();
+  } else if (typeof updateHistoryTable === 'function') {
+    updateHistoryTable();
+  }
+}
     function deleteSplitRecord(id) {
       if (confirm("이 분배 기록을 삭제하시겠습니까?")) {
         splitRecords = splitRecords.filter(r => r.id !== id);
