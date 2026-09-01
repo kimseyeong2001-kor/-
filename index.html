@@ -1292,8 +1292,8 @@ function renderBossCard(boss, bIndex, isMonthly) {
     const partyId = `party_${prefix}_${bIndex}_${diff}`;
 
     diffsHtml += `
-      <div class="diff-item" style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
-        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
+      <div class="diff-item">
+        <label>
           <input type="checkbox" 
                  id="${inputId}" 
                  data-boss="${boss.name}" 
@@ -1301,9 +1301,10 @@ function renderBossCard(boss, bIndex, isMonthly) {
                  data-price="${price}" 
                  data-monthly="${isMonthly}" 
                  onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})">
-          <span>${diff} (${formatMeso(price)})</span>
+          <span class="diff-name ${diff.toLowerCase()}">${diff}</span>
+          <span class="diff-price">${formatMeso(price)}</span>
         </label>
-        <select id="${partyId}" onchange="calculateBossTotal()" style="padding: 2px 4px; font-size: 0.8rem;">
+        <select id="${partyId}" onchange="calculateBossTotal()">
           <option value="1">1인</option>
           <option value="2">2인</option>
           <option value="3">3인</option>
@@ -1315,12 +1316,54 @@ function renderBossCard(boss, bIndex, isMonthly) {
     `;
   });
 
+  // 이모지 또는 보스 아이콘 표시
+  const bossIcon = boss.icon ? boss.icon : '👾';
+
   card.innerHTML = `
-    <div class="boss-title" style="font-weight: bold; margin-bottom: 6px;">${boss.name}</div>
+    <div class="boss-header">
+      <span class="boss-icon">${bossIcon}</span>
+      <span class="boss-title">${boss.name}</span>
+    </div>
     <div class="boss-diffs">${diffsHtml}</div>
   `;
 
   return card;
+}
+
+// 클릭 제어 함수 (한 보스당 1개 난이도 제한 & 주간 12개 / 월간 1개 제한)
+function handleBossSelect(currentCb, bossName, isMonthly) {
+  if (!currentCb.checked) {
+    calculateBossTotal();
+    return;
+  }
+
+  // 해당 보스의 다른 난이도 체크 해제 (단일 선택)
+  const containerId = isMonthly ? 'monthlyBossListContainer' : 'bossListContainer';
+  const sameBossCheckboxes = document.querySelectorAll(`#${containerId} input[data-boss="${bossName}"]`);
+  
+  sameBossCheckboxes.forEach(cb => {
+    if (cb !== currentCb) cb.checked = false;
+  });
+
+  // 개수 제한 체크
+  const weeklyCount = document.querySelectorAll('#bossListContainer input[type="checkbox"]:checked').length;
+  const monthlyCount = document.querySelectorAll('#monthlyBossListContainer input[type="checkbox"]:checked').length;
+
+  if (isMonthly && monthlyCount > 1) {
+    alert('월간 보스는 최대 1개만 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  if (!isMonthly && weeklyCount > 12) {
+    alert('주간 보스는 캐릭터당 최대 12개까지 선택할 수 있습니다.');
+    currentCb.checked = false;
+    calculateBossTotal();
+    return;
+  }
+
+  calculateBossTotal();
 }
 function handleBossSelect(currentCb, bossName, isMonthly) {
   // 1. 체크 해제한 경우 단순 재계산
