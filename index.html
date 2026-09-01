@@ -5,7 +5,243 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>메이플스토리 통합 수익 기록기</title>
 <style>
-  * {
+.boss-card {
+  background: linear-gradient(145deg, #111c30, #0b1220);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.22);
+}
+
+.boss-card:hover {
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+
+/* 보스 이름 */
+
+.boss-card .boss-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #273449;
+}
+
+.boss-title-area {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.boss-icon {
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+
+  font-size: 18px;
+}
+
+.boss-title {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+
+/* 난이도 목록 */
+
+.boss-diffs {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+
+/* 난이도 한 줄 */
+
+.diff-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 9px;
+
+  background: #172235;
+
+  border: 1px solid #26364d;
+  border-radius: 8px;
+
+  transition: all 0.15s ease;
+}
+
+.diff-item:hover {
+  background: #1d2a3e;
+  border-color: #475569;
+}
+
+
+/* 체크박스 + 난이도 + 가격 */
+
+.diff-select {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  min-width: 0;
+
+  cursor: pointer;
+}
+
+.diff-select input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+
+  margin: 0;
+
+  accent-color: #6366f1;
+
+  cursor: pointer;
+}
+
+
+/* 난이도 표시 */
+
+.diff-name {
+  min-width: 45px;
+
+  padding: 3px 6px;
+
+  border-radius: 5px;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  text-align: center;
+
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.diff-name.이지 {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+}
+
+.diff-name.노말 {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+}
+
+.diff-name.하드 {
+  background: rgba(168, 85, 247, 0.16);
+  color: #c084fc;
+}
+
+.diff-name.카오스 {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+}
+
+.diff-name.익스트림 {
+  background: rgba(236, 72, 153, 0.16);
+  color: #f472b6;
+}
+
+
+/* 결정석 가격 */
+
+.diff-price {
+  margin-left: auto;
+
+  color: #cbd5e1;
+
+  font-size: 0.76rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* 파티원 선택 */
+
+.diff-item .party-select {
+  width: 62px;
+
+  padding: 5px;
+
+  font-size: 0.72rem;
+
+  border-radius: 6px;
+
+  background: #0b1120;
+  border: 1px solid #475569;
+
+  color: #f8fafc;
+
+  cursor: pointer;
+}
+
+
+/* 선택된 난이도 */
+
+.diff-item:has(input[type="checkbox"]:checked) {
+  border-color: #6366f1;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(99, 102, 241, 0.16),
+      #172235
+    );
+
+  box-shadow:
+    inset 3px 0 0 #6366f1;
+}
+
+
+/* 모바일 */
+
+@media (max-width: 768px) {
+
+  .boss-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 520px) {
+
+  .boss-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .diff-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .diff-price {
+    font-size: 0.7rem;
+  }
+
+}  * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -1378,6 +1614,7 @@ function renderBossCard(boss, bIndex, isMonthly) {
   card.className = 'boss-card';
 
   const prefix = isMonthly ? 'mboss' : 'boss';
+
   let diffsHtml = '';
 
   Object.entries(boss.diffs).forEach(([diff, price]) => {
@@ -1386,18 +1623,34 @@ function renderBossCard(boss, bIndex, isMonthly) {
 
     diffsHtml += `
       <div class="diff-item">
-        <label>
-          <input type="checkbox" 
-                 id="${inputId}" 
-                 data-boss="${boss.name}" 
-                 data-diff="${diff}" 
-                 data-price="${price}" 
-                 data-monthly="${isMonthly}" 
-                 onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})">
-          <span class="diff-name ${diff.toLowerCase()}">${diff}</span>
-          <span class="diff-price">${formatMeso(price)}</span>
+
+        <label class="diff-select">
+
+          <input
+            type="checkbox"
+            id="${inputId}"
+            data-boss="${boss.name}"
+            data-diff="${diff}"
+            data-price="${price}"
+            data-monthly="${isMonthly}"
+            onchange="handleBossSelect(this, '${boss.name}', ${isMonthly})"
+          >
+
+          <span class="diff-name ${diff}">
+            ${diff}
+          </span>
+
+          <span class="diff-price">
+            ${formatMeso(price)}
+          </span>
+
         </label>
-        <select id="${partyId}" onchange="calculateBossTotal()">
+
+        <select
+          id="${partyId}"
+          class="party-select"
+          onchange="calculateBossTotal()"
+        >
           <option value="1">1인</option>
           <option value="2">2인</option>
           <option value="3">3인</option>
@@ -1405,24 +1658,37 @@ function renderBossCard(boss, bIndex, isMonthly) {
           <option value="5">5인</option>
           <option value="6">6인</option>
         </select>
+
       </div>
     `;
   });
 
-  // 이모지 또는 보스 아이콘 표시
-  const bossIcon = boss.icon ? boss.icon : '👾';
+  const bossIcon = boss.icon || '👾';
 
   card.innerHTML = `
     <div class="boss-header">
-      <span class="boss-icon">${bossIcon}</span>
-      <span class="boss-title">${boss.name}</span>
+
+      <div class="boss-title-area">
+
+        <span class="boss-icon">
+          ${bossIcon}
+        </span>
+
+        <span class="boss-title">
+          ${boss.name}
+        </span>
+
+      </div>
+
     </div>
-    <div class="boss-diffs">${diffsHtml}</div>
+
+    <div class="boss-diffs">
+      ${diffsHtml}
+    </div>
   `;
 
   return card;
 }
-
 // 클릭 제어 함수 (한 보스당 1개 난이도 제한 & 주간 12개 / 월간 1개 제한)
 function handleBossSelect(currentCb, bossName, isMonthly) {
   if (!currentCb.checked) {
